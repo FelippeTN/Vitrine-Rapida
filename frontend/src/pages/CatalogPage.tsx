@@ -56,51 +56,53 @@ export default function CatalogPage({ onLogout }: Props) {
   }
 
   return (
-    <div className="catalog">
-      <header className="topbar">
-        <div className="topbar__left">
-          <div className="brand brand--compact">
-            <div className="brand__mark" aria-hidden="true" />
-            <div className="brand__text">
-              <div className="brand__title">Web Catálogo</div>
-              <div className="brand__subtitle">Catálogos</div>
+    <div className="min-h-screen bg-gray-50 font-sans">
+      <header className="sticky top-0 z-10 backdrop-blur-md border-b border-gray-200 bg-white/70 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-400 shadow-lg shadow-orange-500/20 flex items-center justify-center text-white">
+              <span className="material-symbols-outlined">store</span>
+            </div>
+            <div>
+              <div className="font-bold text-gray-900 tracking-tight leading-tight">Web Catálogo</div>
+              <div className="text-xs text-gray-500 font-medium">Catálogos</div>
             </div>
           </div>
         </div>
 
-        <div className="topbar__right">
-          <button className="btn btn--ghost" type="button" onClick={handleLogout}>
+        <div>
+          <button className="bg-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-lg transition-colors cursor-pointer font-medium text-sm" type="button" onClick={handleLogout}>
             Sair
           </button>
         </div>
       </header>
 
-      <main className="catalog__content" role="main">
-        <div className="pagehead">
+      <main className="max-w-6xl mx-auto p-6">
+        <div className="flex items-end justify-between mb-8 mt-4">
           <div>
-            <h1 className="pagehead__title">Seus catálogos</h1>
-            <p className="pagehead__subtitle">Visualize e mantenha seus catálogos organizados.</p>
+            <h1 className="text-3xl font-bold text-gray-900">Seus catálogos</h1>
+            <p className="mt-2 text-gray-500">Visualize e mantenha seus catálogos organizados.</p>
           </div>
         </div>
 
-        <section className="grid" aria-label="Lista de catálogos">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-label="Lista de catálogos">
           {catalogs.map((c) => (
-            <article key={c.id} className="card card--catalog" aria-label={c.name}>
-              <div className="card__top">
-                <h2 className="card__title">{c.name}</h2>
-                <div className="pill">{c.items} itens</div>
+            <article key={c.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow" aria-label={c.name}>
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <h2 className="font-semibold text-lg text-gray-900">{c.name}</h2>
+                <div className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200 whitespace-nowrap">{c.items} itens</div>
               </div>
-              <p className="card__desc">{c.description}</p>
-              <div className="card__meta">
-                <span className="muted">{c.updatedAtLabel}</span>
-                <span className="muted">•</span>
-                <span className="muted">Somente UI</span>
+              <p className="text-gray-500 text-sm min-h-[44px] line-clamp-2">{c.description}</p>
+              <div className="flex gap-2 items-center mt-4 text-xs text-gray-400">
+                <span>{c.updatedAtLabel}</span>
+                <span>•</span>
+                <span>Somente UI</span>
               </div>
-              <div className="card__actions">
-                <button className="btn btn--small" type="button" disabled>
+              <div className="flex gap-3 mt-5">
+                <button className="px-3 py-2 text-sm rounded-lg bg-orange-50 text-orange-600 font-medium hover:bg-orange-100 transition-colors cursor-not-allowed opacity-60" type="button" disabled>
                   Abrir
                 </button>
-                <button className="btn btn--small btn--ghost" type="button" disabled>
+                <button className="px-3 py-2 text-sm rounded-lg bg-transparent text-gray-500 hover:bg-gray-50 transition-colors cursor-not-allowed opacity-60" type="button" disabled>
                   Editar
                 </button>
               </div>
@@ -109,7 +111,7 @@ export default function CatalogPage({ onLogout }: Props) {
         </section>
       </main>
 
-      <footer className="appfooter">Interface apenas de frontend.</footer>
+      <footer className="max-w-6xl mx-auto px-6 pb-8 text-center text-sm text-gray-400">Interface apenas de frontend.</footer>
     </div>
   )
 }

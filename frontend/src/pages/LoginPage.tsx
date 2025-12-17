@@ -21,56 +21,56 @@ export default function LoginPage({ onAuthenticated }: Props) {
 
   return (
     <AuthLayout>
-      <div className="auth-form-header">
-        <h2 className="auth-title">Bem-vindo de volta</h2>
-        <p className="auth-subtitle">Entre para gerenciar seus catálogos</p>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold mb-2 text-gray-900">Bem-vindo de volta</h2>
+        <p className="text-gray-500 text-base">Entre para gerenciar seus catálogos</p>
       </div>
 
-      <form className="auth-form" onSubmit={onSubmit}>
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
+      <form className="flex flex-col gap-5" onSubmit={onSubmit}>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="email" className="text-sm font-semibold text-gray-700">Email</label>
           <input
             id="email"
             type="email"
             placeholder="seu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="form-input"
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
           />
         </div>
 
-        <div className="form-group">
-          <div className="label-row">
-            <label htmlFor="password">Senha</label>
-            <a href="#" className="forgot-link">Esqueceu sua senha?</a>
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center">
+            <label htmlFor="password" className="text-sm font-semibold text-gray-700">Senha</label>
+            <a href="#" className="text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">Esqueceu sua senha?</a>
           </div>
-          <div className="input-wrapper">
+          <div className="relative">
             <input
               id="password"
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="form-input"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
             />
-            <button type="button" className="toggle-password" aria-label="Mostrar senha">
+            <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-gray-400 hover:text-gray-600 transition-colors" aria-label="Mostrar senha">
               👁️
             </button>
           </div>
         </div>
 
-        <button type="submit" className="btn-primary">Entrar</button>
+        <button type="submit" className="bg-orange-500 text-white border-none py-3.5 rounded-lg font-semibold text-base cursor-pointer hover:bg-orange-600 transition-colors mt-2 shadow-lg shadow-orange-500/20">Entrar</button>
 
-        <div className="form-footer">
-          Não tem uma conta? <Link to="/registro" className="link-highlight">Cadastre-se</Link>
+        <div className="text-center text-sm text-gray-500">
+          Não tem uma conta? <Link to="/registro" className="text-orange-500 font-semibold hover:underline hover:text-orange-600 transition-colors">Cadastre-se</Link>
         </div>
 
-        <div className="divider">
+        <div className="flex items-center text-center text-gray-500 text-sm my-2 before:flex-1 before:border-b before:border-gray-200 before:mr-4 after:flex-1 after:border-b after:border-gray-200 after:ml-4">
           <span>ou</span>
         </div>
 
-        <button type="button" className="btn-whatsapp">
-          <span className="icon">💬</span> Entrar com WhatsApp
+        <button type="button" className="bg-white border border-gray-200 text-gray-700 py-3 rounded-lg font-medium cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
+          <span className="text-lg">💬</span> Entrar com WhatsApp
         </button>
       </form>
     </AuthLayout>
