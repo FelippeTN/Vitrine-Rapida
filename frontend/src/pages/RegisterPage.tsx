@@ -6,17 +6,38 @@ type Props = {
   onAuthenticated: () => void
 }
 
+const apiUrl = 'http://localhost:8080/'
+
 export default function RegisterPage({ onAuthenticated }: Props) {
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setError('')
     if (name && email && password) {
-      onAuthenticated()
-      navigate('/catalogos')
+      try {
+        const response = await fetch(`${apiUrl}public/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username: name, email, password }),
+        })
+
+        if (response.ok) {
+          // Auto login or redirect to login
+          navigate('/login')
+        } else {
+          const data = await response.json()
+          setError(data.error || 'Falha no registro')
+        }
+      } catch (err) {
+        setError('Erro ao conectar com o servidor')
+      }
     }
   }
 
@@ -26,6 +47,8 @@ export default function RegisterPage({ onAuthenticated }: Props) {
         <h2 className="text-3xl font-bold mb-2 text-gray-900">Crie sua conta</h2>
         <p className="text-gray-500 text-base">Comece a vender mais com seu catálogo digital</p>
       </div>
+
+      {error && <div className="text-red-500 mb-4">{error}</div>}
 
       <form className="flex flex-col gap-5" onSubmit={onSubmit}>
         <div className="flex flex-col gap-2">

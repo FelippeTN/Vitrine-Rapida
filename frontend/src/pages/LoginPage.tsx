@@ -10,12 +10,33 @@ export default function LoginPage({ onAuthenticated }: Props) {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setError('')
     if (email && password) {
-      onAuthenticated()
-      navigate('/catalogos')
+      try {
+        const response = await fetch('http://localhost:8080/public/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          localStorage.setItem('token', data.token)
+          onAuthenticated()
+          navigate('/catalogos')
+        } else {
+          const data = await response.json()
+          setError(data.error || 'Falha no login')
+        }
+      } catch (err) {
+        setError('Erro ao conectar com o servidor')
+      }
     }
   }
 
@@ -25,6 +46,8 @@ export default function LoginPage({ onAuthenticated }: Props) {
         <h2 className="text-3xl font-bold mb-2 text-gray-900">Bem-vindo de volta</h2>
         <p className="text-gray-500 text-base">Entre para gerenciar seus catálogos</p>
       </div>
+
+      {error && <div className="text-red-500 mb-4">{error}</div>}
 
       <form className="flex flex-col gap-5" onSubmit={onSubmit}>
         <div className="flex flex-col gap-2">
