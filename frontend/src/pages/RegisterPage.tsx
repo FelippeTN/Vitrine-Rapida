@@ -107,13 +107,6 @@ export default function RegisterPage({ onAuthenticated }: Props) {
           Já tem uma conta? <Link to="/login" className="text-orange-500 font-semibold hover:underline hover:text-orange-600 transition-colors">Entrar</Link>
         </div>
 
-        <div className="flex items-center text-center text-gray-500 text-sm my-2 before:flex-1 before:border-b before:border-gray-200 before:mr-4 after:flex-1 after:border-b after:border-gray-200 after:ml-4">
-          <span>ou</span>
-        </div>
-
-        <button type="button" className="bg-white border border-gray-200 text-gray-700 py-3 rounded-lg font-medium cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
-          <span className="text-lg">💬</span> Cadastro com WhatsApp
-        </button>
       </form>
     </AuthLayout>
   )
