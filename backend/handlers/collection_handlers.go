@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/FelippeTN/Web-Catalogo/backend/database"
 	"github.com/FelippeTN/Web-Catalogo/backend/models"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type createCollectionInput struct {
@@ -58,6 +60,16 @@ func CreateCollection(c *gin.Context) {
 	ownerID, ok := getUserIDFromContext(c)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	var existingCount int64
+	if err := database.DB.Model(&models.Collection{}).Where("owner_id = ?", ownerID).Count(&existingCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not validate collection limit"})
+		return
+	}
+	if existingCount >= 5 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Limite de 5 coleções atingido"})
 		return
 	}
 
@@ -163,13 +175,30 @@ func DeleteCollection(c *gin.Context) {
 		return
 	}
 
-	result := database.DB.Where("id = ? AND owner_id = ?", uint(id), ownerID).Delete(&models.Collection{})
-	if result.Error != nil {
+	collectionID := uint(id)
+
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		var collection models.Collection
+		if err := tx.Where("id = ? AND owner_id = ?", collectionID, ownerID).First(&collection).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("owner_id = ? AND collection_id = ?", ownerID, collectionID).Delete(&models.Product{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("id = ? AND owner_id = ?", collectionID, ownerID).Delete(&models.Collection{}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Collection not found"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete collection"})
-		return
-	}
-	if result.RowsAffected == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Collection not found"})
 		return
 	}
 

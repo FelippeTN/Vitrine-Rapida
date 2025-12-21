@@ -44,6 +44,8 @@ func main() {
 
 		protectedRoutes.POST("/products", handlers.CreateProduct)
 		protectedRoutes.GET("/products", handlers.GetMyProducts)
+		protectedRoutes.PUT("/products/:id", handlers.UpdateProduct)
+		protectedRoutes.DELETE("/products/:id", handlers.DeleteProduct)
 	}
 
 	r.Run(":8080")
