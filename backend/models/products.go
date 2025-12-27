@@ -15,17 +15,17 @@ type Product struct {
 }
 
 type CreateProductInput struct {
-	Name         string  `json:"name" binding:"required"`
-	Description  string  `json:"description" binding:"required"`
-	Price        float64 `json:"price" binding:"required"`
-	CollectionID *uint   `json:"collection_id"`
-	ImageURL     *string `json:"image_url"`
+	Name         string  `json:"name" form:"name" binding:"required"`
+	Description  string  `json:"description" form:"description" binding:"required"`
+	Price        float64 `json:"price" form:"price" binding:"required"`
+	CollectionID *uint   `json:"collection_id" form:"collection_id"`
+	ImageURL     *string `json:"image_url" form:"image_url"`
 }
 
 type UpdateProductInput struct {
-	Name         *string  `json:"name"`
-	Description  *string  `json:"description"`
-	Price        *float64 `json:"price"`
-	CollectionID *uint    `json:"collection_id"`
-	ImageURL     *string  `json:"image_url"`
+	Name         *string  `json:"name" form:"name"`
+	Description  *string  `json:"description" form:"description"`
+	Price        *float64 `json:"price" form:"price"`
+	CollectionID *uint    `json:"collection_id" form:"collection_id"`
+	ImageURL     *string  `json:"image_url" form:"image_url"`
 }

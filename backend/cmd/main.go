@@ -26,6 +26,8 @@ func main() {
 		MaxAge:       12 * time.Hour,
 	}))
 
+	r.Static("/uploads", "./uploads")
+
 	publicRoutes := r.Group("/public")
 	{
 		publicRoutes.POST("/login", handlers.Login)

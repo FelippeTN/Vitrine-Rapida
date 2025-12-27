@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/FelippeTN/Web-Catalogo/backend/database"
 	"github.com/FelippeTN/Web-Catalogo/backend/models"
@@ -17,9 +20,24 @@ func CreateProduct(c *gin.Context) {
 	}
 
 	var input models.CreateProductInput
-	if err := c.ShouldBindJSON(&input); err != nil {
+	if err := c.ShouldBind(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
 		return
+	}
+
+	file, err := c.FormFile("image")
+	if err == nil {
+		ext := filepath.Ext(file.Filename)
+		filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+		path := filepath.Join("uploads", filename)
+
+		if err := c.SaveUploadedFile(file, path); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not save image"})
+			return
+		}
+
+		imageURL := "/uploads/" + filename
+		input.ImageURL = &imageURL
 	}
 
 	if input.CollectionID != nil {
@@ -106,9 +124,24 @@ func UpdateProduct(c *gin.Context) {
 	}
 
 	var input models.UpdateProductInput
-	if err := c.ShouldBindJSON(&input); err != nil {
+	if err := c.ShouldBind(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
 		return
+	}
+
+	file, err := c.FormFile("image")
+	if err == nil {
+		ext := filepath.Ext(file.Filename)
+		filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+		path := filepath.Join("uploads", filename)
+
+		if err := c.SaveUploadedFile(file, path); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not save image"})
+			return
+		}
+
+		imageURL := "/uploads/" + filename
+		input.ImageURL = &imageURL
 	}
 
 	updates := map[string]any{}
