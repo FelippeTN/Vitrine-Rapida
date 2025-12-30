@@ -1,9 +1,11 @@
-import { type HTMLAttributes } from 'react'
+import { motion } from 'framer-motion'
 
 export type BadgeVariant = 'default' | 'primary' | 'success' | 'warning' | 'error'
 
-export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
+export interface BadgeProps {
   variant?: BadgeVariant
+  className?: string
+  children: React.ReactNode
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
@@ -18,14 +20,15 @@ export function Badge({
   variant = 'default',
   className = '',
   children,
-  ...props
 }: BadgeProps) {
   return (
-    <span
+    <motion.span
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
       className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${variantClasses[variant]} ${className}`}
-      {...props}
     >
       {children}
-    </span>
+    </motion.span>
   )
 }

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { Plus, Share2, Pencil, Trash2, ExternalLink, Package } from 'lucide-react'
 
 import { collectionsService, isUnauthorized } from '../api'
 import { useCatalogs, type CatalogCard } from '../hooks/useCatalogs'
-import { PageLayout } from '../components/layout'
+import { PageLayout, staggerContainer, staggerItem } from '../components/layout'
 import { Button, Card, Badge, Input } from '../components/ui'
 
 interface CatalogPageProps {
@@ -145,10 +146,15 @@ export default function CatalogPage({ onLogout }: CatalogPageProps) {
   return (
     <PageLayout title="Vitrine Digital" subtitle="Minhas vitrines" onLogout={handleLogout}>
       {/* Header */}
-      <div className="mb-6">
+      <motion.div 
+        className="mb-6"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
         <h1 className="text-2xl font-bold text-gray-900">Minhas vitrines</h1>
         <p className="text-gray-600 mt-1">Crie e gerencie seus catálogos de produtos</p>
-      </div>
+      </motion.div>
 
       {/* Create form */}
       <Card className="mb-6">
@@ -187,82 +193,111 @@ export default function CatalogPage({ onLogout }: CatalogPageProps) {
 
       {/* Loading */}
       {isLoading && (
-        <div className="text-center py-12 text-gray-500">Carregando vitrines...</div>
+        <motion.div 
+          className="text-center py-12 text-gray-500"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <motion.div 
+            className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-3"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          />
+          Carregando vitrines...
+        </motion.div>
       )}
 
       {/* Error */}
       {!isLoading && errorMessage && (
-        <div className="text-center py-12 text-red-600">{errorMessage}</div>
+        <motion.div 
+          className="text-center py-12 text-red-600"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          {errorMessage}
+        </motion.div>
       )}
 
       {/* Empty */}
       {!isLoading && !errorMessage && catalogs.length === 0 && (
-        <div className="text-center py-16">
+        <motion.div 
+          className="text-center py-16"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        >
           <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
             <Package className="w-8 h-8 text-gray-400" />
           </div>
           <h3 className="font-medium text-gray-900 mb-1">Nenhuma vitrine</h3>
           <p className="text-gray-500 text-sm">Crie sua primeira vitrine acima</p>
-        </div>
+        </motion.div>
       )}
 
-      {/* Grid */}
+      {/* Grid with stagger */}
       {!isLoading && catalogs.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+        >
           {catalogs.map((c) => (
-            <Card key={c.id} variant="bordered">
-              {editingId === c.id ? (
-                <div className="space-y-3">
-                  <Input
-                    placeholder="Nome"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    disabled={isUpdating}
-                  />
-                  <Input
-                    placeholder="Descrição"
-                    value={editDescription}
-                    onChange={(e) => setEditDescription(e.target.value)}
-                    disabled={isUpdating}
-                  />
-                  {updateError && <p className="text-sm text-red-600">{updateError}</p>}
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={() => void saveEdit(c.id)} isLoading={isUpdating}>
-                      Salvar
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={cancelEdit}>
-                      Cancelar
-                    </Button>
+            <motion.div key={c.id} variants={staggerItem}>
+              <Card variant="bordered" animate={false}>
+                {editingId === c.id ? (
+                  <div className="space-y-3">
+                    <Input
+                      placeholder="Nome"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      disabled={isUpdating}
+                    />
+                    <Input
+                      placeholder="Descrição"
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      disabled={isUpdating}
+                    />
+                    {updateError && <p className="text-sm text-red-600">{updateError}</p>}
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => void saveEdit(c.id)} isLoading={isUpdating}>
+                        Salvar
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={cancelEdit}>
+                        Cancelar
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">{c.name}</h3>
-                    <Badge>{c.items} itens</Badge>
-                  </div>
-                  <p className="text-sm text-gray-500 line-clamp-2 mb-3 min-h-[40px]">{c.description}</p>
-                  <p className="text-xs text-gray-400 mb-4">{c.updatedAtLabel}</p>
+                ) : (
+                  <>
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-medium text-gray-900">{c.name}</h3>
+                      <Badge>{c.items} itens</Badge>
+                    </div>
+                    <p className="text-sm text-gray-500 line-clamp-2 mb-3 min-h-[40px]">{c.description}</p>
+                    <p className="text-xs text-gray-400 mb-4">{c.updatedAtLabel}</p>
 
-                  <div className="flex gap-2">
-                    <Button size="sm" onClick={() => navigate(`/catalogos/${c.id}`)} className="flex-1">
-                      <ExternalLink className="w-4 h-4 mr-1" /> Abrir
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => void handleShare(c.id)}>
-                      <Share2 className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => startEdit(c)}>
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button variant="danger" size="sm" onClick={() => void handleDelete(c.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </>
-              )}
-            </Card>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => navigate(`/catalogos/${c.id}`)} className="flex-1">
+                        <ExternalLink className="w-4 h-4 mr-1" /> Abrir
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => void handleShare(c.id)}>
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => startEdit(c)}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button variant="danger" size="sm" onClick={() => void handleDelete(c.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </PageLayout>
   )
