@@ -1,10 +1,3 @@
-export type UpdateProductInput = {
-  name?: string
-  description?: string
-  price?: number
-  collection_id?: number | null
-}
-
 export type Collection = {
   id: number
   owner_id: number
@@ -13,6 +6,16 @@ export type Collection = {
   description: string
   created_at: string
   updated_at: string
+}
+
+export type CreateCollectionInput = {
+  name: string
+  description?: string
+}
+
+export type UpdateCollectionInput = {
+  name?: string
+  description?: string
 }
 
 export type Product = {
