@@ -1,61 +1,63 @@
-import { ReactNode } from 'react'
+import { type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
+import { Store, Check } from 'lucide-react'
 
-type Props = {
+interface AuthLayoutProps {
   children: ReactNode
 }
 
-export default function AuthLayout({ children }: Props) {
+export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen w-full font-sans bg-white">
-      <div className="flex-1 flex flex-col p-8 bg-white max-w-50vh">
-        <div className="flex justify-between items-center mb-16">
-          <div className="flex items-center gap-2 font-bold text-xl text-gray-800"> 
-            {/* TODO: Adicionar logo aqui ! */}
-            <span>Catalogo</span>
-          </div>
-          <a href="#" className="text-gray-500 text-sm font-medium hover:text-gray-800 transition-colors">← Voltar</a>
+    <div className="min-h-screen flex">
+      {/* Left - Form */}
+      <div className="flex-1 flex flex-col p-8 bg-white">
+        <div className="flex justify-between items-center mb-12">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+              <Store className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-lg font-semibold text-gray-900">Vitrine Digital</span>
+          </Link>
+          <Link to="/" className="text-gray-500 text-sm hover:text-gray-900 transition-colors">
+            ← Voltar
+          </Link>
         </div>
-        
-        <div className="flex-1 flex flex-col justify-center max-w-[400px] mx-auto w-full">
+
+        <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
           {children}
         </div>
 
-        <div className="mt-auto text-center text-xs text-gray-500 pt-8">
-          Ao continuar, você concorda com nossos <a href="#" className="text-orange-500 underline hover:text-orange-600 transition-colors">Termos de Serviço</a>
-        </div>
+        <p className="text-center text-xs text-gray-500 mt-8">
+          Ao continuar, você concorda com nossos{' '}
+          <a href="#" className="text-blue-600 hover:underline">Termos de Serviço</a>
+        </p>
       </div>
 
-      <div className="flex-1 bg-orange-700 text-white hidden lg:flex items-center justify-center p-16 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
+      {/* Right - Visual */}
+      <div className="hidden lg:flex flex-1 bg-blue-600 relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-700" />
         
-        <div className="max-w-[480px] relative z-10">
-          <h1 className="text-4xl font-bold leading-tight mb-4">Venda mais com seu catálogo digital</h1>
-          <p className="text-lg text-white/80 mb-12">
-            Gerencie produtos, receba pedidos e acompanhe vendas em um só lugar
+        <div className="relative z-10 flex flex-col justify-center p-16 text-white max-w-md mx-auto">
+          <h1 className="text-3xl font-bold mb-4">
+            Sua vitrine digital profissional
+          </h1>
+          <p className="text-blue-100 text-lg mb-10">
+            Crie catálogos incríveis e compartilhe com seus clientes
           </p>
 
-          <ul className="flex flex-col gap-6 mb-16">
-            <li className="flex items-center gap-4 text-lg">
-              <span className="bg-white/10 w-8 h-8 flex items-center justify-center rounded-full text-base">⚡</span>
-              <span>Catálogo profissional em minutos</span>
-            </li>
-            <li className="flex items-center gap-4 text-lg">
-              <span className="bg-white/10 w-8 h-8 flex items-center justify-center rounded-full text-base">💬</span>
-              <span>Pedidos direto pelo WhatsApp</span>
-            </li>
-            <li className="flex items-center gap-4 text-lg">
-              <span className="bg-white/10 w-8 h-8 flex items-center justify-center rounded-full text-base">📊</span>
-              <span>Acompanhe todas as suas vendas</span>
-            </li>
-            <li className="flex items-center gap-4 text-lg">
-              <span className="bg-white/10 w-8 h-8 flex items-center justify-center rounded-full text-base">✅</span>
-              <span>Comece grátis, sem cartão</span>
-            </li>
-          </ul>
-
-          <div className="flex items-center gap-3 pt-8 border-t border-white/10 text-sm">
-            <span className="text-xl">👥</span>
-            <span>Mais de <strong>1.000 negócios</strong> vendendo todos os dias</span>
+          <div className="space-y-4">
+            {[
+              'Fácil de usar',
+              'Compartilhamento rápido',
+              'Visual profissional',
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                  <Check className="w-4 h-4" />
+                </div>
+                <span>{item}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

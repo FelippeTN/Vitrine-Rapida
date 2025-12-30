@@ -1,23 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Plus, ImageIcon, Trash2, Pencil, Save, X, Share2 } from 'lucide-react'
 
 import { collectionsService, isUnauthorized, productsService } from '../api'
 import { API_BASE_URL, joinUrl } from '../api/config'
 import type { Collection, Product } from '../api'
+import { PageLayout } from '../components/layout'
+import { Button, Card, Input } from '../components/ui'
+import { formatPrice } from '../utils/format'
 
-type Props = {
+interface CollectionPageProps {
   onLogout: () => void
 }
 
-function formatPrice(value: number): string {
-  try {
-    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-  } catch {
-    return `R$ ${value.toFixed(2)}`
-  }
-}
-
-export default function CollectionPage({ onLogout }: Props) {
+export default function CollectionPage({ onLogout }: CollectionPageProps) {
   const navigate = useNavigate()
   const params = useParams()
   const collectionId = useMemo(() => Number(params.id), [params.id])
@@ -31,7 +27,6 @@ export default function CollectionPage({ onLogout }: Props) {
   const [collectionName, setCollectionName] = useState('')
   const [collectionDescription, setCollectionDescription] = useState('')
   const [isUpdatingCollection, setIsUpdatingCollection] = useState(false)
-  const [collectionUpdateError, setCollectionUpdateError] = useState<string | null>(null)
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -46,11 +41,10 @@ export default function CollectionPage({ onLogout }: Props) {
   const [editProductPrice, setEditProductPrice] = useState('')
   const [editProductImage, setEditProductImage] = useState<File | null>(null)
   const [isUpdatingProduct, setIsUpdatingProduct] = useState(false)
-  const [productUpdateError, setProductUpdateError] = useState<string | null>(null)
 
   async function load() {
     if (!Number.isFinite(collectionId) || collectionId <= 0) {
-      setErrorMessage('Coleção inválida')
+      setErrorMessage('Vitrine inválida')
       setIsLoading(false)
       return
     }
@@ -67,22 +61,17 @@ export default function CollectionPage({ onLogout }: Props) {
       const found = cols.find((c) => c.id === collectionId) ?? null
       setCollection(found)
       setProducts(prods.filter((p) => p.collection_id === collectionId))
-
-      setIsEditingCollection(false)
-      setCollectionUpdateError(null)
       setCollectionName(found?.name ?? '')
       setCollectionDescription(found?.description ?? '')
 
-      if (!found) {
-        setErrorMessage('Coleção não encontrada')
-      }
+      if (!found) setErrorMessage('Vitrine não encontrada')
     } catch (err) {
       if (isUnauthorized(err)) {
         onLogout()
         navigate('/login', { replace: true })
         return
       }
-      setErrorMessage(err instanceof Error ? err.message : 'Erro ao carregar coleção')
+      setErrorMessage(err instanceof Error ? err.message : 'Erro ao carregar')
     } finally {
       setIsLoading(false)
     }
@@ -101,90 +90,50 @@ export default function CollectionPage({ onLogout }: Props) {
     const trimmedDesc = description.trim()
     const parsedPrice = Number(String(price).replace(',', '.'))
 
-    if (!trimmedName) {
-      setSaveError('Informe o nome do produto')
-      return
-    }
-    if (!trimmedDesc) {
-      setSaveError('Informe a descrição do produto')
-      return
-    }
-    if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
-      setSaveError('Informe um preço válido')
-      return
-    }
+    if (!trimmedName) { setSaveError('Digite o nome do produto'); return }
+    if (!trimmedDesc) { setSaveError('Digite a descrição'); return }
+    if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) { setSaveError('Preço inválido'); return }
 
     try {
       setIsSaving(true)
       await productsService.create({
-        name: trimmedName,
-        description: trimmedDesc,
-        price: parsedPrice,
-        collection_id: collectionId,
-        image: image,
+        name: trimmedName, description: trimmedDesc, price: parsedPrice,
+        collection_id: collectionId, image,
       })
-      setName('')
-      setDescription('')
-      setPrice('')
-      setImage(null)
+      setName(''); setDescription(''); setPrice(''); setImage(null)
       await load()
     } catch (err) {
-      if (isUnauthorized(err)) {
-        onLogout()
-        navigate('/login', { replace: true })
-        return
-      }
-      setSaveError(err instanceof Error ? err.message : 'Erro ao cadastrar produto')
+      if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }); return }
+      setSaveError(err instanceof Error ? err.message : 'Erro ao cadastrar')
     } finally {
       setIsSaving(false)
     }
   }
 
   async function handleDeleteCollection() {
-    if (!collection) return
-
-	const ok = window.confirm('Apagar esta coleção? Todos os produtos desta coleção também serão apagados.')
-    if (!ok) return
-
+    if (!collection || !window.confirm('Apagar vitrine e todos os produtos?')) return
     try {
       await collectionsService.remove(collection.id)
       navigate('/catalogos', { replace: true })
     } catch (err) {
-      if (isUnauthorized(err)) {
-        onLogout()
-        navigate('/login', { replace: true })
-        return
-      }
-      setErrorMessage(err instanceof Error ? err.message : 'Erro ao apagar coleção')
+      if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) }
     }
   }
 
   async function handleUpdateCollection(e: React.FormEvent) {
     e.preventDefault()
-    if (!collection) return
-
-    setCollectionUpdateError(null)
-    const trimmedName = collectionName.trim()
-    if (!trimmedName) {
-      setCollectionUpdateError('Informe um nome para a coleção')
-      return
-    }
+    if (!collection || !collectionName.trim()) return
 
     try {
       setIsUpdatingCollection(true)
       await collectionsService.update(collection.id, {
-        name: trimmedName,
+        name: collectionName.trim(),
         description: collectionDescription.trim() || undefined,
       })
       setIsEditingCollection(false)
       await load()
     } catch (err) {
-      if (isUnauthorized(err)) {
-        onLogout()
-        navigate('/login', { replace: true })
-        return
-      }
-      setCollectionUpdateError(err instanceof Error ? err.message : 'Erro ao atualizar coleção')
+      if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) }
     } finally {
       setIsUpdatingCollection(false)
     }
@@ -195,26 +144,14 @@ export default function CollectionPage({ onLogout }: Props) {
     try {
       const res = await collectionsService.share(collection.id)
       const url = `${window.location.origin}/c/${res.share_token}`
-
-      try {
-        await navigator.clipboard.writeText(url)
-      } catch {
-        // ignore
-      }
-
-      window.prompt('Link do catálogo (copiado se possível):', url)
+      await navigator.clipboard.writeText(url).catch(() => {})
+      window.prompt('Link copiado:', url)
     } catch (err) {
-      if (isUnauthorized(err)) {
-        onLogout()
-        navigate('/login', { replace: true })
-        return
-      }
-      setErrorMessage(err instanceof Error ? err.message : 'Erro ao gerar link')
+      if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) }
     }
   }
 
   function startEditProduct(p: Product) {
-    setProductUpdateError(null)
     setEditingProductId(p.id)
     setEditProductName(p.name)
     setEditProductDescription(p.description)
@@ -223,401 +160,168 @@ export default function CollectionPage({ onLogout }: Props) {
   }
 
   function cancelEditProduct() {
-    setProductUpdateError(null)
     setEditingProductId(null)
-    setEditProductName('')
-    setEditProductDescription('')
-    setEditProductPrice('')
-    setEditProductImage(null)
   }
 
   async function saveProductEdit(id: number) {
-    setProductUpdateError(null)
-
     const trimmedName = editProductName.trim()
     const trimmedDesc = editProductDescription.trim()
     const parsedPrice = Number(String(editProductPrice).replace(',', '.'))
 
-    if (!trimmedName) {
-      setProductUpdateError('Informe o nome do produto')
-      return
-    }
-    if (!trimmedDesc) {
-      setProductUpdateError('Informe a descrição do produto')
-      return
-    }
-    if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
-      setProductUpdateError('Informe um preço válido')
-      return
-    }
+    if (!trimmedName || !trimmedDesc || !Number.isFinite(parsedPrice) || parsedPrice <= 0) return
 
     try {
       setIsUpdatingProduct(true)
       await productsService.update(id, {
-        name: trimmedName,
-        description: trimmedDesc,
-        price: parsedPrice,
-        collection_id: collectionId,
-        image: editProductImage,
+        name: trimmedName, description: trimmedDesc, price: parsedPrice,
+        collection_id: collectionId, image: editProductImage,
       })
       cancelEditProduct()
       await load()
     } catch (err) {
-      if (isUnauthorized(err)) {
-        onLogout()
-        navigate('/login', { replace: true })
-        return
-      }
-      setProductUpdateError(err instanceof Error ? err.message : 'Erro ao atualizar produto')
+      if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) }
     } finally {
       setIsUpdatingProduct(false)
     }
   }
 
   async function deleteProduct(id: number) {
-    const ok = window.confirm('Apagar este produto?')
-    if (!ok) return
-
+    if (!window.confirm('Apagar produto?')) return
     try {
       await productsService.remove(id)
       if (editingProductId === id) cancelEditProduct()
       await load()
     } catch (err) {
-      if (isUnauthorized(err)) {
-        onLogout()
-        navigate('/login', { replace: true })
-        return
-      }
-      setProductUpdateError(err instanceof Error ? err.message : 'Erro ao apagar produto')
+      if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) }
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      <header className="sticky top-0 z-10 backdrop-blur-md border-b border-gray-200 bg-white/70 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('/catalogos')}
-            className="bg-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors font-medium text-sm"
-          >
-            Voltar
-          </button>
+    <PageLayout
+      title={collection?.name || 'Vitrine'}
+      subtitle="Gerenciar produtos"
+      onBack={() => navigate('/catalogos')}
+      onLogout={() => { onLogout(); navigate('/') }}
+    >
+      {isLoading && <div className="text-center py-12 text-gray-500">Carregando...</div>}
+      {!isLoading && errorMessage && <div className="text-center py-12 text-red-600">{errorMessage}</div>}
 
-          <div>
-            <div className="font-bold text-gray-900 tracking-tight leading-tight">
-              {collection ? collection.name : 'Coleção'}
+      {!isLoading && collection && (
+        <>
+          {/* Collection header */}
+          <Card className="mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-medium text-gray-900">{collection.name}</h2>
+                <p className="text-sm text-gray-500">{collection.description || 'Sem descrição'}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={() => void handleShareCollection()}>
+                  <Share2 className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setIsEditingCollection(!isEditingCollection)}>
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button variant="danger" size="sm" onClick={() => void handleDeleteCollection()}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
-            <div className="text-xs text-gray-500 font-medium">Cadastro de produtos</div>
-          </div>
-        </div>
 
-        <div>
-          <button
-            className="bg-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-4 py-2 rounded-lg transition-colors cursor-pointer font-medium text-sm"
-            type="button"
-            onClick={() => {
-              onLogout()
-              navigate('/')
-            }}
-          >
-            Sair
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto p-6">
-        {isLoading && <div className="text-sm text-gray-500 mb-6">Carregando...</div>}
-        {!isLoading && errorMessage && <div className="text-sm text-red-600 mb-6">{errorMessage}</div>}
-
-        {!isLoading && collection && (
-          <>
-            <section className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm mb-8" aria-label="Gerenciar coleção">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="font-semibold text-gray-900">Coleção</h2>
-                  <p className="text-sm text-gray-500 mt-1">Atualize o nome/descrição ou apague a coleção.</p>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCollectionUpdateError(null)
-                      setIsEditingCollection((v) => !v)
-                      setCollectionName(collection.name)
-                      setCollectionDescription(collection.description ?? '')
-                    }}
-                    className="px-3 py-2 text-sm rounded-lg bg-transparent text-gray-600 hover:bg-gray-50 transition-colors"
-                    disabled={isUpdatingCollection}
-                  >
-                    {isEditingCollection ? 'Fechar' : 'Editar'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleShareCollection()}
-                    className="px-3 py-2 text-sm rounded-lg bg-transparent text-gray-600 hover:bg-gray-50 transition-colors"
-                    disabled={isUpdatingCollection}
-                  >
-                    Compartilhar
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => void handleDeleteCollection()}
-                    className="px-3 py-2 text-sm rounded-lg bg-transparent text-red-600 hover:bg-red-50 transition-colors"
-                    disabled={isUpdatingCollection}
-                  >
-                    Apagar
-                  </button>
-                </div>
-              </div>
-
-              {isEditingCollection && (
-                <form className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3" onSubmit={handleUpdateCollection}>
-                  <div className="md:col-span-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="edit-collection-name">Nome</label>
-                    <input
-                      id="edit-collection-name"
-                      value={collectionName}
-                      onChange={(e) => setCollectionName(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                      maxLength={80}
-                      disabled={isUpdatingCollection}
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="edit-collection-description">Descrição (opcional)</label>
-                    <input
-                      id="edit-collection-description"
-                      value={collectionDescription}
-                      onChange={(e) => setCollectionDescription(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                      maxLength={140}
-                      disabled={isUpdatingCollection}
-                    />
-                  </div>
-
-                  <div className="md:col-span-3 flex items-center justify-between gap-3">
-                    <div className="text-sm">
-                      {collectionUpdateError && <span className="text-red-600">{collectionUpdateError}</span>}
-                    </div>
-
-                    <button
-                      className="px-4 py-3 rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                      type="submit"
-                      disabled={isUpdatingCollection}
-                    >
-                      {isUpdatingCollection ? 'Salvando...' : 'Salvar alterações'}
-                    </button>
-                  </div>
-                </form>
-              )}
-            </section>
-
-            <section className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm mb-8" aria-label="Cadastrar produto">
-              <h2 className="font-semibold text-gray-900">Novo produto</h2>
-              <p className="text-sm text-gray-500 mt-1">Cadastro simples para esta coleção.</p>
-
-              <form className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3" onSubmit={handleCreateProduct}>
-                <div className="md:col-span-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="product-name">Nome</label>
-                  <input
-                    id="product-name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                    placeholder="Ex: Camiseta"
-                    maxLength={100}
-                    disabled={isSaving}
-                  />
-                </div>
-
-                <div className="md:col-span-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="product-price">Preço</label>
-                  <input
-                    id="product-price"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                    placeholder="Ex: 49.90"
-                    inputMode="decimal"
-                    disabled={isSaving}
-                  />
-                </div>
-
-                <div className="md:col-span-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="product-description">Descrição</label>
-                  <input
-                    id="product-description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                    placeholder="Ex: Algodão, tamanhos P/M/G"
-                    maxLength={200}
-                    disabled={isSaving}
-                  />
-                </div>
-
-                <div className="md:col-span-3">
-                  <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="product-image">Imagem (opcional)</label>
-                  <input
-                    id="product-image"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setImage(e.target.files?.[0] ?? null)}
-                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
-                    disabled={isSaving}
-                  />
-                </div>
-
-                <div className="md:col-span-3 flex items-center justify-between gap-3">
-                  <div className="text-sm">
-                    {saveError && <span className="text-red-600">{saveError}</span>}
-                  </div>
-
-                  <button
-                    className="px-4 py-3 rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                    type="submit"
-                    disabled={isSaving}
-                  >
-                    {isSaving ? 'Salvando...' : 'Cadastrar produto'}
-                  </button>
-                </div>
+            {isEditingCollection && (
+              <form className="flex gap-3 mt-4 pt-4 border-t border-gray-200" onSubmit={handleUpdateCollection}>
+                <Input placeholder="Nome" value={collectionName} onChange={(e) => setCollectionName(e.target.value)} className="flex-1" />
+                <Input placeholder="Descrição" value={collectionDescription} onChange={(e) => setCollectionDescription(e.target.value)} className="flex-1" />
+                <Button type="submit" isLoading={isUpdatingCollection}>Salvar</Button>
+                <Button variant="ghost" type="button" onClick={() => setIsEditingCollection(false)}><X className="w-4 h-4" /></Button>
               </form>
-            </section>
+            )}
+          </Card>
 
-            <section aria-label="Produtos da coleção">
-              <div className="flex items-end justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Produtos</h2>
-                  <p className="text-sm text-gray-500 mt-1">{products.length} item(ns) nesta coleção.</p>
-                </div>
+          {/* Add product */}
+          <Card className="mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <Plus className="w-5 h-5 text-blue-600" />
               </div>
+              <h2 className="font-medium text-gray-900">Adicionar produto</h2>
+            </div>
 
-              {products.length === 0 ? (
-                <div className="text-sm text-gray-500 mb-6">Nenhum produto cadastrado ainda.</div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {products.map((p) => (
-                    <article key={p.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm" aria-label={p.name}>
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          {editingProductId === p.id ? (
-                            <>
-                              <input
-                                value={editProductName}
-                                onChange={(e) => setEditProductName(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                                maxLength={100}
-                                disabled={isUpdatingProduct}
-                                aria-label="Nome do produto"
-                              />
-                              <input
-                                value={editProductDescription}
-                                onChange={(e) => setEditProductDescription(e.target.value)}
-                                className="w-full mt-2 px-3 py-2 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                                maxLength={200}
-                                disabled={isUpdatingProduct}
-                                aria-label="Descrição do produto"
-                              />
-                              <div className="mt-2">
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Alterar imagem</label>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => setEditProductImage(e.target.files?.[0] ?? null)}
-                                  className="w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
-                                  disabled={isUpdatingProduct}
-                                />
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              {p.image_url && (
-                                <img
-                                  src={joinUrl(API_BASE_URL, p.image_url)}
-                                  alt={p.name}
-                                  className="w-full h-48 object-cover rounded-lg mb-3"
-                                />
-                              )}
-                              <h3 className="font-semibold text-gray-900">{p.name}</h3>
-                              <p className="text-sm text-gray-500 mt-1 line-clamp-2">{p.description}</p>
-                            </>
-                          )}
-                        </div>
-                        <div className="text-sm font-semibold text-gray-900 whitespace-nowrap">
-                          {editingProductId === p.id ? (
-                            <input
-                              value={editProductPrice}
-                              onChange={(e) => setEditProductPrice(e.target.value)}
-                              className="w-28 px-3 py-2 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all"
-                              inputMode="decimal"
-                              disabled={isUpdatingProduct}
-                              aria-label="Preço do produto"
-                            />
-                          ) : (
-                            formatPrice(p.price)
-                          )}
-                        </div>
+            <form className="flex flex-col md:flex-row gap-3" onSubmit={handleCreateProduct}>
+              <Input placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} disabled={isSaving} className="flex-1" />
+              <Input placeholder="Preço (ex: 49.90)" value={price} onChange={(e) => setPrice(e.target.value)} disabled={isSaving} className="w-32" />
+              <Input placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} disabled={isSaving} className="flex-1" />
+              <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100">
+                <ImageIcon className="w-4 h-4 text-gray-500" />
+                <span className="text-sm text-gray-600 truncate max-w-[80px]">{image ? image.name : 'Imagem'}</span>
+                <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] ?? null)} className="hidden" />
+              </label>
+              <Button type="submit" isLoading={isSaving}><Plus className="w-4 h-4" /></Button>
+            </form>
+            {saveError && <p className="text-sm text-red-600 mt-3">{saveError}</p>}
+          </Card>
+
+          {/* Products */}
+          <div className="mb-4">
+            <h2 className="font-medium text-gray-900">Produtos ({products.length})</h2>
+          </div>
+
+          {products.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <ImageIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-500">Nenhum produto. Adicione acima!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {products.map((p) => (
+                <Card key={p.id} variant="bordered">
+                  {editingProductId === p.id ? (
+                    <div className="space-y-3">
+                      <Input placeholder="Nome" value={editProductName} onChange={(e) => setEditProductName(e.target.value)} />
+                      <Input placeholder="Descrição" value={editProductDescription} onChange={(e) => setEditProductDescription(e.target.value)} />
+                      <Input placeholder="Preço" value={editProductPrice} onChange={(e) => setEditProductPrice(e.target.value)} />
+                      <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer">
+                        <ImageIcon className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">{editProductImage ? editProductImage.name : 'Alterar imagem'}</span>
+                        <input type="file" accept="image/*" onChange={(e) => setEditProductImage(e.target.files?.[0] ?? null)} className="hidden" />
+                      </label>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => void saveProductEdit(p.id)} isLoading={isUpdatingProduct}><Save className="w-4 h-4 mr-1" />Salvar</Button>
+                        <Button variant="ghost" size="sm" onClick={cancelEditProduct}>Cancelar</Button>
                       </div>
-
-                      {editingProductId === p.id && productUpdateError && (
-                        <div className="mt-3 text-sm text-red-600">{productUpdateError}</div>
+                    </div>
+                  ) : (
+                    <>
+                      {p.image_url ? (
+                        <img src={joinUrl(API_BASE_URL, p.image_url)} alt={p.name} className="w-full h-40 object-cover rounded-lg mb-3" />
+                      ) : (
+                        <div className="w-full h-40 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
+                          <ImageIcon className="w-10 h-10 text-gray-300" />
+                        </div>
                       )}
-
-                      <div className="flex gap-2 mt-4">
-                        {editingProductId === p.id ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => void saveProductEdit(p.id)}
-                              className="px-3 py-2 text-sm rounded-lg bg-orange-500 text-white font-medium hover:bg-orange-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                              disabled={isUpdatingProduct}
-                            >
-                              {isUpdatingProduct ? 'Salvando...' : 'Salvar'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={cancelEditProduct}
-                              className="px-3 py-2 text-sm rounded-lg bg-transparent text-gray-600 hover:bg-gray-50 transition-colors"
-                              disabled={isUpdatingProduct}
-                            >
-                              Cancelar
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => startEditProduct(p)}
-                              className="px-3 py-2 text-sm rounded-lg bg-transparent text-gray-600 hover:bg-gray-50 transition-colors"
-                            >
-                              Editar
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => void deleteProduct(p.id)}
-                              className="px-3 py-2 text-sm rounded-lg bg-transparent text-red-600 hover:bg-red-50 transition-colors"
-                            >
-                              Apagar
-                            </button>
-                          </>
-                        )}
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-medium text-gray-900">{p.name}</h3>
+                        <span className="font-semibold text-blue-600">{formatPrice(p.price)}</span>
                       </div>
-
-                      <div className="mt-4 text-xs text-gray-400">Cadastrado em {new Date(p.created_at).toLocaleDateString('pt-BR')}</div>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
-          </>
-        )}
-      </main>
-
-      <footer className="max-w-6xl mx-auto px-6 pb-8 text-center text-sm text-gray-400">Interface simples de cadastro.</footer>
-    </div>
+                      <p className="text-sm text-gray-500 line-clamp-2 mb-4">{p.description}</p>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => startEditProduct(p)} className="flex-1">
+                          <Pencil className="w-4 h-4 mr-1" />Editar
+                        </Button>
+                        <Button variant="danger" size="sm" onClick={() => void deleteProduct(p.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </PageLayout>
   )
 }
