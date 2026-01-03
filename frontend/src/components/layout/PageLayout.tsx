@@ -1,10 +1,12 @@
 import { type ReactNode } from 'react'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
-import { Header, type HeaderProps } from '@/components/layout/Header'
+import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 
-export interface PageLayoutProps extends HeaderProps {
+export interface PageLayoutProps {
   children: ReactNode
+  isAuthenticated?: boolean
+  onLogout?: () => void
   footerText?: string
 }
 
@@ -16,12 +18,13 @@ const pageVariants: Variants = {
 
 export function PageLayout({
   children,
+  isAuthenticated,
+  onLogout,
   footerText,
-  ...headerProps
 }: PageLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header {...headerProps} />
+      <Header isAuthenticated={isAuthenticated} onLogout={onLogout} />
       <AnimatePresence mode="wait">
         <motion.main
           className="flex-1 max-w-6xl w-full mx-auto p-6"

@@ -8,7 +8,7 @@ import { API_BASE_URL, joinUrl } from '@/api/config'
 import type { Collection, Product } from '@/api'
 import { PageLayout, staggerContainer, staggerItem } from '@/components/layout'
 import { Button, Card, Input } from '@/components/ui'
-import { formatPrice } from '@/utils/format'
+import { formatPrice, formatCurrencyInput, parseCurrencyInput } from '@/utils/format'
 
 interface CollectionPageProps {
   onLogout: () => void
@@ -79,13 +79,17 @@ export default function CollectionPage({ onLogout }: CollectionPageProps) {
 
   useEffect(() => { void load() }, [collectionId])
 
+  function handlePriceChange(value: string, setter: (v: string) => void) {
+    setter(formatCurrencyInput(value))
+  }
+
   async function handleCreateProduct(e: React.FormEvent) {
     e.preventDefault()
     setSaveError(null)
 
     const trimmedName = name.trim()
     const trimmedDesc = description.trim()
-    const parsedPrice = Number(String(price).replace(',', '.'))
+    const parsedPrice = parseCurrencyInput(price)
 
     if (!trimmedName) { setSaveError('Digite o nome'); return }
     if (!trimmedDesc) { setSaveError('Digite a descrição'); return }
@@ -132,13 +136,19 @@ export default function CollectionPage({ onLogout }: CollectionPageProps) {
     } catch (err) { if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) } }
   }
 
-  function startEditProduct(p: Product) { setEditingProductId(p.id); setEditProductName(p.name); setEditProductDescription(p.description); setEditProductPrice(String(p.price)); setEditProductImage(null) }
+  function startEditProduct(p: Product) { 
+    setEditingProductId(p.id)
+    setEditProductName(p.name)
+    setEditProductDescription(p.description)
+    setEditProductPrice(formatPrice(p.price))
+    setEditProductImage(null) 
+  }
   function cancelEditProduct() { setEditingProductId(null) }
 
   async function saveProductEdit(id: number) {
     const trimmedName = editProductName.trim()
     const trimmedDesc = editProductDescription.trim()
-    const parsedPrice = Number(String(editProductPrice).replace(',', '.'))
+    const parsedPrice = parseCurrencyInput(editProductPrice)
     if (!trimmedName || !trimmedDesc || !Number.isFinite(parsedPrice) || parsedPrice <= 0) return
     try {
       setIsUpdatingProduct(true)
@@ -155,7 +165,23 @@ export default function CollectionPage({ onLogout }: CollectionPageProps) {
   }
 
   return (
-    <PageLayout title={collection?.name || 'Vitrine'} subtitle="Gerenciar produtos" onBack={() => navigate('/catalogos')} onLogout={() => { onLogout(); navigate('/') }}>
+    <PageLayout isAuthenticated={true} onLogout={() => { onLogout(); navigate('/') }}>
+      {/* Breadcrumb */}
+      <motion.div 
+        className="mb-4 flex items-center gap-2 text-sm"
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+      >
+        <button 
+          onClick={() => navigate('/catalogos')}
+          className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+        >
+          Minhas Vitrines
+        </button>
+        <span className="text-gray-400">/</span>
+        <span className="text-gray-600">{collection?.name || 'Carregando...'}</span>
+      </motion.div>
+
       {isLoading && (
         <div className="text-center py-12 text-gray-500">
           <motion.div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-3" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} />
@@ -207,7 +233,7 @@ export default function CollectionPage({ onLogout }: CollectionPageProps) {
                       <div className="space-y-3">
                         <Input placeholder="Nome" value={editProductName} onChange={(e) => setEditProductName(e.target.value)} />
                         <Input placeholder="Descrição" value={editProductDescription} onChange={(e) => setEditProductDescription(e.target.value)} />
-                        <Input placeholder="Preço" value={editProductPrice} onChange={(e) => setEditProductPrice(e.target.value)} />
+                        <Input placeholder="Preço" value={editProductPrice} onChange={(e) => handlePriceChange(e.target.value, setEditProductPrice)} />
                         <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer">
                           <ImageIcon className="w-4 h-4 text-gray-500" /><span className="text-sm text-gray-600">{editProductImage ? editProductImage.name : 'Alterar imagem'}</span>
                           <input type="file" accept="image/*" onChange={(e) => setEditProductImage(e.target.files?.[0] ?? null)} className="hidden" />
@@ -275,7 +301,7 @@ export default function CollectionPage({ onLogout }: CollectionPageProps) {
 
                       <form className="flex flex-col gap-3" onSubmit={handleCreateProduct}>
                         <Input placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} disabled={isSaving} autoFocus />
-                        <Input placeholder="Preço" value={price} onChange={(e) => setPrice(e.target.value)} disabled={isSaving} />
+                        <Input placeholder="R$ 0,00" value={price} onChange={(e) => handlePriceChange(e.target.value, setPrice)} disabled={isSaving} />
                         <Input placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} disabled={isSaving} />
                         <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
                           <ImageIcon className="w-4 h-4 text-gray-500" />

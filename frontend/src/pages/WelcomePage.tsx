@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Store, Zap, Share2, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui'
@@ -21,31 +21,51 @@ export default function WelcomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <motion.header 
-        className="sticky top-0 z-50 w-full border-b border-gray-100/80 bg-white/80 backdrop-blur-md"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+      {/* Header Padrão */}
+      <motion.header
+        className="sticky top-0 z-50 w-full border-b border-gray-200/80 bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80"
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
-        <div className="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
-          <div className="flex items-center gap-2">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          {/* Logo e Marca */}
+          <Link 
+            to="/" 
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <motion.div 
-              className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm shadow-blue-200"
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-200/50"
+              whileHover={{ scale: 1.05, rotate: 3 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <Store className="w-4 h-4 text-white" />
+              <Store className="w-5 h-5 text-white" />
             </motion.div>
-            <span className="text-lg font-semibold text-gray-900 tracking-tight">Vitrine Digital</span>
-          </div>
+            <div className="flex flex-col">
+              <span className="text-base font-bold text-gray-900 leading-tight">
+                Vitrine Digital
+              </span>
+              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Catálogo Online
+              </span>
+            </div>
+          </Link>
 
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" onClick={() => navigate('/login')} className="font-medium">
+          {/* Ações */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/login')}
+              className="text-gray-600"
+            >
               Entrar
             </Button>
-            <Button onClick={() => navigate('/registro')} className="shadow-lg shadow-blue-200/50">
-              Criar conta grátis
+            <Button
+              size="sm"
+              onClick={() => navigate('/registro')}
+            >
+              Criar Conta
             </Button>
           </div>
         </div>

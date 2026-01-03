@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { ShoppingCart, Plus, Minus, ImageIcon, Store, X } from 'lucide-react'
 
@@ -97,30 +97,40 @@ export default function PublicCatalogPage() {
   const totalItems = useMemo(() => cartItems.reduce((acc, i) => acc + i.qty, 0), [cartItems])
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <motion.header 
-        className="sticky top-0 z-50 w-full border-b border-gray-200/80 bg-white/80 backdrop-blur-md"
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header Padrão */}
+      <motion.header
+        className="sticky top-0 z-50 w-full border-b border-gray-200/80 bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80"
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          {/* Logo e Marca */}
+          <Link 
+            to="/" 
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <motion.div 
-              className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm shadow-blue-200"
-              whileHover={{ scale: 1.05, rotate: 5 }}
+              className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-200/50"
+              whileHover={{ scale: 1.05, rotate: 3 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <Store className="w-4 h-4 text-white" />
+              <Store className="w-5 h-5 text-white" />
             </motion.div>
-            <div className="flex flex-col justify-center">
-              <h1 className="text-sm font-semibold text-gray-900 leading-tight">{title}</h1>
-              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide leading-tight">Vitrine Digital</p>
+            <div className="flex flex-col">
+              <span className="text-base font-bold text-gray-900 leading-tight">
+                Vitrine Digital
+              </span>
+              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Catálogo Online
+              </span>
             </div>
-          </div>
+          </Link>
 
+          {/* Carrinho */}
           <motion.button 
-            className="flex items-center gap-2 px-3 py-1.5 bg-blue-50/50 border border-blue-100 rounded-full cursor-pointer hover:bg-blue-100/50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full cursor-pointer hover:bg-blue-100/70 transition-colors"
             onClick={() => setIsCartOpen((prev) => !prev)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -139,7 +149,15 @@ export default function PublicCatalogPage() {
         </div>
       </motion.header>
 
-      <main className="max-w-6xl mx-auto p-6">
+      {/* Título da Vitrine */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <h1 className="text-xl font-bold text-gray-900">{title}</h1>
+          <p className="text-sm text-gray-500">Confira os produtos disponíveis</p>
+        </div>
+      </div>
+
+      <main className="flex-1 max-w-6xl mx-auto w-full p-6">
         {isLoading && (
           <div className="text-center py-12 text-gray-500">
             <motion.div 

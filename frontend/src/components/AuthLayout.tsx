@@ -11,15 +11,19 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
     <div className="min-h-screen flex">
       {/* Left - Form */}
       <div className="flex-1 flex flex-col p-8 bg-white">
-        <div className="flex justify-between items-center mb-12">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+        <div className="mb-12">
+          <Link to="/" className="inline-flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-200/50">
               <Store className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg font-semibold text-gray-900">Vitrine Digital</span>
-          </Link>
-          <Link to="/" className="text-gray-500 text-sm hover:text-gray-900 transition-colors">
-            ← Voltar
+            <div className="flex flex-col">
+              <span className="text-base font-bold text-gray-900 leading-tight">
+                Vitrine Digital
+              </span>
+              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                Catálogo Online
+              </span>
+            </div>
           </Link>
         </div>
 
