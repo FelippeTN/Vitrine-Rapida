@@ -146,7 +146,7 @@ export default function CatalogPage({ onLogout }: CatalogPageProps) {
   }
 
   return (
-    <PageLayout title="Vitrine Digital" subtitle="Minhas vitrines" onLogout={handleLogout}>
+    <PageLayout isAuthenticated={true} onLogout={handleLogout}>
       {/* Header */}
       <motion.div 
         className="mb-6"
