@@ -28,9 +28,16 @@ func ConnectDatabase() {
 		log.Fatal("Failed to connect to database!", err)
 	}
 
+	err = database.AutoMigrate(&models.Plan{})
+	if err != nil {
+		log.Fatal("Failed to migrate Plan table!", err)
+	}
+
+	seedPlans(database)
+
 	err = database.AutoMigrate(&models.User{})
 	if err != nil {
-		log.Fatal("Failed to migrate database!", err)
+		log.Fatal("Failed to migrate User table!", err)
 	}
 
 	err = database.AutoMigrate(
@@ -42,4 +49,18 @@ func ConnectDatabase() {
 	}
 
 	DB = database
+}
+
+func seedPlans(db *gorm.DB) {
+	for _, plan := range models.DefaultPlans {
+		var existing models.Plan
+		result := db.Where("name = ?", plan.Name).First(&existing)
+		if result.Error != nil {
+			if err := db.Create(&plan).Error; err != nil {
+				log.Printf("Failed to seed plan %s: %v", plan.Name, err)
+			} else {
+				log.Printf("Seeded plan: %s", plan.Name)
+			}
+		}
+	}
 }

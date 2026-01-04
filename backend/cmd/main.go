@@ -35,11 +35,15 @@ func main() {
 		publicRoutes.GET("/products", handlers.GetProducts)
 		publicRoutes.GET("/collections", handlers.GetPublicCollections)
 		publicRoutes.GET("/catalogs/:token", handlers.GetPublicCatalogByToken)
+		publicRoutes.GET("/plans", handlers.GetPlans)
 	}
 
 	protectedRoutes := r.Group("/protected")
 	protectedRoutes.Use(middleware.AuthenticationMiddleware())
 	{
+		protectedRoutes.GET("/my-plan", handlers.GetMyPlanInfo)
+		protectedRoutes.POST("/upgrade-plan", handlers.UpgradePlan)
+
 		protectedRoutes.POST("/collections", handlers.CreateCollection)
 		protectedRoutes.GET("/collections", handlers.GetMyCollections)
 		protectedRoutes.PUT("/collections/:id", handlers.UpdateCollection)

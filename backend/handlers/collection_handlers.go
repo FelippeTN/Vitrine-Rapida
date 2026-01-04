@@ -53,13 +53,19 @@ func CreateCollection(c *gin.Context) {
 		return
 	}
 
-	var existingCount int64
-	if err := database.DB.Model(&models.Collection{}).Where("owner_id = ?", ownerID).Count(&existingCount).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not validate collection limit"})
+	canCreate, plan, currentCount, err := CheckCollectionLimit(ownerID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not verify plan limits"})
 		return
 	}
-	if existingCount >= 5 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Limite de 5 coleções atingido"})
+	if !canCreate {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error":            "Collection limit reached",
+			"limit":            plan.MaxCollections,
+			"current_count":    currentCount,
+			"plan_name":        plan.DisplayName,
+			"upgrade_required": true,
+		})
 		return
 	}
 

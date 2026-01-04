@@ -19,6 +19,22 @@ func CreateProduct(c *gin.Context) {
 		return
 	}
 
+	canCreate, plan, currentCount, err := CheckProductLimit(ownerID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not verify plan limits"})
+		return
+	}
+	if !canCreate {
+		c.JSON(http.StatusForbidden, gin.H{
+			"error":         "Product limit reached",
+			"limit":         plan.MaxProducts,
+			"current_count": currentCount,
+			"plan_name":     plan.DisplayName,
+			"upgrade_required": true,
+		})
+		return
+	}
+
 	var input models.CreateProductInput
 	if err := c.ShouldBind(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
