@@ -80,7 +80,7 @@ func GetPublicCatalogByToken(c *gin.Context) {
 	}
 
 	var products []models.Product
-	if err := database.DB.Where("owner_id = ? AND collection_id = ?", collection.OwnerID, collection.ID).Order("created_at desc").Find(&products).Error; err != nil {
+	if err := database.DB.Preload("Images").Where("owner_id = ? AND collection_id = ?", collection.OwnerID, collection.ID).Order("created_at desc").Find(&products).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve products"})
 		return
 	}
