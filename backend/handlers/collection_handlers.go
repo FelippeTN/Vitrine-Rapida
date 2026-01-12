@@ -179,6 +179,17 @@ func DeleteCollection(c *gin.Context) {
 			return err
 		}
 
+		var productIDs []uint
+		if err := tx.Model(&models.Product{}).Where("owner_id = ? AND collection_id = ?", ownerID, collectionID).Pluck("id", &productIDs).Error; err != nil {
+			return err
+		}
+
+		if len(productIDs) > 0 {
+			if err := tx.Where("product_id IN ?", productIDs).Delete(&models.ProductImage{}).Error; err != nil {
+				return err
+			}
+		}
+
 		if err := tx.Where("owner_id = ? AND collection_id = ?", ownerID, collectionID).Delete(&models.Product{}).Error; err != nil {
 			return err
 		}
