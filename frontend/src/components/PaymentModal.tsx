@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Modal, Button } from '@/components/ui'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import { plansService } from '@/api'
 
-const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx')
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx')
 
 interface PaymentModalProps {
   isOpen: boolean
@@ -51,7 +51,7 @@ function PaymentForm({ amount, onSuccess, onClose }: { amount: number, onSuccess
       <PaymentElement />
       {error && <div className="text-red-500 text-sm">{error}</div>}
       <div className="flex gap-3 justify-end mt-6">
-        <Button variant="outline" onClick={onClose} type="button">
+        <Button variant="secondary" onClick={onClose} type="button">
           Cancelar
         </Button>
         <Button disabled={!stripe || processing} isLoading={processing} type="submit">
@@ -64,13 +64,27 @@ function PaymentForm({ amount, onSuccess, onClose }: { amount: number, onSuccess
 
 export function PaymentModal({ isOpen, onClose, amount, planName, onSuccess }: PaymentModalProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  // Reset clientSecret when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setClientSecret(null)
+    }
+  }, [isOpen])
 
   // Fetch client secret when modal opens
-  if (isOpen && !clientSecret) {
-    plansService.createPaymentIntent(amount, 'brl')
-      .then(data => setClientSecret(data.clientSecret))
-      .catch(err => console.error('Failed to init payment', err))
-  }
+  useEffect(() => {
+    if (isOpen && !clientSecret && !loading) {
+      setLoading(true)
+      plansService.createPaymentIntent(amount, 'brl')
+        .then(data => setClientSecret(data.clientSecret))
+        .catch(err => console.error('Failed to init payment', err))
+        .finally(() => setLoading(false))
+    }
+  }, [isOpen, clientSecret, amount, loading])
+
+  if (!isOpen) return null
 
   return (
     <Modal
@@ -80,7 +94,7 @@ export function PaymentModal({ isOpen, onClose, amount, planName, onSuccess }: P
       description="Insira os dados do seu cartão para finalizar a assinatura"
     >
       {clientSecret ? (
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
+        <Elements stripe={stripePromise} options={{ clientSecret }} key={clientSecret}>
           <PaymentForm amount={amount} onSuccess={onSuccess} onClose={onClose} />
         </Elements>
       ) : (

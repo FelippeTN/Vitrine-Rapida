@@ -41,6 +41,20 @@ export const plansService = {
     if (!response.ok) throw new Error('Failed to upgrade plan')
     return response.json()
   },
+
+  async createPaymentIntent(amount: number, currency: string): Promise<{ clientSecret: string }> {
+    const token = tokenStore.getToken()
+    const response = await fetch(`${API_BASE_URL}/protected/create-payment-intent`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ amount, currency }),
+    })
+    if (!response.ok) throw new Error('Failed to create payment intent')
+    return response.json()
+  },
 }
 
 export * from './types'
