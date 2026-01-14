@@ -18,4 +18,4 @@ jobs:
           api-key: ${{ secrets.HOSTINGER_API_KEY }}
           virtual-machine: ${{ secrets.HOSTINGER_VM_ID }}
           project-name: web-catalogo
-          docker-compose-file: docker-compose.yml
+          docker-compose-path: docker-compose.yml
