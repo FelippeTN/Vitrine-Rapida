@@ -7,32 +7,28 @@ services:
     env_file:
       - .env
     environment:
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=postgres
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - DB_PORT=${DB_PORT}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-    volumes:
-      - ./backend:/app
     depends_on:
       - postgres
     networks:
       - app-network
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+        - VITE_STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
     restart: unless-stopped
     ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "80:80"
     env_file:
       - .env
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - VITE_STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
     depends_on:
       - backend
     networks:
@@ -68,6 +64,8 @@ services:
       - postgres
     networks:
       - app-network
+    profiles:
+      - tools
 
 networks:
   app-network:
