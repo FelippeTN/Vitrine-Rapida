@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/FelippeTN/Web-Catalogo/backend/models"
 	"gorm.io/driver/postgres"
@@ -22,7 +23,29 @@ func ConnectDatabase() {
 		os.Getenv("DB_PORT"),
 	)
 
-	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	const maxAttempts = 10
+	const baseDelay = time.Second
+
+	var (
+		database *gorm.DB
+		err      error
+	)
+
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err == nil {
+			sqlDB, dbErr := database.DB()
+			if dbErr == nil {
+				if pingErr := sqlDB.Ping(); pingErr == nil {
+					break
+				}
+				err = pingErr
+			}
+		}
+
+		log.Printf("Database not ready (attempt %d/%d): %v", attempt, maxAttempts, err)
+		time.Sleep(time.Duration(attempt) * baseDelay)
+	}
 
 	if err != nil {
 		log.Fatal("Failed to connect to database!", err)
