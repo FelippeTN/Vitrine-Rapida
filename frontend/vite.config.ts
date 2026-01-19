@@ -16,6 +16,14 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ['vitrinerapida.com.br', 'www.vitrinerapida.com.br']
-  }
+    host: true,
+    allowedHosts: ['vitrinerapida.com.br', 'www.vitrinerapida.com.br'],
+    proxy: {
+      '/api': {
+        target: 'http://backend:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 })
