@@ -1,6 +1,6 @@
 module github.com/FelippeTN/Web-Catalogo/backend
 
-go 1.23
+go 1.24
 
 require (
 	github.com/bytedance/sonic v1.14.0 // indirect
