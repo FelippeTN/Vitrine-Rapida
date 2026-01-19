@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthLayout from '@/components/AuthLayout'
 import { Button, Input } from '@/components/ui'
+import { API_BASE_URL } from '@/api/config'
 
 interface LoginPageProps {
   onAuthenticated: () => void
@@ -25,7 +26,7 @@ export default function LoginPage({ onAuthenticated }: LoginPageProps) {
 
     try {
       setIsLoading(true)
-      const response = await fetch('http://localhost:8080/public/login', {
+      const response = await fetch(`${API_BASE_URL}/public/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

@@ -2,12 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthLayout from '@/components/AuthLayout'
 import { Button, Input } from '@/components/ui'
+import { API_BASE_URL } from '@/api/config'
 
 interface RegisterPageProps {
   onAuthenticated: () => void
 }
-
-const API_URL = 'http://localhost:8080/'
 
 export default function RegisterPage(_: RegisterPageProps) {
   void _
@@ -30,7 +29,7 @@ export default function RegisterPage(_: RegisterPageProps) {
 
     try {
       setIsLoading(true)
-      const response = await fetch(`${API_URL}public/register`, {
+      const response = await fetch(`${API_BASE_URL}/public/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: name, email, number, password }),
