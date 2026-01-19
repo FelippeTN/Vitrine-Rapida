@@ -36,10 +36,11 @@ func ConnectDatabase() {
 		if err == nil {
 			sqlDB, dbErr := database.DB()
 			if dbErr == nil {
-				if pingErr := sqlDB.Ping(); pingErr == nil {
+				if err = sqlDB.Ping(); err == nil {
 					break
 				}
-				err = pingErr
+			} else {
+				err = dbErr
 			}
 		}
 
