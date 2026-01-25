@@ -42,6 +42,9 @@ func main() {
 
 	publicRoutes := r.Group("/public")
 	{
+		publicRoutes.GET("/health", func(c *gin.Context) {
+			c.JSON(200, gin.H{"status": "ok"})
+		})
 		publicRoutes.POST("/login", handlers.Login)
 		publicRoutes.POST("/register", handlers.Register)
 		publicRoutes.GET("/products", handlers.GetProducts)
