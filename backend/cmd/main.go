@@ -30,6 +30,7 @@ func main() {
 			"http://72.62.142.229:8081",
 			"https://vitrinerapida.com.br",
        		"http://vitrinerapida.com.br",
+			"http://vitrinerapida.com.br:3000",
 			"https://vitrinerapida.com.br",
 		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
