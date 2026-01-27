@@ -5,6 +5,7 @@ import { type User as UserType } from '@/components/layout/Header'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Button, Input, Card } from '@/components/ui'
 import { API_BASE_URL } from '@/api/config'
+import { formatPhone } from '@/utils/format'
 
 interface SettingsPageProps {
   user?: UserType | null
@@ -45,12 +46,17 @@ export default function SettingsPage({ user }: SettingsPageProps) {
         setProfile({
           username: data.username,
           email: data.email,
-          number: data.number,
+          number: formatPhone(data.number), // Format received number
         })
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
     }
+  }
+
+  function handleNumberChange(e: React.ChangeEvent<HTMLInputElement>) {
+      const formatted = formatPhone(e.target.value)
+      setProfile({ ...profile, number: formatted })
   }
 
   async function handleUpdateProfile(e: React.FormEvent) {
@@ -59,13 +65,19 @@ export default function SettingsPage({ user }: SettingsPageProps) {
     setMessage({ type: '', text: '' })
 
     try {
+      // Remove symbols before sending
+      const cleanNumber = profile.number.replace(/\D/g, '')
+
       const response = await fetch(`${API_BASE_URL}/protected/me`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(profile),
+        body: JSON.stringify({
+             ...profile,
+             number: cleanNumber 
+        }),
       })
 
       const data = await response.json()
@@ -185,12 +197,14 @@ export default function SettingsPage({ user }: SettingsPageProps) {
                       label="Email"
                       type="email"
                       value={profile.email}
-                      onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                      disabled={true}
+                      className="bg-gray-50"
                     />
                     <Input
                       label="WhatsApp"
                       value={profile.number}
-                      onChange={(e) => setProfile({ ...profile, number: e.target.value })}
+                      onChange={handleNumberChange}
+                      placeholder="(00) 00000-0000"
                     />
                     <div className="pt-4 flex justify-end">
                       <Button type="submit" isLoading={isLoading} className="gap-2">

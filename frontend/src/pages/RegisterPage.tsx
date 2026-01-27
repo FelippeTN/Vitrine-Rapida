@@ -4,6 +4,8 @@ import AuthLayout from '@/components/AuthLayout'
 import { Button, Input } from '@/components/ui'
 import { API_BASE_URL } from '@/api/config'
 
+import { formatPhone } from '@/utils/format'
+
 interface RegisterPageProps {
   onAuthenticated: () => void
 }
@@ -29,10 +31,12 @@ export default function RegisterPage(_: RegisterPageProps) {
 
     try {
       setIsLoading(true)
+      const cleanNumber = number.replace(/\D/g, '')
+
       const response = await fetch(`${API_BASE_URL}/public/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: name, email, number, password }),
+        body: JSON.stringify({ username: name, email, number: cleanNumber, password }),
       })
 
       if (response.ok) {
@@ -46,6 +50,10 @@ export default function RegisterPage(_: RegisterPageProps) {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  function handleNumberChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setNumber(formatPhone(e.target.value))
   }
 
   return (
@@ -85,7 +93,7 @@ export default function RegisterPage(_: RegisterPageProps) {
           type="text"
           placeholder="(99) 99999-9999"
           value={number}
-          onChange={(e) => setNumber(e.target.value)}
+          onChange={handleNumberChange}
           disabled={isLoading}
         />
 

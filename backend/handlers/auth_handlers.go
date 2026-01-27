@@ -108,12 +108,11 @@ func UpdateMe(c *gin.Context) {
 		return
 	}
 
+	// Update fields if provided
 	if input.Username != "" {
 		user.Username = input.Username
 	}
-	if input.Email != "" {
-		user.Email = input.Email
-	}
+	// Email changes are not allowed via this endpoint
 	if input.Number != "" {
 		user.Number = input.Number
 	}
