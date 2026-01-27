@@ -7,14 +7,16 @@ import { collectionsService, isUnauthorized, productsService, ApiError } from '@
 import { API_BASE_URL, joinUrl } from '@/api/config'
 import type { Collection, Product, UpgradeError } from '@/api'
 import { PageLayout, staggerContainer, staggerItem } from '@/components/layout'
+import { type User } from '@/components/layout/Header'
 import { Button, Card, Input, UpgradeModal } from '@/components/ui'
 import { formatPrice, formatCurrencyInput, parseCurrencyInput } from '@/utils/format'
 
 interface CollectionPageProps {
   onLogout: () => void
+  user: User | null
 }
 
-export default function CollectionPage({ onLogout }: CollectionPageProps) {
+export default function CollectionPage({ onLogout, user }: CollectionPageProps) {
   const navigate = useNavigate()
   const params = useParams()
   const collectionId = useMemo(() => Number(params.id), [params.id])
@@ -231,7 +233,7 @@ export default function CollectionPage({ onLogout }: CollectionPageProps) {
   }
 
   return (
-    <PageLayout isAuthenticated={true} onLogout={() => { onLogout(); navigate('/') }}>
+    <PageLayout isAuthenticated={true} onLogout={() => { onLogout(); navigate('/') }} user={user}>
       {/* Breadcrumb */}
       <motion.div 
         className="mb-4 flex items-center gap-2 text-sm"

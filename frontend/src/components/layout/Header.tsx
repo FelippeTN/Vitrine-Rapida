@@ -1,19 +1,42 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui'
-import { Store, LogOut, User, LayoutGrid, Crown } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { Store, LogOut, User as UserIcon, LayoutGrid, Crown, Settings, ChevronDown } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useRef, useEffect } from 'react'
+
+export interface User {
+  id: number
+  username: string
+  email: string
+  number: string
+  plan_id: number
+}
 
 export interface HeaderProps {
   isAuthenticated?: boolean
   onLogout?: () => void
+  user?: User | null
 }
 
-export function Header({ isAuthenticated, onLogout }: HeaderProps) {
+export function Header({ isAuthenticated, onLogout, user }: HeaderProps) {
   const location = useLocation()
   const navigate = useNavigate()
   
   const isPublicPage = location.pathname.startsWith('/c/')
   const isAuthPage = ['/login', '/registro', '/'].includes(location.pathname)
+  
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   function handleLogout() {
     onLogout?.()
@@ -42,7 +65,7 @@ export function Header({ isAuthenticated, onLogout }: HeaderProps) {
           </motion.div>
           <div className="flex flex-col">
             <span className="text-base font-bold text-gray-900 leading-tight">
-              Vitrine Digital
+              Vitrine Rápida
             </span>
             <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
               Catálogo Online
@@ -71,25 +94,60 @@ export function Header({ isAuthenticated, onLogout }: HeaderProps) {
             </div>
           ) : isAuthenticated ? (
             // Header para usuário autenticado
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-3 pr-3 border-r border-gray-200">
-                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
-                  <User className="w-4 h-4 text-gray-500" />
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-full hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
+              >
+                <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center border border-blue-200 font-medium text-sm">
+                  {user?.username?.charAt(0).toUpperCase() || <UserIcon className="w-4 h-4" />}
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium text-gray-700">Minha Conta</span>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-medium text-gray-700 max-w-[100px] truncate">
+                    {user?.username || 'Minha Conta'}
+                  </span>
                   <span className="text-[10px] text-gray-400">Logado</span>
                 </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="text-gray-500 hover:text-red-600 hover:bg-red-50 gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline text-sm">Sair</span>
-              </Button>
+                <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 overflow-hidden"
+                  >
+                    <div className="px-4 py-2 border-b border-gray-50">
+                      <p className="text-xs font-medium text-gray-900 truncate">{user?.username || 'Usuário'}</p>
+                      <p className="text-[10px] text-gray-500 truncate">{user?.email || ''}</p>
+                    </div>
+                    
+                    <button
+                      onClick={() => {
+                        navigate('/configuracoes')
+                        setIsDropdownOpen(false)
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <Settings className="w-4 h-4 text-gray-400" />
+                      Configurações
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        handleLogout()
+                        setIsDropdownOpen(false)
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sair
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ) : !isAuthPage ? (
             // Header para visitante em página não-auth

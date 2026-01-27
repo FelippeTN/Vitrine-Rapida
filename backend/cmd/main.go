@@ -58,6 +58,9 @@ func main() {
 	{
 		protectedRoutes.GET("/my-plan", handlers.GetMyPlanInfo)
 		protectedRoutes.POST("/upgrade-plan", handlers.UpgradePlan)
+		protectedRoutes.GET("/me", handlers.GetMe)
+		protectedRoutes.PUT("/me", handlers.UpdateMe)
+		protectedRoutes.PUT("/me/password", handlers.ChangePassword)
 
 		protectedRoutes.POST("/collections", handlers.CreateCollection)
 		protectedRoutes.GET("/collections", handlers.GetMyCollections)

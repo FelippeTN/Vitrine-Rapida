@@ -7,13 +7,15 @@ import { collectionsService, isUnauthorized, ApiError } from '@/api'
 import type { UpgradeError } from '@/api'
 import { useCatalogs, type CatalogCard } from '@/hooks/useCatalogs'
 import { PageLayout, staggerContainer, staggerItem } from '@/components/layout'
+import { type User } from '@/components/layout/Header'
 import { Button, Card, Badge, Input, UpgradeModal } from '@/components/ui'
 
 interface CatalogPageProps {
   onLogout: () => void
+  user: User | null
 }
 
-export default function CatalogPage({ onLogout }: CatalogPageProps) {
+export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
   const navigate = useNavigate()
   const { catalogs, isLoading, error, errorMessage, reload } = useCatalogs()
 
@@ -156,7 +158,7 @@ export default function CatalogPage({ onLogout }: CatalogPageProps) {
   }
 
   return (
-    <PageLayout isAuthenticated={true} onLogout={handleLogout}>
+    <PageLayout isAuthenticated={true} onLogout={handleLogout} user={user}>
       {/* Header */}
       <motion.div 
         className="mb-6"

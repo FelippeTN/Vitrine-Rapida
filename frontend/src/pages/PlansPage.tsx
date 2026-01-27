@@ -6,11 +6,13 @@ import { Check, Sparkles, Zap, Crown, Building2 } from 'lucide-react'
 import { plansService, isUnauthorized } from '@/api'
 import type { Plan, UserPlanInfo } from '@/api'
 import { PageLayout, staggerContainer, staggerItem } from '@/components/layout'
+import { type User } from '@/components/layout/Header'
 import { Button, Card } from '@/components/ui'
 import { PaymentModal } from '@/components/PaymentModal'
 
 interface PlansPageProps {
   onLogout: () => void
+  user: User | null
 }
 
 const planIcons: Record<string, React.ReactNode> = {
@@ -27,7 +29,7 @@ const planColors: Record<string, string> = {
   enterprise: 'bg-amber-100 text-amber-600',
 }
 
-export default function PlansPage({ onLogout }: PlansPageProps) {
+export default function PlansPage({ onLogout, user }: PlansPageProps) {
   const navigate = useNavigate()
   const [plans, setPlans] = useState<Plan[]>([])
   const [planInfo, setPlanInfo] = useState<UserPlanInfo | null>(null)
@@ -114,7 +116,7 @@ export default function PlansPage({ onLogout }: PlansPageProps) {
   }
 
   return (
-    <PageLayout isAuthenticated={true} onLogout={() => { onLogout(); navigate('/') }}>
+    <PageLayout isAuthenticated={true} onLogout={() => { onLogout(); navigate('/') }} user={user}>
       {/* Header */}
       <motion.div
         className="text-center mb-10"
