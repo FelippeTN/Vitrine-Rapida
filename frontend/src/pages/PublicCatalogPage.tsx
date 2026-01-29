@@ -34,6 +34,7 @@ export default function PublicCatalogPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [ownerPhone, setOwnerPhone] = useState('')
+  const [storeName, setStoreName] = useState('')
 
   function getProductImages(p: Product): string[] {
     if (p.images && p.images.length > 0) {
@@ -70,6 +71,7 @@ export default function PublicCatalogPage() {
         setTitle(data.collection.name || 'Vitrine')
         setProducts(data.products)
         setOwnerPhone(data.owner_phone || '')
+        setStoreName(data.store_name || '')
       } catch (err) {
         if (!mounted) return
         setErrorMessage(err instanceof Error ? err.message : 'Erro')
@@ -152,7 +154,7 @@ export default function PublicCatalogPage() {
             </motion.div>
             <div className="flex flex-col">
               <span className="text-base font-bold text-gray-900 leading-tight">
-                Vitrine Digital
+                {storeName || 'Vitrine Digital'}
               </span>
               <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
                 Catálogo Online

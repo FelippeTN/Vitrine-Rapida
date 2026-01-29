@@ -66,6 +66,7 @@ export type PublicCatalogResponse = {
   collection: Collection
   products: Product[]
   owner_phone: string
+  store_name: string
 }
 
 export type Plan = {
