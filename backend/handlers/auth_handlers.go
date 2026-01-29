@@ -68,8 +68,19 @@ func Register(c *gin.Context) {
 	}
 	user.Password = string(hashedPassword)
 
+	var existingUser models.User
+	if err := database.DB.Where("username = ?", input.Username).First(&existingUser).Error; err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Esse nome ja esta sendo usado"})
+		return
+	}
+
+	if err := database.DB.Where("email = ?", input.Email).First(&existingUser).Error; err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Este email já está sendo usado"})
+		return
+	}
+
 	if err := database.DB.Create(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Não foi possível criar o usuário. Email ou Nome de usuário já existem."})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Não foi possível criar o usuário."})
 		return
 	}
 
