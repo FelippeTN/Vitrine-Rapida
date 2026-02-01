@@ -67,7 +67,7 @@ export function Header({ isAuthenticated, onLogout, user }: HeaderProps) {
           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
           <motion.div 
-            className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shadow-md shadow-blue-200/50"
+            className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center shadow-md shadow-blue-200/50"
             whileHover={{ scale: 1.05, rotate: 3 }}
             whileTap={{ scale: 0.95 }}
           >
