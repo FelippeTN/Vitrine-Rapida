@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Store, Zap, Share2, ArrowRight, Menu, X, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useState } from 'react'
+import logoPng from '@/assets/logo.png'
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -38,15 +39,15 @@ export default function WelcomePage() {
             onClick={() => setIsMenuOpen(false)}
           >
             <motion.div 
-              className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/20"
+              className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-blue-500/20"
               whileHover={{ scale: 1.05, rotate: 3 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Store className="w-5 h-5 text-white" />
+              <img src={logoPng} alt="Vitrine Rápida Logo" className="w-full h-full object-cover" />
             </motion.div>
             <div className="flex flex-col">
               <span className="text-base font-bold text-gray-900 leading-tight">
-                Vitrine Digital
+                Vitrine Rápida
               </span>
               <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
                 Catálogo Online
@@ -293,10 +294,10 @@ export default function WelcomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <Store className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <img src={logoPng} alt="Vitrine Rápida Logo" className="w-full h-full object-cover" />
               </div>
-              <span className="font-bold text-gray-900 text-lg">Vitrine Digital</span>
+              <span className="font-bold text-gray-900 text-lg">Vitrine Rápida</span>
             </div>
             
             <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-500 font-medium">
@@ -306,7 +307,7 @@ export default function WelcomePage() {
             </div>
             
             <p className="text-sm text-gray-400">
-              © {new Date().getFullYear()} Vitrine Digital. Todos os direitos reservados.
+              © {new Date().getFullYear()} Vitrine Rápida. Todos os direitos reservados.
             </p>
           </div>
         </div>

@@ -154,10 +154,10 @@ export default function PublicCatalogPage() {
             </motion.div>
             <div className="flex flex-col">
               <span className="text-base font-bold text-gray-900 leading-tight">
-                {storeName || 'Vitrine Digital'}
+                {storeName || 'Vitrine Rápida'}
               </span>
               <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Catálogo Online
+                Catálogo Digital
               </span>
             </div>
           </Link>
@@ -504,7 +504,7 @@ export default function PublicCatalogPage() {
       </AnimatePresence>
 
       <footer className="py-6 text-center text-sm text-gray-500">
-        Vitrine Digital • Carrinho salvo na sessão
+        Vitrine Rápida • Carrinho salvo na sessão
       </footer>
     </div>
   )
