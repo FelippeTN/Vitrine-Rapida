@@ -3,7 +3,7 @@ import { Button } from '@/components/ui'
 import { LogOut, User as UserIcon, LayoutGrid, Crown, Settings, ChevronDown, Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
-import logoSvg from '@/assets/logo.png'
+import logoSvg from '@/assets/logo.svg'
 
 export interface User {
   id: number
