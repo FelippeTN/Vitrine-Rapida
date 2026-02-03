@@ -34,6 +34,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [images, setImages] = useState<File[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -42,6 +43,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
   const [editProductName, setEditProductName] = useState('')
   const [editProductDescription, setEditProductDescription] = useState('')
   const [editProductPrice, setEditProductPrice] = useState('')
+  const [editProductSizes, setEditProductSizes] = useState<string[]>([])
   const [editProductNewImages, setEditProductNewImages] = useState<File[]>([])
   const [editProductDeleteImageIds, setEditProductDeleteImageIds] = useState<number[]>([])
 
@@ -108,10 +110,11 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
         name: trimmedName, 
         description: trimmedDesc, 
         price: parsedPrice, 
+        sizes: selectedSizes.length > 0 ? selectedSizes.join(',') : undefined,
         collection_id: collectionId, 
         images: images.length > 0 ? images : undefined 
       })
-      setName(''); setDescription(''); setPrice(''); setImages([])
+      setName(''); setDescription(''); setPrice(''); setSelectedSizes([]); setImages([])
 
       await load()
       setShowCreateForm(false)
@@ -165,11 +168,13 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     setEditProductName(p.name)
     setEditProductDescription(p.description)
     setEditProductPrice(formatPrice(p.price))
+    setEditProductSizes(p.sizes ? p.sizes.split(',') : [])
     setEditProductNewImages([])
     setEditProductDeleteImageIds([])
   }
   function cancelEditProduct() { 
     setEditingProductId(null)
+    setEditProductSizes([])
     setEditProductNewImages([])
     setEditProductDeleteImageIds([])
   }
@@ -185,6 +190,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
         name: trimmedName, 
         description: trimmedDesc, 
         price: parsedPrice, 
+        sizes: editProductSizes.join(','),
         collection_id: collectionId, 
         images: editProductNewImages.length > 0 ? editProductNewImages : undefined,
         delete_image_ids: editProductDeleteImageIds.length > 0 ? editProductDeleteImageIds : undefined
@@ -302,6 +308,33 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                         <Input placeholder="Nome" value={editProductName} onChange={(e) => setEditProductName(e.target.value)} />
                         <Input placeholder="Descrição" value={editProductDescription} onChange={(e) => setEditProductDescription(e.target.value)} />
                         <Input placeholder="Preço" value={editProductPrice} onChange={(e) => handlePriceChange(e.target.value, setEditProductPrice)} />
+                        
+                        {/* Seleção de Tamanhos */}
+                        <div className="space-y-2">
+                          <span className="text-sm text-gray-600">Tamanhos disponíveis:</span>
+                          <div className="flex flex-wrap gap-2">
+                            {['P', 'M', 'G', 'GG'].map((size) => (
+                              <button
+                                key={size}
+                                type="button"
+                                onClick={() => {
+                                  setEditProductSizes(prev => 
+                                    prev.includes(size) 
+                                      ? prev.filter(s => s !== size)
+                                      : [...prev, size]
+                                  )
+                                }}
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                                  editProductSizes.includes(size)
+                                    ? 'bg-blue-600 text-white shadow-md'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                              >
+                                {size}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                         
                         {/* Existing images */}
                         {p.images && p.images.length > 0 && (
@@ -442,6 +475,34 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                         <Input placeholder="R$ 0,00" value={price} onChange={(e) => handlePriceChange(e.target.value, setPrice)} disabled={isSaving} />
                         <Input placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} disabled={isSaving} />
                         
+                        {/* Seleção de Tamanhos */}
+                        <div className="space-y-2">
+                          <span className="text-sm text-gray-600">Tamanhos disponíveis:</span>
+                          <div className="flex flex-wrap gap-2">
+                            {['P', 'M', 'G', 'GG'].map((size) => (
+                              <button
+                                key={size}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedSizes(prev => 
+                                    prev.includes(size) 
+                                      ? prev.filter(s => s !== size)
+                                      : [...prev, size]
+                                  )
+                                }}
+                                disabled={isSaving}
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                                  selectedSizes.includes(size)
+                                    ? 'bg-blue-600 text-white shadow-md'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              >
+                                {size}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        
                         {/* Preview selected images */}
                         {images.length > 0 && (
                           <div className="flex flex-wrap gap-2">
@@ -569,6 +630,24 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                   <span className="text-2xl font-extrabold text-blue-700 whitespace-nowrap">{formatPrice(previewProduct.price)}</span>
                 </div>
                 <p className="text-gray-600 text-base leading-relaxed">{previewProduct.description}</p>
+                
+                {/* Tamanhos disponíveis */}
+                {previewProduct.sizes && (
+                  <div className="space-y-2">
+                    <span className="text-sm font-medium text-gray-700">Tamanhos disponíveis:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {previewProduct.sizes.split(',').map((size) => (
+                        <span 
+                          key={size} 
+                          className="px-3 py-1.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg border border-blue-100"
+                        >
+                          {size.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 <div className="flex flex-wrap gap-3 pt-2">
                   <Button onClick={() => setPreviewProduct(null)}>Fechar</Button>
                 </div>

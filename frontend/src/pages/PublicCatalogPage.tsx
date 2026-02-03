@@ -9,14 +9,19 @@ import type { Product } from '@/api'
 import { Button, Card } from '@/components/ui'
 import { formatPrice } from '@/utils/format'
 
-type CartState = Record<string, number>
+
+type CartItem = {
+  qty: number
+  size?: string
+}
+type CartState = Record<string, CartItem>
 
 const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.06 } },
 }
 
-const staggerItem: Variants = {
+const staggerItem: Variants = { 
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
 }
@@ -32,6 +37,8 @@ export default function PublicCatalogPage() {
   const [cart, setCart] = useState<CartState>({})
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const [sizeError, setSizeError] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [ownerPhone, setOwnerPhone] = useState('')
   const [storeName, setStoreName] = useState('')
@@ -44,6 +51,11 @@ export default function PublicCatalogPage() {
       return [p.image_url]
     }
     return []
+  }
+
+  // Gera uma chave única para o carrinho (produto + tamanho)
+  function getCartKey(productId: number, size?: string): string {
+    return size ? `${productId}_${size}` : String(productId)
   }
 
   useEffect(() => {
@@ -82,28 +94,62 @@ export default function PublicCatalogPage() {
     return () => { mounted = false }
   }, [token])
 
-  function addToCart(id: number) {
+  function addToCartWithSize(product: Product, size?: string) {
+    // Se o produto tem tamanhos mas nenhum foi selecionado
+    if (product.sizes && !size) {
+      setSizeError(true)
+      return
+    }
+    
+    setSizeError(false)
+    const key = getCartKey(product.id, size)
+    
     setCart((prev) => {
       const isFirstItem = Object.keys(prev).length === 0
       if (isFirstItem) setIsCartOpen(true)
-      return { ...prev, [String(id)]: (prev[String(id)] ?? 0) + 1 }
+      
+      const existing = prev[key]
+      return { 
+        ...prev, 
+        [key]: { 
+          qty: (existing?.qty ?? 0) + 1,
+          size 
+        }
+      }
     })
   }
 
-  function decrement(id: number) {
+  function incrementCartItem(key: string) {
     setCart((prev) => {
-      const key = String(id)
-      const qty = prev[key] ?? 0
-      if (qty <= 1) { const { [key]: _, ...rest } = prev; void _; return rest }
-      return { ...prev, [key]: qty - 1 }
+      const existing = prev[key]
+      if (!existing) return prev
+      return { ...prev, [key]: { ...existing, qty: existing.qty + 1 } }
+    })
+  }
+
+  function decrementCartItem(key: string) {
+    setCart((prev) => {
+      const existing = prev[key]
+      if (!existing) return prev
+      if (existing.qty <= 1) {
+        const { [key]: _, ...rest } = prev
+        void _
+        return rest
+      }
+      return { ...prev, [key]: { ...existing, qty: existing.qty - 1 } }
     })
   }
 
   const cartItems = useMemo(() => {
-    const items: Array<{ product: Product; qty: number }> = []
-    for (const p of products) {
-      const qty = cart[String(p.id)] ?? 0
-      if (qty > 0) items.push({ product: p, qty })
+    const items: Array<{ product: Product; qty: number; size?: string; key: string }> = []
+    
+    for (const [key, item] of Object.entries(cart)) {
+      // Extrai o ID do produto da chave (formato: "id" ou "id_size")
+      const productId = parseInt(key.split('_')[0])
+      const product = products.find(p => p.id === productId)
+      if (product && item.qty > 0) {
+        items.push({ product, qty: item.qty, size: item.size, key })
+      }
     }
     return items
   }, [cart, products])
@@ -119,8 +165,9 @@ export default function PublicCatalogPage() {
     let message = `🛒 *Novo Pedido - ${title}*\n\n`
     message += `📦 *Itens do pedido:*\n`
     
-    cartItems.forEach(({ product, qty }) => {
-      message += `• ${product.name} - Qtd: ${qty} - ${formatPrice(product.price * qty)}\n`
+    cartItems.forEach(({ product, qty, size }) => {
+      const sizeText = size ? ` (Tam: ${size})` : ''
+      message += `• ${product.name}${sizeText} - Qtd: ${qty} - ${formatPrice(product.price * qty)}\n`
     })
     
     message += `\n💰 *Total: ${formatPrice(total)}*`
@@ -128,6 +175,29 @@ export default function PublicCatalogPage() {
     const encodedMessage = encodeURIComponent(message)
     
     window.open(`https://wa.me/55${phoneNumber}?text=${encodedMessage}`, '_blank')
+  }
+
+  // Reset tamanho selecionado quando abre modal de produto
+  function openProductModal(p: Product) {
+    setSelectedProduct(p)
+    setSelectedImageIndex(0)
+    setSelectedSize(null)
+    setSizeError(false)
+  }
+
+  // Adiciona ao carrinho do modal (com validação de tamanho)
+  function addFromModal() {
+    if (!selectedProduct) return
+    
+    if (selectedProduct.sizes && !selectedSize) {
+      setSizeError(true)
+      return
+    }
+    
+    addToCartWithSize(selectedProduct, selectedSize ?? undefined)
+    setSelectedProduct(null)
+    setSelectedSize(null)
+    setSizeError(false)
   }
 
   return (
@@ -242,7 +312,7 @@ export default function PublicCatalogPage() {
                         variant="bordered"
                         animate={false}
                         className="group cursor-pointer"
-                        onClick={() => { setSelectedProduct(p); setSelectedImageIndex(0); }}
+                        onClick={() => openProductModal(p)}
                       >
                         {(() => {
                           const productImages = getProductImages(p)
@@ -273,13 +343,35 @@ export default function PublicCatalogPage() {
                         })()}
 
                         <h3 className="font-medium text-gray-900 mb-1">{p.name}</h3>
-                        <p className="text-sm text-gray-500 line-clamp-2 mb-3">{p.description}</p>
+                        <p className="text-sm text-gray-500 line-clamp-2 mb-2">{p.description}</p>
+                        
+                        {/* Tamanhos disponíveis */}
+                        {p.sizes && (
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {p.sizes.split(',').map((size) => (
+                              <span 
+                                key={size} 
+                                className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded"
+                              >
+                                {size.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        )}
 
                         <div className="flex items-center justify-between">
                           <span className="text-lg font-bold text-blue-600">{formatPrice(p.price)}</span>
                           <Button
                             size="sm"
-                            onClick={(e) => { e.stopPropagation(); addToCart(p.id) }}
+                            onClick={(e) => { 
+                              e.stopPropagation()
+                              // Se tem tamanhos, abre o modal para escolher
+                              if (p.sizes) {
+                                openProductModal(p)
+                              } else {
+                                addToCartWithSize(p)
+                              }
+                            }}
                           >
                             <Plus className="w-4 h-4 mr-1" /> Adicionar
                           </Button>
@@ -324,9 +416,9 @@ export default function PublicCatalogPage() {
                     ) : (
                       <div className="space-y-3">
                         <AnimatePresence initial={false} mode="popLayout">
-                          {cartItems.map(({ product, qty }) => (
+                          {cartItems.map(({ product, qty, size, key }) => (
                             <motion.div 
-                              key={product.id} 
+                              key={key} 
                               className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
@@ -347,11 +439,18 @@ export default function PublicCatalogPage() {
                               })()}
                               <div className="flex-1 min-w-0">
                                 <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
-                                <p className="text-xs text-gray-500">{formatPrice(product.price)}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs text-gray-500">{formatPrice(product.price)}</p>
+                                  {size && (
+                                    <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                                      {size}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                               <div className="flex items-center gap-1">
                                 <motion.button 
-                                  onClick={() => decrement(product.id)} 
+                                  onClick={() => decrementCartItem(key)} 
                                   className="w-6 h-6 rounded bg-gray-200 flex items-center justify-center hover:bg-gray-300"
                                   whileTap={{ scale: 0.9 }}
                                 >
@@ -366,7 +465,7 @@ export default function PublicCatalogPage() {
                                   {qty}
                                 </motion.span>
                                 <motion.button 
-                                  onClick={() => addToCart(product.id)} 
+                                  onClick={() => incrementCartItem(key)} 
                                   className="w-6 h-6 rounded bg-gray-200 flex items-center justify-center hover:bg-gray-300"
                                   whileTap={{ scale: 0.9 }}
                                 >
@@ -479,7 +578,7 @@ export default function PublicCatalogPage() {
                 )
               })()}
 
-              <div className="p-6 md:p-8 space-y-3">
+              <div className="p-6 md:p-8 space-y-4">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">Produto</p>
@@ -488,9 +587,45 @@ export default function PublicCatalogPage() {
                   <span className="text-2xl font-extrabold text-blue-700 whitespace-nowrap">{formatPrice(selectedProduct.price)}</span>
                 </div>
                 <p className="text-gray-600 text-base leading-relaxed">{selectedProduct.description}</p>
+                
+                {/* Seleção de Tamanho (obrigatória se o produto tem tamanhos) */}
+                {selectedProduct.sizes && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700">Escolha o tamanho:</span>
+                      {sizeError && (
+                        <span className="text-sm text-red-500 font-medium">* Obrigatório</span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProduct.sizes.split(',').map((size) => {
+                        const trimmedSize = size.trim()
+                        const isSelected = selectedSize === trimmedSize
+                        return (
+                          <button
+                            key={trimmedSize}
+                            onClick={() => {
+                              setSelectedSize(trimmedSize)
+                              setSizeError(false)
+                            }}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg border-2 transition-all ${
+                              isSelected
+                                ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                                : sizeError
+                                  ? 'bg-white text-gray-700 border-red-300 hover:border-red-400'
+                                  : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300'
+                            }`}
+                          >
+                            {trimmedSize}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex flex-wrap gap-3 pt-2">
-                  <Button onClick={() => { addToCart(selectedProduct.id); setSelectedProduct(null) }}>
+                  <Button onClick={addFromModal}>
                     <ShoppingCart className="w-4 h-4 mr-2" /> Colocar no carrinho
                   </Button>
                   <Button variant="secondary" onClick={() => setSelectedProduct(null)}>

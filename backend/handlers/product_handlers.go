@@ -111,6 +111,7 @@ func CreateProduct(c *gin.Context) {
 		Name:         input.Name,
 		Description:  input.Description,
 		Price:        input.Price,
+		Sizes:        input.Sizes,
 		ImageURL:     mainImageURL,
 	}
 
@@ -282,6 +283,9 @@ func UpdateProduct(c *gin.Context) {
 	}
 	if input.Price != nil {
 		updates["price"] = *input.Price
+	}
+	if input.Sizes != nil {
+		updates["sizes"] = *input.Sizes
 	}
 	if input.CollectionID != nil {
 		updates["collection_id"] = *input.CollectionID
