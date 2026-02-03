@@ -8,7 +8,7 @@ import type { UpgradeError } from '@/api'
 import { useCatalogs, type CatalogCard } from '@/hooks/useCatalogs'
 import { PageLayout, staggerContainer, staggerItem } from '@/components/layout'
 import { type User } from '@/components/layout/Header'
-import { Button, Card, Badge, Input, UpgradeModal } from '@/components/ui'
+import { Button, Card, Badge, Input, UpgradeModal, ConfirmModal, ShareModal } from '@/components/ui'
 
 interface CatalogPageProps {
   onLogout: () => void
@@ -34,6 +34,10 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
   // Upgrade modal state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [upgradeInfo, setUpgradeInfo] = useState<UpgradeError | null>(null)
+
+  // Confirmation & Share Modals
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{ id: string } | null>(null)
+  const [shareModal, setShareModal] = useState<{ url: string } | null>(null)
 
   function handleLogout() {
     onLogout()
@@ -128,13 +132,19 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!window.confirm('Apagar esta vitrine e todos os produtos?')) return
+  function confirmDelete(id: string) {
+    setDeleteConfirmation({ id })
+  }
+
+  async function handleDelete() {
+    if (!deleteConfirmation) return
+    const { id } = deleteConfirmation
 
     try {
       await collectionsService.remove(Number(id))
       if (editingId === id) cancelEdit()
       await reload()
+      setDeleteConfirmation(null)
     } catch (err) {
       if (isUnauthorized(err)) {
         onLogout()
@@ -147,8 +157,7 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
     try {
       const res = await collectionsService.share(Number(id))
       const url = `${window.location.origin}/c/${res.share_token}`
-      await navigator.clipboard.writeText(url).catch(() => {})
-      window.prompt('Link copiado:', url)
+      setShareModal({ url })
     } catch (err) {
       if (isUnauthorized(err)) {
         onLogout()
@@ -256,7 +265,7 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
                       <Button variant="ghost" size="sm" onClick={() => startEdit(c)}>
                         <Pencil className="w-4 h-4" />
                       </Button>
-                      <Button variant="danger" size="sm" onClick={() => void handleDelete(c.id)}>
+                      <Button variant="danger" size="sm" onClick={() => confirmDelete(c.id)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -328,6 +337,23 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
         currentCount={upgradeInfo?.current_count ?? 0}
         limit={upgradeInfo?.limit ?? 0}
         planName={upgradeInfo?.plan_name ?? ''}
+      />
+
+      <ConfirmModal
+        isOpen={!!deleteConfirmation}
+        onClose={() => setDeleteConfirmation(null)}
+        onConfirm={() => void handleDelete()}
+        title="Apagar vitrine"
+        description="Tem certeza que deseja apagar esta vitrine? Todos os produtos serão perdidos."
+        confirmText="Apagar"
+        variant="danger"
+      />
+
+      <ShareModal
+        isOpen={!!shareModal}
+        onClose={() => setShareModal(null)}
+        url={shareModal?.url ?? ''}
+        title="Compartilhar Vitrine"
       />
     </PageLayout>
   )
