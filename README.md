@@ -1,4 +1,4 @@
-# Web Catálogo
+# Vitrine Rápida
 
 Bem-vindo ao **Web Catálogo**! Este projeto é uma aplicação web moderna e completa para gerenciamento de catálogos de produtos, planos de assinatura e processamento de pagamentos.
 
