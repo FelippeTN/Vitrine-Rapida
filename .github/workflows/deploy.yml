@@ -33,7 +33,7 @@ jobs:
             set -e
             echo "🚀 Iniciando deploy..."
             
-            cd /root/Web-Catalogo || cd ~/Web-Catalogo
+            cd /root/Vitrine-Rapida || cd ~/Vitrine-Rapida
             
             echo "📥 Atualizando código..."
             git fetch --all
