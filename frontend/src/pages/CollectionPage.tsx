@@ -8,7 +8,7 @@ import { API_BASE_URL, joinUrl } from '@/api/config'
 import type { Collection, Product, UpgradeError } from '@/api'
 import { PageLayout, staggerContainer, staggerItem } from '@/components/layout'
 import { type User } from '@/components/layout/Header'
-import { Button, Card, Input, UpgradeModal } from '@/components/ui'
+import { Button, Card, Input, UpgradeModal, ConfirmModal, ShareModal } from '@/components/ui'
 import { formatPrice, formatCurrencyInput, parseCurrencyInput } from '@/utils/format'
 
 interface CollectionPageProps {
@@ -54,6 +54,13 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [upgradeInfo, setUpgradeInfo] = useState<UpgradeError | null>(null)
+
+
+
+  // Confirmation & Share Modals
+  const [deleteCollectionConfirmation, setDeleteCollectionConfirmation] = useState(false)
+  const [deleteProductConfirmation, setDeleteProductConfirmation] = useState<{ id: number } | null>(null)
+  const [shareModal, setShareModal] = useState<{ url: string } | null>(null)
 
   async function load() {
     if (!Number.isFinite(collectionId) || collectionId <= 0) {
@@ -136,9 +143,17 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
   }
 
   async function handleDeleteCollection() {
-    if (!collection || !window.confirm('Apagar vitrine e produtos?')) return
-    try { await collectionsService.remove(collection.id); navigate('/catalogos', { replace: true }) }
-    catch (err) { if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) } }
+    if (!collection) return
+    try { 
+      await collectionsService.remove(collection.id)
+      navigate('/catalogos', { replace: true }) 
+    }
+    catch (err) { 
+      if (isUnauthorized(err)) { 
+        onLogout()
+        navigate('/login', { replace: true }) 
+      } 
+    }
   }
 
   async function handleUpdateCollection(e: React.FormEvent) {
@@ -158,8 +173,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     try {
       const res = await collectionsService.share(collection.id)
       const url = `${window.location.origin}/c/${res.share_token}`
-      await navigator.clipboard.writeText(url).catch(() => {})
-      window.prompt('Link copiado:', url)
+      setShareModal({ url })
     } catch (err) { if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) } }
   }
 
@@ -232,10 +246,26 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     return []
   }
 
-  async function deleteProduct(id: number) {
-    if (!window.confirm('Apagar produto?')) return
-    try { await productsService.remove(id); if (editingProductId === id) cancelEditProduct(); await load() }
-    catch (err) { if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) } }
+  function confirmDeleteProduct(id: number) {
+    setDeleteProductConfirmation({ id })
+  }
+
+  async function deleteProduct() {
+    if (!deleteProductConfirmation) return
+    const { id } = deleteProductConfirmation
+
+    try { 
+      await productsService.remove(id)
+      if (editingProductId === id) cancelEditProduct()
+      await load()
+      setDeleteProductConfirmation(null)
+    }
+    catch (err) { 
+      if (isUnauthorized(err)) { 
+        onLogout()
+        navigate('/login', { replace: true }) 
+      } 
+    }
   }
 
   return (
@@ -276,7 +306,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
               <div className="flex gap-2">
                 <Button variant="ghost" size="sm" onClick={() => void handleShareCollection()}><Share2 className="w-4 h-4" /></Button>
                 <Button variant="ghost" size="sm" onClick={() => setIsEditingCollection(!isEditingCollection)}><Pencil className="w-4 h-4" /></Button>
-                <Button variant="danger" size="sm" onClick={() => void handleDeleteCollection()}><Trash2 className="w-4 h-4" /></Button>
+                <Button variant="danger" size="sm" onClick={() => setDeleteCollectionConfirmation(true)}><Trash2 className="w-4 h-4" /></Button>
               </div>
             </div>
 
@@ -435,7 +465,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                         <p className="text-sm text-gray-500 line-clamp-2 mb-4">{p.description}</p>
                         <div className="flex gap-2">
                           <Button variant="ghost" size="sm" onClick={() => startEditProduct(p)} className="flex-1"><Pencil className="w-4 h-4 mr-1" />Editar</Button>
-                          <Button variant="danger" size="sm" onClick={() => void deleteProduct(p.id)}><Trash2 className="w-4 h-4" /></Button>
+                          <Button variant="danger" size="sm" onClick={() => confirmDeleteProduct(p.id)}><Trash2 className="w-4 h-4" /></Button>
                         </div>
                       </>
                     )}
@@ -665,6 +695,33 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
         currentCount={upgradeInfo?.current_count ?? 0}
         limit={upgradeInfo?.limit ?? 0}
         planName={upgradeInfo?.plan_name ?? ''}
+      />
+
+      <ConfirmModal
+        isOpen={deleteCollectionConfirmation}
+        onClose={() => setDeleteCollectionConfirmation(false)}
+        onConfirm={() => void handleDeleteCollection()}
+        title="Apagar vitrine"
+        description="Tem certeza que deseja apagar esta vitrine? Todos os produtos serão perdidos."
+        confirmText="Apagar"
+        variant="danger"
+      />
+
+      <ConfirmModal
+        isOpen={!!deleteProductConfirmation}
+        onClose={() => setDeleteProductConfirmation(null)}
+        onConfirm={() => void deleteProduct()}
+        title="Apagar produto"
+        description="Tem certeza que deseja apagar este produto?"
+        confirmText="Apagar"
+        variant="danger"
+      />
+
+      <ShareModal
+        isOpen={!!shareModal}
+        onClose={() => setShareModal(null)}
+        url={shareModal?.url ?? ''}
+        title="Compartilhar Vitrine"
       />
     </PageLayout>
   )
