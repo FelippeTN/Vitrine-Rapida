@@ -21,7 +21,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                 Vitrine Digital
               </span>
               <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Catálogo Online
+                Catálogo Digital
               </span>
             </div>
           </Link>

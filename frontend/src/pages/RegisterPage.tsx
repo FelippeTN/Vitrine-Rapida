@@ -107,7 +107,7 @@ export default function RegisterPage(_: RegisterPageProps) {
     <AuthLayout>
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Criar sua conta</h2>
-        <p className="text-gray-600">Comece a usar sua vitrine digital</p>
+        <p className="text-gray-600">Comece a usar sua vitrine rápida</p>
       </div>
 
       {error && (

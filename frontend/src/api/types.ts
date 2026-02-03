@@ -33,6 +33,7 @@ export type Product = {
   name: string
   description: string
   price: number
+  sizes?: string
   image_url?: string | null
   images?: ProductImage[]
   created_at: string
@@ -43,6 +44,7 @@ export type CreateProductInput = {
   name: string
   description: string
   price: number
+  sizes?: string
   collection_id?: number | null
   image?: File | null
   images?: File[]
@@ -52,6 +54,7 @@ export type UpdateProductInput = {
   name?: string
   description?: string
   price?: number
+  sizes?: string
   collection_id?: number | null
   image?: File | null
   images?: File[]
