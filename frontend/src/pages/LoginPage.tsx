@@ -100,6 +100,12 @@ export default function LoginPage({ onAuthenticated }: LoginPageProps) {
           autoComplete="current-password"
         />
 
+        <div className="flex justify-end">
+          <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+            Esqueci minha senha
+          </Link>
+        </div>
+
         <Button type="submit" size="lg" isLoading={isLoading} className="w-full mt-2">
           Entrar
         </Button>

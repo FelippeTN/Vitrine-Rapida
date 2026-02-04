@@ -10,5 +10,7 @@ type User struct {
 	Number    string    `gorm:"unique;not null" json:"number"`
 	PlanID    uint      `gorm:"not null;default:1" json:"plan_id"`
 	Plan      *Plan     `gorm:"foreignKey:PlanID" json:"plan,omitempty"`
+	ResetToken          string    `json:"-"`
+	ResetTokenExpiresAt time.Time `json:"-"`
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 }

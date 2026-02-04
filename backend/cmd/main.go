@@ -51,6 +51,8 @@ func main() {
 		publicRoutes.GET("/collections", handlers.GetPublicCollections)
 		publicRoutes.GET("/catalogs/:token", handlers.GetPublicCatalogByToken)
 		publicRoutes.GET("/plans", handlers.GetPlans)
+		publicRoutes.POST("/forgot-password", handlers.ForgotPassword)
+		publicRoutes.POST("/reset-password", handlers.ResetPassword)
 	}
 
 	protectedRoutes := r.Group("/protected")
