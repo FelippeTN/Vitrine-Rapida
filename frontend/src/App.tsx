@@ -9,6 +9,8 @@ import PublicCatalogPage from '@/pages/PublicCatalogPage'
 import RegisterPage from '@/pages/RegisterPage'
 import SettingsPage from '@/pages/SettingsPage'
 import WelcomePage from '@/pages/WelcomePage'
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
+import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import { API_BASE_URL } from '@/api/config'
 import { type User } from '@/components/layout/Header'
 
@@ -92,6 +94,28 @@ function App() {
             <Navigate to="/catalogos" replace />
           ) : (
             <RegisterPage onAuthenticated={authHandlers.onAuthenticated} />
+          )
+        }
+      />
+
+      <Route
+        path="/forgot-password"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/catalogos" replace />
+          ) : (
+            <ForgotPasswordPage />
+          )
+        }
+      />
+
+      <Route
+        path="/reset-password"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/catalogos" replace />
+          ) : (
+            <ResetPasswordPage />
           )
         }
       />

@@ -79,8 +79,8 @@ func (rl *RateLimiter) isAllowed(ip string) bool {
 }
 
 var (
-	LoginRateLimiter    = NewRateLimiter(5, 15*time.Minute)  
-	RegisterRateLimiter = NewRateLimiter(3, 60*time.Minute)  
+	LoginRateLimiter    = NewRateLimiter(20, 15*time.Minute)  
+	RegisterRateLimiter = NewRateLimiter(15, 60*time.Minute)  
 )
 func RateLimitLoginMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {

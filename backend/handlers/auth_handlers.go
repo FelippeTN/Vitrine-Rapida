@@ -12,6 +12,11 @@ import (
 	"github.com/FelippeTN/Web-Catalogo/backend/utils"
 	"golang.org/x/crypto/bcrypt"
 
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
+	"time"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -242,4 +247,95 @@ func ChangePassword(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Senha alterada com sucesso"})
+}
+
+func ForgotPassword(c *gin.Context) {
+	var input struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email inválido"})
+		return
+	}
+
+	email := strings.ToLower(strings.TrimSpace(input.Email))
+
+	var user models.User
+	if err := database.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		// Do not reveal if email exists or not
+		c.JSON(http.StatusOK, gin.H{"message": "Se o email estiver cadastrado, você receberá instruções para redefinir a senha."})
+		return
+	}
+
+	bytes := make([]byte, 32)
+	if _, err := rand.Read(bytes); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro interno"})
+		return
+	}
+	token := hex.EncodeToString(bytes)
+
+	user.ResetToken = token
+	user.ResetTokenExpiresAt = time.Now().Add(1 * time.Hour) // 1 hour expiry
+
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar solicitação"})
+		return
+	}
+
+	resetLink := fmt.Sprintf("https://vitrinerapida.com.br/reset-password?token=%s", token)
+	subject := "Redefinição de Senha - Vitrine Rápida"
+	body := fmt.Sprintf(`
+		<h1>Redefinição de Senha</h1>
+		<p>Você solicitou a redefinição de sua senha.</p>
+		<p>Clique no link abaixo para prosseguir:</p>
+		<a href="%s">%s</a>
+		<p>Este link expira em 1 hora.</p>
+		<p>Se você não solicitou isso, ignore este email.</p>
+	`, resetLink, resetLink)
+
+	fmt.Printf("RESET TOKEN FOR %s: %s\nLINK: %s\n", email, token, resetLink)
+
+	go func() {
+		if err := utils.SendEmail([]string{email}, subject, body); err != nil {
+			fmt.Printf("Failed to send reset email to %s: %v\n", email, err)
+		}
+	}()
+
+	c.JSON(http.StatusOK, gin.H{"message": "Se o email estiver cadastrado, você receberá instruções para redefinir a senha."})
+}
+
+func ResetPassword(c *gin.Context) {
+	var input struct {
+		Token       string `json:"token" binding:"required"`
+		NewPassword string `json:"new_password" binding:"required,min=6"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos"})
+		return
+	}
+
+	var user models.User
+	if err := database.DB.Where("reset_token = ? AND reset_token_expires_at > ?", input.Token, time.Now()).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Token inválido ou expirado"})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar senha"})
+		return
+	}
+
+	user.Password = string(hashedPassword)
+	user.ResetToken = "" // Clear token
+	user.ResetTokenExpiresAt = time.Now()
+
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar senha"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Senha redefinida com sucesso"})
 }

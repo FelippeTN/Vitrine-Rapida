@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { Store, Check } from 'lucide-react'
+import { Check } from 'lucide-react'
+import logoSvg from '@/assets/logo.svg'
 
 interface AuthLayoutProps {
   children: ReactNode
@@ -13,8 +14,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       <div className="flex-1 flex flex-col p-8 bg-white">
         <div className="mb-12">
           <Link to="/" className="inline-flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-200/50">
-              <Store className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center shadow-md shadow-blue-200/50">
+              <img src={logoSvg} alt="Vitrine Rápida Logo" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col">
               <span className="text-base font-bold text-gray-900 leading-tight">
