@@ -235,18 +235,21 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
                       type="password"
                       value={passwords.current_password}
                       onChange={(e) => setPasswords({ ...passwords, current_password: e.target.value })}
+                      autoComplete="current-password"
                     />
                     <Input
                       label="Nova Senha"
                       type="password"
                       value={passwords.new_password}
                       onChange={(e) => setPasswords({ ...passwords, new_password: e.target.value })}
+                      autoComplete="new-password"
                     />
                     <Input
                       label="Confirmar Nova Senha"
                       type="password"
                       value={passwords.confirm_password}
                       onChange={(e) => setPasswords({ ...passwords, confirm_password: e.target.value })}
+                      autoComplete="new-password"
                     />
                     <div className="pt-4 flex justify-end">
                       <Button type="submit" isLoading={isLoading} className="gap-2">

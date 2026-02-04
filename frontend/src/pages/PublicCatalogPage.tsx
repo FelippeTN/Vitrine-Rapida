@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
-import { ShoppingCart, Plus, Minus, ImageIcon, Store, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ShoppingCart, Plus, Minus, ImageIcon, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import logoSvg from '@/assets/logo.svg'
 
 import { collectionsService } from '@/api'
 import { API_BASE_URL, joinUrl } from '@/api/config'
@@ -216,11 +217,11 @@ export default function PublicCatalogPage() {
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <motion.div 
-              className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md shadow-blue-200/50"
+              className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center shadow-md shadow-blue-200/50"
               whileHover={{ scale: 1.05, rotate: 3 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Store className="w-5 h-5 text-white" />
+              <img src={logoSvg} alt="Vitrine Rápida Logo" className="w-full h-full object-cover" />
             </motion.div>
             <div className="flex flex-col">
               <span className="text-base font-bold text-gray-900 leading-tight">
