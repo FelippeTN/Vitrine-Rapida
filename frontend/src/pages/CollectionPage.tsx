@@ -218,6 +218,8 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     setEditProductDeleteImageIds(prev => [...prev, imageId])
   }
 
+  const MAX_IMAGES_PER_PRODUCT = 3
+
   function handleAddImagesToCreate(files: FileList | null) {
     if (!files) return
     const newFiles = Array.from(files)
@@ -228,14 +230,25 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
       }
       return true
     })
-    setImages(prev => [...prev, ...validFiles])
+    setImages(prev => {
+      const remaining = MAX_IMAGES_PER_PRODUCT - prev.length
+      if (remaining <= 0) {
+        alert(`Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`)
+        return prev
+      }
+      if (validFiles.length > remaining) {
+        alert(`Você pode adicionar mais ${remaining} imagem(ns). Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`)
+        return [...prev, ...validFiles.slice(0, remaining)]
+      }
+      return [...prev, ...validFiles]
+    })
   }
 
   function handleRemoveImageFromCreate(index: number) {
     setImages(prev => prev.filter((_, i) => i !== index))
   }
 
-  function handleAddImagesToEdit(files: FileList | null) {
+  function handleAddImagesToEdit(files: FileList | null, product: Product) {
     if (!files) return
     const newFiles = Array.from(files)
     const validFiles = newFiles.filter(file => {
@@ -245,7 +258,21 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
       }
       return true
     })
-    setEditProductNewImages(prev => [...prev, ...validFiles])
+    // Calculate current image count (existing images minus deleted ones, plus new ones already added)
+    const existingImages = (product.images || []).filter(img => !editProductDeleteImageIds.includes(img.id)).length
+    setEditProductNewImages(prev => {
+      const currentTotal = existingImages + prev.length
+      const remaining = MAX_IMAGES_PER_PRODUCT - currentTotal
+      if (remaining <= 0) {
+        alert(`Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`)
+        return prev
+      }
+      if (validFiles.length > remaining) {
+        alert(`Você pode adicionar mais ${remaining} imagem(ns). Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`)
+        return [...prev, ...validFiles.slice(0, remaining)]
+      }
+      return [...prev, ...validFiles]
+    })
   }
 
   function handleRemoveNewImageFromEdit(index: number) {
@@ -437,7 +464,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                         <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100">
                           <ImageIcon className="w-4 h-4 text-gray-500" />
                           <span className="text-sm text-gray-600">Adicionar imagens</span>
-                          <input type="file" accept="image/*" multiple onChange={(e) => handleAddImagesToEdit(e.target.files)} className="hidden" />
+                          <input type="file" accept="image/*" multiple onChange={(e) => handleAddImagesToEdit(e.target.files, p)} className="hidden" />
                         </label>
                         <div className="flex gap-2">
                           <Button size="sm" onClick={() => void saveProductEdit(p.id)} isLoading={isUpdatingProduct}><Save className="w-4 h-4 mr-1" />Salvar</Button>
