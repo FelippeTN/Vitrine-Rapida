@@ -49,6 +49,10 @@ func CreateProduct(c *gin.Context) {
 	if form != nil && form.File["images"] != nil {
 		files := form.File["images"]
 		for _, file := range files {
+			if file.Size > 10*1024*1024 {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "O tamanho da imagem excede o limite de 10MB"})
+				return
+			}
 			baseFilename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), strconv.Itoa(len(uploadedImages)))
 			jpgFilename := baseFilename + ".jpg"
 			jpgPath := filepath.Join("uploads", jpgFilename)
@@ -72,6 +76,10 @@ func CreateProduct(c *gin.Context) {
 	if len(uploadedImages) == 0 {
 		file, err := c.FormFile("image")
 		if err == nil {
+			if file.Size > 10*1024*1024 {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "O tamanho da imagem excede o limite de 10MB"})
+				return
+			}
 			baseFilename := fmt.Sprintf("%d", time.Now().UnixNano())
 			jpgFilename := baseFilename + ".jpg"
 			jpgPath := filepath.Join("uploads", jpgFilename)
@@ -217,6 +225,10 @@ func UpdateProduct(c *gin.Context) {
 	if form != nil && form.File["images"] != nil {
 		files := form.File["images"]
 		for i, file := range files {
+			if file.Size > 10*1024*1024 {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "O tamanho da imagem excede o limite de 10MB"})
+				return
+			}
 			baseFilename := fmt.Sprintf("%d_%d", time.Now().UnixNano(), i)
 			jpgFilename := baseFilename + ".jpg"
 			jpgPath := filepath.Join("uploads", jpgFilename)
@@ -241,6 +253,10 @@ func UpdateProduct(c *gin.Context) {
 	if len(uploadedImages) == 0 {
 		file, err := c.FormFile("image")
 		if err == nil {
+			if file.Size > 10*1024*1024 {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "O tamanho da imagem excede o limite de 10MB"})
+				return
+			}
 			baseFilename := fmt.Sprintf("%d", time.Now().UnixNano())
 			jpgFilename := baseFilename + ".jpg"
 			jpgPath := filepath.Join("uploads", jpgFilename)

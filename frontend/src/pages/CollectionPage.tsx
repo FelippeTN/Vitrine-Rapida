@@ -220,7 +220,15 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
 
   function handleAddImagesToCreate(files: FileList | null) {
     if (!files) return
-    setImages(prev => [...prev, ...Array.from(files)])
+    const newFiles = Array.from(files)
+    const validFiles = newFiles.filter(file => {
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`A imagem ${file.name} excede o limite de 10MB.`)
+        return false
+      }
+      return true
+    })
+    setImages(prev => [...prev, ...validFiles])
   }
 
   function handleRemoveImageFromCreate(index: number) {
@@ -229,7 +237,15 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
 
   function handleAddImagesToEdit(files: FileList | null) {
     if (!files) return
-    setEditProductNewImages(prev => [...prev, ...Array.from(files)])
+    const newFiles = Array.from(files)
+    const validFiles = newFiles.filter(file => {
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`A imagem ${file.name} excede o limite de 10MB.`)
+        return false
+      }
+      return true
+    })
+    setEditProductNewImages(prev => [...prev, ...validFiles])
   }
 
   function handleRemoveNewImageFromEdit(index: number) {
