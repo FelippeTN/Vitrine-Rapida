@@ -11,6 +11,9 @@ import SettingsPage from '@/pages/SettingsPage'
 import WelcomePage from '@/pages/WelcomePage'
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
+import TermsOfUsePage from '@/pages/TermsOfUsePage'
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage'
+import CookiesPage from '@/pages/CookiesPage'
 import { API_BASE_URL } from '@/api/config'
 import { type User } from '@/components/layout/Header'
 
@@ -163,6 +166,10 @@ function App() {
           )
         }
       />
+
+      <Route path="/termos" element={<TermsOfUsePage />} />
+      <Route path="/privacidade" element={<PrivacyPolicyPage />} />
+      <Route path="/cookies" element={<CookiesPage />} />
 
       <Route path="*" element={<Navigate to={isAuthenticated ? '/catalogos' : '/'} replace />} />
     </Routes>
