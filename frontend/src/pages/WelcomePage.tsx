@@ -1,13 +1,29 @@
 import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Store, Zap, Share2, ArrowRight, Menu, X, CheckCircle2 } from 'lucide-react'
+import { 
+  Store, 
+  Zap, 
+  Share2, 
+  ArrowRight, 
+  Menu, 
+  X, 
+  CheckCircle2, 
+  Smartphone, 
+  ShoppingBag, 
+  Users,
+  Mail,
+  MessageCircle,
+  Package
+} from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useState } from 'react'
 import logoSvg from '@/assets/logo.svg'
 
+// Animation Variants
 const fadeUp = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
 }
 
 const stagger = {
@@ -22,296 +38,425 @@ export default function WelcomePage() {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+  const features = [
+    { 
+      icon: Store, 
+      title: 'Sua Loja Online', 
+      desc: 'Personalize sua vitrine com sua marca, cores e identidade visual em poucos cliques.',
+      color: 'bg-blue-50 text-blue-600'
+    },
+    { 
+      icon: Smartphone, 
+      title: 'Perfeito no Celular', 
+      desc: 'Seus clientes navegam com facilidade em uma interface pensada 100% para mobile.',
+      color: 'bg-indigo-50 text-indigo-600'
+    },
+    { 
+      icon: Zap, 
+      title: 'Pedidos no WhatsApp', 
+      desc: 'Receba pedidos prontos e organizados diretamente no seu WhatsApp.',
+      color: 'bg-amber-50 text-amber-600'
+    },
+  ]
+
+  const steps = [
+    {
+      step: '01',
+      title: 'Crie sua Conta',
+      desc: 'Cadastro rápido em menos de 1 minuto. Sem burocracia.',
+      icon: usersIcon()
+    },
+    {
+      step: '02',
+      title: 'Adicione Produtos',
+      desc: 'Cadastre fotos, preços e descrições de forma simples.',
+      icon: bagIcon()
+    },
+    {
+      step: '03',
+      title: 'Comece a Vender',
+      desc: 'Compartilhe seu link exclusivo e receba pedidos.',
+      icon: shareIcon()
+    }
+  ]
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-50 font-sans selection:bg-blue-100 selection:text-blue-900">
+      
       {/* Header */}
       <motion.header
-        className="sticky top-0 z-50 w-full border-b border-gray-200/80 bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80"
+        className="sticky top-0 z-50 w-full border-b border-gray-200/80 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link 
             to="/" 
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 group"
             onClick={() => setIsMenuOpen(false)}
           >
-            <motion.div 
-              className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center shadow-lg shadow-blue-500/20"
-              whileHover={{ scale: 1.05, rotate: 3 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <img src={logoSvg} alt="Vitrine Rápida Logo" className="w-full h-full object-cover" />
-            </motion.div>
-            <div className="flex flex-col">
-              <span className="text-base font-bold text-gray-900 leading-tight">
-                Vitrine Rápida
-              </span>
-              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                Catálogo Online
-              </span>
+            <div className="relative">
+              <div className="absolute inset-0 bg-blue-500 blur-lg opacity-20 group-hover:opacity-40 transition-opacity rounded-full"></div>
+              <img src={logoSvg} alt="Vitrine Rápida" className="relative w-10 h-10 object-contain" />
             </div>
+            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+              Vitrine Rápida
+            </span>
           </Link>
 
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/login')}
-            >
+          <div className="hidden md:flex items-center gap-4">
+            <nav className="flex gap-6 mr-4 text-sm font-medium text-gray-600">
+              <a href="#como-funciona" className="hover:text-blue-600 transition-colors">Como Funciona</a>
+              <a href="#contato" className="hover:text-blue-600 transition-colors">Contato</a>
+            </nav>
+            <div className="h-6 w-px bg-gray-200"></div>
+            <Button variant="ghost" className="font-medium" onClick={() => navigate('/login')}>
               Entrar
             </Button>
-            <Button
-              size="sm"
-              onClick={() => navigate('/registro')}
-            >
-              Criar Conta Grátis
+            <Button onClick={() => navigate('/registro')} className="shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all">
+              Criar Vitrine Grátis
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
           <button 
-            className="md:hidden p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 text-gray-600"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Menu"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* Mobile Menu */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-gray-100 bg-white overflow-hidden"
+              className="md:hidden border-t border-gray-100 bg-white"
             >
-              <div className="p-4 space-y-3 shadow-lg">
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  onClick={() => { navigate('/login'); setIsMenuOpen(false); }}
-                  className="w-full justify-start text-gray-600"
-                >
-                  Entrar na minha conta
-                </Button>
-                <Button
-                  size="lg"
-                  onClick={() => { navigate('/registro'); setIsMenuOpen(false); }}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  Criar conta grátis
-                </Button>
+              <div className="p-4 space-y-4">
+                <nav className="flex flex-col gap-4 text-sm font-medium text-gray-600 mb-4">
+                  <a href="#como-funciona" onClick={() => setIsMenuOpen(false)}>Como Funciona</a>
+                  <a href="#contato" onClick={() => setIsMenuOpen(false)}>Contato</a>
+                </nav>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button variant="secondary" onClick={() => navigate('/login')}>Entrar</Button>
+                  <Button onClick={() => navigate('/registro')}>Cadastrar</Button>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.header>
 
-      {/* Hero */}
-      <section className="relative pt-20 pb-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-white to-white -z-10" />
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-100/50 blur-3xl rounded-full -z-10 translate-x-1/2 -translate-y-1/2" />
-        
-        <motion.div 
-          className="max-w-4xl mx-auto text-center"
-          variants={stagger}
-          initial="initial"
-          animate="animate"
-        >
-          <motion.div 
-            className="inline-flex items-center gap-2 bg-white border border-blue-100 text-blue-700 text-sm font-medium px-4 py-1.5 rounded-full mb-8 shadow-sm"
-            variants={fadeUp}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-            </span>
-            Junte-se a +500 lojistas ativos
-          </motion.div>
-          
-          <motion.h1 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 tracking-tight mb-8"
-            variants={fadeUp}
-            transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.1 }}
-          >
-            Sua vitrine digital <br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">
-              profissional em minutos
-            </span>
-          </motion.h1>
-          
-          <motion.p 
-            className="text-lg sm:text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed"
-            variants={fadeUp}
-            transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.2 }}
-          >
-            A plataforma mais simples e elegante para criar catálogos, organizar produtos e vender mais pelo WhatsApp.
-          </motion.p>
-
-          <motion.div 
-            className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center px-4"
-            variants={fadeUp}
-            transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.3 }}
-          >
-            <Button 
-              size="lg" 
-              onClick={() => navigate('/registro')} 
-            >
-              Começar Grátis <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-            <Button 
-              variant="secondary" 
-              size="lg" 
-              onClick={() => navigate('/catalog')}
-            >
-              Ver Exemplo Real
-            </Button>
-          </motion.div>
-
-          <motion.div
-            className="mt-16 flex flex-wrap justify-center gap-8 text-sm font-medium text-gray-500"
-            variants={fadeUp}
-            transition={{ delay: 0.4 }}
-          >
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-green-500" /> Sem cartão de crédito
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-green-500" /> Plano grátis para sempre
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-green-500" /> Setup instantâneo
-            </div>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* Features */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50/50">
-        <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className="text-center mb-20"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              Tudo que você precisa para vender mais
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Ferramentas poderosas em uma interface que qualquer pessoa consegue usar.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { 
-                icon: Store, 
-                title: 'Catálogos Elegantes', 
-                desc: 'Vitrines que valorizam seus produtos com design limpo e profissional.',
-                color: 'bg-blue-50 text-blue-600'
-              },
-              { 
-                icon: Share2, 
-                title: 'Compartilhamento Fácil', 
-                desc: 'Envie o link para seus clientes via WhatsApp, Instagram ou Telegram.',
-                color: 'bg-green-50 text-green-600'
-              },
-              { 
-                icon: Zap, 
-                title: 'Links Diretos', 
-                desc: 'Clientes escolhem os produtos e enviam o pedido direto no seu WhatsApp.',
-                color: 'bg-purple-50 text-purple-600'
-              },
-            ].map((feature, i) => (
-              <motion.div 
-                key={feature.title} 
-                className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ type: 'spring', stiffness: 300, damping: 25, delay: i * 0.1 }}
-                whileHover={{ y: -5 }}
-              >
-                <div className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-6`}>
-                  <feature.icon className="w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
-              </motion.div>
-            ))}
+      <main>
+        {/* Hero Section */}
+        <section className="relative pt-20 pb-32 overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
+            <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-blue-400/10 blur-[100px] rounded-full mix-blend-multiply filter opacity-70 animate-blob"></div>
+            <div className="absolute top-20 left-0 w-[500px] h-[500px] bg-purple-400/10 blur-[100px] rounded-full mix-blend-multiply filter opacity-70 animate-blob animation-delay-2000"></div>
           </div>
-        </div>
-      </section>
 
-      {/* CTA */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
-          <motion.div 
-            className="relative bg-gradient-to-br from-blue-600 to-blue-800 rounded-[2.5rem] p-12 md:p-20 text-center overflow-hidden"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          >
-            {/* Decorative circles */}
-            <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-
-            <h2 className="relative text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-              Pronto para transformar suas vendas?
-            </h2>
-            <p className="relative text-blue-100 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-              Não perca mais tempo enviando fotos soltas. Crie seu catálogo profissional agora mesmo.
-            </p>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <motion.div 
-              className="relative flex flex-col sm:flex-row gap-4 justify-center"
-              whileHover={{ scale: 1.02 }}
+              className="max-w-4xl mx-auto text-center"
+              variants={stagger}
+              initial="initial"
+              animate="animate"
             >
+              <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-blue-100 text-blue-600 text-xs font-bold uppercase tracking-wide mb-8 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                A plataforma #1 para vender no WhatsApp
+              </motion.div>
+              
+              <motion.h1 variants={fadeUp} className="text-5xl md:text-7xl font-bold tracking-tight text-gray-900 mb-8 leading-[1.1]">
+                Sua vitrine profissional <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                  pronta em minutos
+                </span>
+              </motion.h1>
+              
+              <motion.p variants={fadeUp} className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                Transforme seu WhatsApp em uma máquina de vendas. Crie um catálogo digital elegante, organize seus produtos e facilite a vida do seu cliente.
+              </motion.p>
+
+              <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button size="lg" className="h-14 px-8 text-lg rounded-full shadow-xl shadow-blue-500/20 hover:shadow-blue-500/30 hover:scale-105 transition-all duration-300" onClick={() => navigate('/registro')}>
+                  Começar Agora Grátis <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+                <div className="text-sm text-gray-500 flex items-center gap-4 mt-4 sm:mt-0">
+                  <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-green-500" /> Sem cartão</span>
+                  <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-green-500" /> Setup grátis</span>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Catalog Preview */}
+            <motion.div 
+              initial={{ opacity: 0, y: 100, rotateX: 20 }}
+              animate={{ opacity: 1, y: 0, rotateX: 0 }}
+              transition={{ delay: 0.4, duration: 0.8, type: "spring" }}
+              className="mt-20 relative mx-auto max-w-5xl"
+            >
+              <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
+                {/* Desktop Browser Preview */}
+                <div className="flex-1 rounded-2xl border border-gray-200 bg-white shadow-2xl overflow-hidden">
+                  {/* Fake Browser Header */}
+                  <div className="bg-gray-100 border-b border-gray-200 px-4 py-3 flex items-center gap-2">
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                    </div>
+                    <div className="ml-4 flex-1 bg-white h-6 rounded-md border border-gray-200 text-xs flex items-center px-2 text-gray-400 font-mono">
+                      vitrinerapida.com/c/minha-loja
+                    </div>
+                  </div>
+
+                  {/* Catalog Content */}
+                  <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+                    {/* Store Header */}
+                    <div className="text-center mb-6">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 mx-auto mb-3 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                        ML
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">Moda & Lifestyle</h3>
+                      <p className="text-sm text-gray-500">Roupas e acessórios exclusivos</p>
+                    </div>
+
+                    {/* Products Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {[
+                        { name: 'Camiseta Premium', price: 'R$ 89,90', color: 'bg-rose-100' },
+                        { name: 'Calça Jeans Slim', price: 'R$ 159,90', color: 'bg-blue-100' },
+                        { name: 'Tênis Casual', price: 'R$ 249,90', color: 'bg-amber-100' },
+                        { name: 'Bolsa Couro', price: 'R$ 199,90', color: 'bg-emerald-100' },
+                        { name: 'Relógio Classic', price: 'R$ 329,90', color: 'bg-purple-100' },
+                        { name: 'Óculos Solar', price: 'R$ 179,90', color: 'bg-orange-100' },
+                      ].map((product, i) => (
+                        <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                          <div className={`${product.color} h-24 flex items-center justify-center`}>
+                            <Package className="w-8 h-8 text-gray-400" />
+                          </div>
+                          <div className="p-3">
+                            <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                            <p className="text-sm font-bold text-blue-600">{product.price}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* WhatsApp Button */}
+                    <div className="mt-6 text-center">
+                      <button className="inline-flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-full font-medium shadow-lg shadow-green-500/30 hover:bg-green-600 transition-colors">
+                        <MessageCircle className="w-5 h-5" />
+                        Fazer Pedido no WhatsApp
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Phone Preview */}
+                <div className="hidden md:block relative">
+                  <div className="w-[280px] h-[560px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl">
+                    <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
+                      {/* Phone Notch */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-gray-900 rounded-b-2xl z-10"></div>
+                      
+                      {/* Phone Content */}
+                      <div className="h-full overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50 pt-8 px-4 pb-4">
+                        {/* Store Header */}
+                        <div className="text-center mb-4">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 mx-auto mb-2 flex items-center justify-center text-white text-lg font-bold">
+                            ML
+                          </div>
+                          <h4 className="text-sm font-bold text-gray-900">Moda & Lifestyle</h4>
+                        </div>
+
+                        {/* Products */}
+                        <div className="grid grid-cols-2 gap-2">
+                          {[
+                            { name: 'Camiseta', price: 'R$ 89,90', color: 'bg-rose-100' },
+                            { name: 'Calça Jeans', price: 'R$ 159,90', color: 'bg-blue-100' },
+                            { name: 'Tênis', price: 'R$ 249,90', color: 'bg-amber-100' },
+                            { name: 'Bolsa', price: 'R$ 199,90', color: 'bg-emerald-100' },
+                          ].map((p, i) => (
+                            <div key={i} className="bg-white rounded-lg overflow-hidden shadow-sm">
+                              <div className={`${p.color} h-16 flex items-center justify-center`}>
+                                <Package className="w-5 h-5 text-gray-400" />
+                              </div>
+                              <div className="p-2">
+                                <p className="text-xs font-medium text-gray-900 truncate">{p.name}</p>
+                                <p className="text-xs font-bold text-blue-600">{p.price}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* WhatsApp Button Mobile */}
+                        <button className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 bg-green-500 text-white rounded-full text-sm font-medium">
+                          <MessageCircle className="w-4 h-4" />
+                          Pedir via WhatsApp
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Decorative Elements */}
+                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl"></div>
+                  <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-purple-500/10 rounded-full blur-xl"></div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Features Grid */}
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-3 gap-8">
+              {features.map((feature, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ y: -5 }}
+                  className="bg-gray-50 p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
+                >
+                  <div className={`w-12 h-12 rounded-xl ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                    <feature.icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How it Works */}
+        <section id="como-funciona" className="py-24 bg-slate-50 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Passo a Passo</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">Como funciona sua Vitrine</h2>
+              <p className="text-gray-500 max-w-2xl mx-auto">Tudo desenhado para você não perder tempo com tecnologia e focar no que importa: vender.</p>
+            </div>
+
+            <div className="relative grid md:grid-cols-3 gap-12">
+              {/* Connecting Line (Desktop) */}
+              <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+
+              {steps.map((step, i) => (
+                <motion.div 
+                  key={i}
+                  className="relative flex flex-col items-center text-center group"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.2 }}
+                >
+                  <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-xl flex items-center justify-center mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300">
+                    {step.icon}
+                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-lg">
+                      {step.step}
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
+                  <p className="text-gray-600 max-w-xs">{step.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-24 px-4 bg-white">
+          <div className="max-w-5xl mx-auto bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl shadow-blue-500/30">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
+            
+            <div className="relative z-10">
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
+                Pronto para digitalizar sua loja?
+              </h2>
+              <p className="text-blue-100 text-lg md:text-xl mb-12 max-w-2xl mx-auto">
+                Crie sua conta agora e tenha sua vitrine pronta ainda hoje. Sem custo, sem compromisso.
+              </p>
               <Button 
                 size="lg" 
+                className="h-14 px-10 text-lg rounded-full bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-2xl hover:scale-105 transition-transform font-bold border-none"
                 onClick={() => navigate('/registro')}
-                className="bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-0 shadow-2xl"
               >
-                Criar minha vitrine grátis
+                Criar Vitrine Grátis
               </Button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-100 py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <img src={logoSvg} alt="Vitrine Rápida Logo" className="w-full h-full object-cover" />
-              </div>
-              <span className="font-bold text-gray-900 text-lg">Vitrine Rápida</span>
             </div>
-            
-            <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-500 font-medium">
-              <a href="#" className="hover:text-blue-600 transition-colors">Termos de Uso</a>
-              <a href="#" className="hover:text-blue-600 transition-colors">Política de Privacidade</a>
-              <a href="#" className="hover:text-blue-600 transition-colors">Ajuda</a>
-            </div>
-            
-            <p className="text-sm text-gray-400">
-              © {new Date().getFullYear()} Vitrine Rápida. Todos os direitos reservados.
-            </p>
           </div>
-        </div>
-      </footer>
+        </section>
+
+        {/* Footer */}
+        <footer id="contato" className="bg-slate-50 border-t border-gray-200 pt-16 pb-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-4 gap-12 mb-12">
+              <div className="col-span-1 md:col-span-2">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+                   <img src={logoSvg} alt="VR" className="w-6 h-6 brightness-0 invert" />
+                  </div>
+                  <span className="text-xl font-bold text-gray-900">Vitrine Rápida</span>
+                </div>
+                <p className="text-gray-500 max-w-xs mb-6">
+                  A plataforma completa para você vender mais e melhor através do WhatsApp.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-gray-900 mb-6">Contato & Suporte</h4>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3 text-gray-600">
+                    <Mail className="w-5 h-5 text-blue-500 mt-0.5" />
+                    <span>vitrinerapida.suporte@gmail.com</span>
+                  </li>
+                  <li className="text-sm text-gray-400 mt-2">
+                    Seg a Sex, 9h às 18h
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-gray-900 mb-6">Legal</h4>
+                <ul className="space-y-3">
+                  <li><Link to="/termos" className="text-gray-600 hover:text-blue-600">Termos de Uso</Link></li>
+                  <li><Link to="/privacidade" className="text-gray-600 hover:text-blue-600">Política de Privacidade</Link></li>
+                  <li><Link to="/cookies" className="text-gray-600 hover:text-blue-600">Cookies</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+              <p>© {new Date().getFullYear()} Vitrine Rápida. Feito com ❤️ e café.</p>
+              <div className="flex gap-6">
+              </div>
+            </div>
+          </div>
+        </footer>
+      </main>
     </div>
   )
+}
+
+function usersIcon() {
+  return <Users className="w-8 h-8 text-blue-600" />
+}
+
+function bagIcon() {
+  return <ShoppingBag className="w-8 h-8 text-blue-600" />
+}
+
+function shareIcon() {
+  return <Share2 className="w-8 h-8 text-blue-600" />
 }
