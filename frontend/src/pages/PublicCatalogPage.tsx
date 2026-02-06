@@ -43,6 +43,7 @@ export default function PublicCatalogPage() {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [ownerPhone, setOwnerPhone] = useState('')
   const [storeName, setStoreName] = useState('')
+  const [storeLogo, setStoreLogo] = useState('')
 
   function getProductImages(p: Product): string[] {
     if (p.images && p.images.length > 0) {
@@ -85,6 +86,7 @@ export default function PublicCatalogPage() {
         setProducts(data.products)
         setOwnerPhone(data.owner_phone || '')
         setStoreName(data.store_name || '')
+        setStoreLogo(data.store_logo || '')
       } catch (err) {
         if (!mounted) return
         setErrorMessage(err instanceof Error ? err.message : 'Erro')
@@ -221,7 +223,11 @@ export default function PublicCatalogPage() {
               whileHover={{ scale: 1.05, rotate: 3 }}
               whileTap={{ scale: 0.95 }}
             >
-              <img src={logoSvg} alt="Vitrine Rápida Logo" className="w-full h-full object-cover" />
+              <img 
+                src={storeLogo ? `${API_BASE_URL}${storeLogo}` : logoSvg} 
+                alt={storeName || 'Vitrine Rápida Logo'} 
+                className="w-full h-full object-cover" 
+              />
             </motion.div>
             <div className="flex flex-col">
               <span className="text-base font-bold text-gray-900 leading-tight">

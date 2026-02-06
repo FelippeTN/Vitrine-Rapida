@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { User, Lock, Save } from 'lucide-react'
+import { User, Lock, Save, Upload, Trash2, Store } from 'lucide-react'
 import { type User as UserType } from '@/components/layout/Header'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Button, Input, Card } from '@/components/ui'
@@ -13,9 +13,10 @@ interface SettingsPageProps {
 }
 
 export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
-  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'logo'>('profile')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Profile Form State
   const [profile, setProfile] = useState({
@@ -23,6 +24,10 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
     email: '',
     number: '',
   })
+
+  // Logo State
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false)
 
   // Password Form State
   const [passwords, setPasswords] = useState({
@@ -49,6 +54,9 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
           email: data.email,
           number: formatPhone(data.number), // Format received number
         })
+        if (data.logo_url) {
+          setLogoUrl(data.logo_url)
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
@@ -133,6 +141,81 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
     }
   }
 
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+      setMessage({ type: 'error', text: 'Tipo de arquivo inválido. Use JPEG ou PNG' })
+      return
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Arquivo muito grande. Máximo 2MB' })
+      return
+    }
+
+    setIsUploadingLogo(true)
+    setMessage({ type: '', text: '' })
+
+    try {
+      const formData = new FormData()
+      formData.append('logo', file)
+
+      const response = await fetch(`${API_BASE_URL}/protected/me/logo`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setLogoUrl(data.logo_url)
+        setMessage({ type: 'success', text: 'Logo atualizada com sucesso!' })
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erro ao fazer upload da logo' })
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Erro ao conectar com o servidor' })
+    } finally {
+      setIsUploadingLogo(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
+  async function handleDeleteLogo() {
+    setIsUploadingLogo(true)
+    setMessage({ type: '', text: '' })
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/protected/me/logo`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setLogoUrl(null)
+        setMessage({ type: 'success', text: 'Logo removida com sucesso!' })
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erro ao remover logo' })
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Erro ao conectar com o servidor' })
+    } finally {
+      setIsUploadingLogo(false)
+    }
+  }
+
   return (
     <PageLayout
       isAuthenticated={true}
@@ -167,6 +250,17 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
           >
             <Lock className="w-4 h-4" />
             Segurança
+          </button>
+          <button
+            onClick={() => setActiveTab('logo')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === 'logo'
+                ? 'bg-blue-50 text-blue-700'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <Store className="w-4 h-4" />
+            Logo da Loja
           </button>
         </aside>
 
@@ -258,6 +352,76 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
                       </Button>
                     </div>
                   </form>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+
+          {activeTab === 'logo' && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-6"
+            >
+              <Card>
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Logo da Loja</h3>
+                  <p className="text-sm text-gray-500 mb-6">
+                    A logo aparecerá na vitrine pública quando seus clientes acessarem seu catálogo.
+                  </p>
+
+                  {/* Logo Preview */}
+                  <div className="flex flex-col items-center gap-6">
+                    <div className="w-32 h-32 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
+                      {logoUrl ? (
+                        <img
+                          src={`${API_BASE_URL}${logoUrl}`}
+                          alt="Logo da loja"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Store className="w-12 h-12 text-gray-400" />
+                      )}
+                    </div>
+
+                    <div className="flex gap-3">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/jpg"
+                        onChange={handleLogoUpload}
+                        className="hidden"
+                        id="logo-upload"
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => fileInputRef.current?.click()}
+                        isLoading={isUploadingLogo}
+                        className="gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        {logoUrl ? 'Alterar Logo' : 'Enviar Logo'}
+                      </Button>
+
+                      {logoUrl && (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={handleDeleteLogo}
+                          isLoading={isUploadingLogo}
+                          className="gap-2 text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Remover
+                        </Button>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-gray-400 text-center">
+                      Formatos aceitos: JPEG, PNG. Tamanho máximo: 2MB.
+                    </p>
+                  </div>
                 </div>
               </Card>
             </motion.div>

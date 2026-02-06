@@ -70,6 +70,7 @@ export type PublicCatalogResponse = {
   products: Product[]
   owner_phone: string
   store_name: string
+  store_logo: string
 }
 
 export type Plan = {
