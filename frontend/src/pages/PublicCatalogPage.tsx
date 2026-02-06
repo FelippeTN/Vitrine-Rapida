@@ -384,11 +384,11 @@ export default function PublicCatalogPage() {
               )}
             </motion.section>
 
-            {/* Cart */}
+            {/* Cart - visível apenas em telas lg: e maiores */}
             <AnimatePresence mode="popLayout">
               {isCartOpen && (
                 <motion.aside 
-                  className="lg:sticky lg:top-20 h-fit"
+                  className="hidden lg:block lg:sticky lg:top-20 h-fit"
                   layout
                   initial={{ opacity: 0, scale: 0.9, x: 30 }}
                   animate={{ opacity: 1, scale: 1, x: 0 }}
@@ -633,6 +633,131 @@ export default function PublicCatalogPage() {
                     Fechar
                   </Button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Cart Modal - aparece apenas em telas menores que lg */}
+      <AnimatePresence>
+        {isCartOpen && (
+          <motion.div 
+            className="lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsCartOpen(false)}
+          >
+            <motion.div
+              className="absolute top-16 right-4 left-4 sm:left-auto sm:right-4 sm:w-96 bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[calc(100vh-5rem)]"
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Seta apontando para o carrinho no header */}
+              <div className="absolute -top-2 right-6 w-4 h-4 bg-white transform rotate-45 shadow-[-2px_-2px_4px_rgba(0,0,0,0.1)]" />
+              
+              <div className="relative p-4 overflow-y-auto max-h-[calc(100vh-6rem)]">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                      <ShoppingCart className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <h2 className="font-medium text-gray-900">Carrinho</h2>
+                  </div>
+                  <button
+                    className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                    onClick={() => setIsCartOpen(false)}
+                    aria-label="Fechar carrinho"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {cartItems.length === 0 ? (
+                  <p className="text-gray-500 text-sm py-6 text-center">Carrinho vazio</p>
+                ) : (
+                  <div className="space-y-3">
+                    <AnimatePresence initial={false} mode="popLayout">
+                      {cartItems.map(({ product, qty, size, key }) => (
+                        <motion.div 
+                          key={key} 
+                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                          layout
+                        >
+                          {(() => {
+                            const cartImages = getProductImages(product)
+                            if (cartImages.length > 0) {
+                              return <img src={joinUrl(API_BASE_URL, cartImages[0])} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                            }
+                            return (
+                              <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <ImageIcon className="w-5 h-5 text-gray-400" />
+                              </div>
+                            )
+                          })()}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs text-gray-500">{formatPrice(product.price)}</p>
+                              {size && (
+                                <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                                  {size}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <motion.button 
+                              onClick={() => decrementCartItem(key)} 
+                              className="w-6 h-6 rounded bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              <Minus className="w-3 h-3" />
+                            </motion.button>
+                            <motion.span 
+                              className="w-5 text-center text-sm font-medium"
+                              key={qty}
+                              initial={{ scale: 1.3 }}
+                              animate={{ scale: 1 }}
+                            >
+                              {qty}
+                            </motion.span>
+                            <motion.button 
+                              onClick={() => incrementCartItem(key)} 
+                              className="w-6 h-6 rounded bg-gray-200 flex items-center justify-center hover:bg-gray-300"
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              <Plus className="w-3 h-3" />
+                            </motion.button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+
+                    <div className="pt-3 border-t border-gray-200">
+                      <div className="flex justify-between mb-3">
+                        <span className="text-gray-600">Total</span>
+                        <motion.span 
+                          className="text-xl font-bold text-blue-600"
+                          key={total}
+                          initial={{ scale: 1.1 }}
+                          animate={{ scale: 1 }}
+                        >
+                          {formatPrice(total)}
+                        </motion.span>
+                      </div>
+                      <Button className="w-full" onClick={handleFinishOrder} disabled={!ownerPhone}>Finalizar pedido</Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>
