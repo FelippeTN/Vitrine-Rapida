@@ -12,6 +12,7 @@ type Product struct {
 	Sizes        string         `json:"sizes"`
 	ImageURL     *string        `json:"image_url"`
 	Images       []ProductImage `gorm:"foreignKey:ProductID" json:"images"`
+	Stock        int            `gorm:"default:0" json:"stock"`
 	CreatedAt    time.Time      `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt    time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
 }
@@ -21,6 +22,7 @@ type CreateProductInput struct {
 	Description  string  `json:"description" form:"description" binding:"required"`
 	Price        float64 `json:"price" form:"price" binding:"required"`
 	Sizes        string  `json:"sizes" form:"sizes"`
+	Stock        *int    `json:"stock" form:"stock"`
 	CollectionID *uint   `json:"collection_id" form:"collection_id"`
 	ImageURL     *string `json:"image_url" form:"image_url"`
 }
@@ -30,6 +32,7 @@ type UpdateProductInput struct {
 	Description     *string  `json:"description" form:"description"`
 	Price           *float64 `json:"price" form:"price"`
 	Sizes           *string  `json:"sizes" form:"sizes"`
+	Stock           *int     `json:"stock" form:"stock"`
 	CollectionID    *uint    `json:"collection_id" form:"collection_id"`
 	ImageURL        *string  `json:"image_url" form:"image_url"`
 	DeleteImageIDs  []uint   `json:"delete_image_ids" form:"delete_image_ids"`

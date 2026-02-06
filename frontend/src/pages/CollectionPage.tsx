@@ -34,6 +34,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
+  const [stock, setStock] = useState('')
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [images, setImages] = useState<File[]>([])
   const [isSaving, setIsSaving] = useState(false)
@@ -43,6 +44,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
   const [editProductName, setEditProductName] = useState('')
   const [editProductDescription, setEditProductDescription] = useState('')
   const [editProductPrice, setEditProductPrice] = useState('')
+  const [editProductStock, setEditProductStock] = useState('')
   const [editProductSizes, setEditProductSizes] = useState<string[]>([])
   const [editProductNewImages, setEditProductNewImages] = useState<File[]>([])
   const [editProductDeleteImageIds, setEditProductDeleteImageIds] = useState<number[]>([])
@@ -113,13 +115,14 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
 
     try {
       setIsSaving(true)
-      await productsService.create({ 
-        name: trimmedName, 
-        description: trimmedDesc, 
-        price: parsedPrice, 
+      await productsService.create({
+        name: trimmedName,
+        description: trimmedDesc,
+        price: parsedPrice,
+        stock: stock ? parseInt(stock) : 0,
         sizes: selectedSizes.length > 0 ? selectedSizes.join(',') : undefined,
-        collection_id: collectionId, 
-        images: images.length > 0 ? images : undefined 
+        collection_id: collectionId,
+        images: images.length > 0 ? images : undefined
       })
       setName(''); setDescription(''); setPrice(''); setSelectedSizes([]); setImages([])
 
@@ -127,7 +130,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
       setShowCreateForm(false)
     } catch (err) {
       if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }); return }
-      
+
       if (err instanceof ApiError && err.status === 403) {
         const body = err.body as UpgradeError
         if (body?.upgrade_required) {
@@ -137,22 +140,22 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
           return
         }
       }
-      
+
       setSaveError(err instanceof Error ? err.message : 'Erro')
     } finally { setIsSaving(false) }
   }
 
   async function handleDeleteCollection() {
     if (!collection) return
-    try { 
+    try {
       await collectionsService.remove(collection.id)
-      navigate('/catalogos', { replace: true }) 
+      navigate('/catalogos', { replace: true })
     }
-    catch (err) { 
-      if (isUnauthorized(err)) { 
+    catch (err) {
+      if (isUnauthorized(err)) {
         onLogout()
-        navigate('/login', { replace: true }) 
-      } 
+        navigate('/login', { replace: true })
+      }
     }
   }
 
@@ -177,16 +180,17 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     } catch (err) { if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) } }
   }
 
-  function startEditProduct(p: Product) { 
+  function startEditProduct(p: Product) {
     setEditingProductId(p.id)
     setEditProductName(p.name)
     setEditProductDescription(p.description)
     setEditProductPrice(formatPrice(p.price))
+    setEditProductStock(String(p.stock ?? 0))
     setEditProductSizes(p.sizes ? p.sizes.split(',') : [])
     setEditProductNewImages([])
     setEditProductDeleteImageIds([])
   }
-  function cancelEditProduct() { 
+  function cancelEditProduct() {
     setEditingProductId(null)
     setEditProductSizes([])
     setEditProductNewImages([])
@@ -200,12 +204,13 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     if (!trimmedName || !trimmedDesc || !Number.isFinite(parsedPrice) || parsedPrice <= 0) return
     try {
       setIsUpdatingProduct(true)
-      await productsService.update(id, { 
-        name: trimmedName, 
-        description: trimmedDesc, 
-        price: parsedPrice, 
+      await productsService.update(id, {
+        name: trimmedName,
+        description: trimmedDesc,
+        price: parsedPrice,
+        stock: editProductStock ? parseInt(editProductStock) : 0,
         sizes: editProductSizes.join(','),
-        collection_id: collectionId, 
+        collection_id: collectionId,
         images: editProductNewImages.length > 0 ? editProductNewImages : undefined,
         delete_image_ids: editProductDeleteImageIds.length > 0 ? editProductDeleteImageIds : undefined
       })
@@ -297,29 +302,29 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     if (!deleteProductConfirmation) return
     const { id } = deleteProductConfirmation
 
-    try { 
+    try {
       await productsService.remove(id)
       if (editingProductId === id) cancelEditProduct()
       await load()
       setDeleteProductConfirmation(null)
     }
-    catch (err) { 
-      if (isUnauthorized(err)) { 
+    catch (err) {
+      if (isUnauthorized(err)) {
         onLogout()
-        navigate('/login', { replace: true }) 
-      } 
+        navigate('/login', { replace: true })
+      }
     }
   }
 
   return (
     <PageLayout isAuthenticated={true} onLogout={() => { onLogout(); navigate('/') }} user={user}>
       {/* Breadcrumb */}
-      <motion.div 
+      <motion.div
         className="mb-4 flex items-center gap-2 text-sm"
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
       >
-        <button 
+        <button
           onClick={() => navigate('/catalogos')}
           className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
         >
@@ -370,225 +375,87 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
             <h2 className="font-medium text-gray-900">Produtos ({products.length})</h2>
           </motion.div>
 
-            <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" variants={staggerContainer} initial="hidden" animate="show">
+          <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" variants={staggerContainer} initial="hidden" animate="show">
 
 
-              {products.map((p) => (
-                <motion.div key={p.id} variants={staggerItem}>
-                  <Card variant="bordered" animate={false}>
-                    {editingProductId === p.id ? (
-                      <div className="space-y-3">
-                        <Input placeholder="Nome" value={editProductName} onChange={(e) => setEditProductName(e.target.value)} />
-                        <Input placeholder="Descrição" value={editProductDescription} onChange={(e) => setEditProductDescription(e.target.value)} />
-                        <Input placeholder="Preço" value={editProductPrice} onChange={(e) => handlePriceChange(e.target.value, setEditProductPrice)} />
-                        
-                        {/* Seleção de Tamanhos */}
-                        <div className="space-y-2">
-                          <span className="text-sm text-gray-600">Tamanhos disponíveis:</span>
-                          <div className="flex flex-wrap gap-2">
-                            {['P', 'M', 'G', 'GG'].map((size) => (
-                              <button
-                                key={size}
-                                type="button"
-                                onClick={() => {
-                                  setEditProductSizes(prev => 
-                                    prev.includes(size) 
-                                      ? prev.filter(s => s !== size)
-                                      : [...prev, size]
-                                  )
-                                }}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                  editProductSizes.includes(size)
-                                    ? 'bg-blue-600 text-white shadow-md'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            {products.map((p) => (
+              <motion.div key={p.id} variants={staggerItem}>
+                <Card variant="bordered" animate={false}>
+                  {editingProductId === p.id ? (
+                    <div className="space-y-3">
+                      <Input placeholder="Nome" value={editProductName} onChange={(e) => setEditProductName(e.target.value)} />
+                      <Input placeholder="Descrição" value={editProductDescription} onChange={(e) => setEditProductDescription(e.target.value)} />
+                      <Input placeholder="Preço" value={editProductPrice} onChange={(e) => handlePriceChange(e.target.value, setEditProductPrice)} />
+                      <Input placeholder="Estoque" type="number" min="0" value={editProductStock} onChange={(e) => setEditProductStock(e.target.value)} />
+
+                      {/* Seleção de Tamanhos */}
+                      <div className="space-y-2">
+                        <span className="text-sm text-gray-600">Tamanhos disponíveis:</span>
+                        <div className="flex flex-wrap gap-2">
+                          {['P', 'M', 'G', 'GG'].map((size) => (
+                            <button
+                              key={size}
+                              type="button"
+                              onClick={() => {
+                                setEditProductSizes(prev =>
+                                  prev.includes(size)
+                                    ? prev.filter(s => s !== size)
+                                    : [...prev, size]
+                                )
+                              }}
+                              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${editProductSizes.includes(size)
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
-                              >
-                                {size}
-                              </button>
-                            ))}
-                          </div>
+                            >
+                              {size}
+                            </button>
+                          ))}
                         </div>
-                        
-                        {/* Existing images */}
-                        {p.images && p.images.length > 0 && (
-                          <div className="space-y-2">
-                            <span className="text-sm text-gray-600">Imagens atuais:</span>
-                            <div className="flex flex-wrap gap-2">
-                              {p.images
-                                .filter(img => !editProductDeleteImageIds.includes(img.id))
-                                .map((img) => (
-                                  <div key={img.id} className="relative group">
-                                    <img 
-                                      src={joinUrl(API_BASE_URL, img.image_url)} 
-                                      alt="" 
-                                      className="w-16 h-16 object-cover rounded-lg"
-                                    />
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDeleteImageFromEdit(img.id)}
-                                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                      <X className="w-3 h-3" />
-                                    </button>
-                                  </div>
-                                ))}
-                            </div>
-                          </div>
-                        )}
+                      </div>
 
-                        {/* New images to add */}
-                        {editProductNewImages.length > 0 && (
-                          <div className="space-y-2">
-                            <span className="text-sm text-gray-600">Novas imagens:</span>
-                            <div className="flex flex-wrap gap-2">
-                              {editProductNewImages.map((file, idx) => (
-                                <div key={idx} className="relative group">
-                                  <img 
-                                    src={URL.createObjectURL(file)} 
-                                    alt="" 
+                      {/* Existing images */}
+                      {p.images && p.images.length > 0 && (
+                        <div className="space-y-2">
+                          <span className="text-sm text-gray-600">Imagens atuais:</span>
+                          <div className="flex flex-wrap gap-2">
+                            {p.images
+                              .filter(img => !editProductDeleteImageIds.includes(img.id))
+                              .map((img) => (
+                                <div key={img.id} className="relative group">
+                                  <img
+                                    src={joinUrl(API_BASE_URL, img.image_url)}
+                                    alt=""
                                     className="w-16 h-16 object-cover rounded-lg"
                                   />
                                   <button
                                     type="button"
-                                    onClick={() => handleRemoveNewImageFromEdit(idx)}
+                                    onClick={() => handleDeleteImageFromEdit(img.id)}
                                     className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                   >
                                     <X className="w-3 h-3" />
                                   </button>
                                 </div>
                               ))}
-                            </div>
                           </div>
-                        )}
-
-                        <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100">
-                          <ImageIcon className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm text-gray-600">Adicionar imagens</span>
-                          <input type="file" accept="image/*" multiple onChange={(e) => handleAddImagesToEdit(e.target.files, p)} className="hidden" />
-                        </label>
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => void saveProductEdit(p.id)} isLoading={isUpdatingProduct}><Save className="w-4 h-4 mr-1" />Salvar</Button>
-                          <Button variant="ghost" size="sm" onClick={cancelEditProduct}>Cancelar</Button>
                         </div>
-                      </div>
-                    ) : (
-                      <>
-                        {(() => {
-                          const productImages = getProductImages(p)
-                          if (productImages.length > 0) {
-                            return (
-                              <div className="relative">
-                                <motion.img
-                                  src={joinUrl(API_BASE_URL, productImages[0])}
-                                  alt={p.name}
-                                  className="w-full h-40 object-cover rounded-lg mb-3 cursor-zoom-in"
-                                  whileHover={{ scale: 1.02 }}
-                                  transition={{ type: 'spring', stiffness: 300 }}
-                                  onClick={() => { setPreviewProduct(p); setPreviewImageIndex(0); }}
-                                />
-                                {productImages.length > 1 && (
-                                  <span className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-                                    +{productImages.length - 1}
-                                  </span>
-                                )}
-                              </div>
-                            )
-                          } else {
-                            return (
-                              <div className="w-full h-40 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-                                <ImageIcon className="w-10 h-10 text-gray-300" />
-                              </div>
-                            )
-                          }
-                        })()}
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-medium text-gray-900">{p.name}</h3>
-                          <span className="font-semibold text-blue-600">{formatPrice(p.price)}</span>
-                        </div>
-                        <p className="text-sm text-gray-500 line-clamp-2 mb-4">{p.description}</p>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="sm" onClick={() => startEditProduct(p)} className="flex-1"><Pencil className="w-4 h-4 mr-1" />Editar</Button>
-                          <Button variant="danger" size="sm" onClick={() => confirmDeleteProduct(p.id)}><Trash2 className="w-4 h-4" /></Button>
-                        </div>
-                      </>
-                    )}
-                  </Card>
-                </motion.div>
-              ))}
+                      )}
 
-
-              {/* Add Product Card */}
-              <motion.div variants={staggerItem} className="h-full">
-                <Card 
-                  className={`h-full flex flex-col justify-center relative ${!showCreateForm ? 'min-h-[300px] items-center cursor-pointer hover:bg-gray-50 border-dashed border-2' : ''}`}
-                  onClick={!showCreateForm ? () => setShowCreateForm(true) : undefined}
-                  animate={false}
-                >
-                  {!showCreateForm ? (
-                    <div className="flex flex-col items-center gap-2 text-gray-500">
-                      <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-                        <Plus className="w-6 h-6 text-blue-600" />
-                      </div>
-                      <span className="font-medium">Adicionar produto</span>
-                    </div>
-                  ) : (
-                    <div className="w-full">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setShowCreateForm(false); }}
-                        className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
-                        type="button"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                      
-                      <h3 className="font-medium text-gray-900 mb-4">Novo Produto</h3>
-
-                      <form className="flex flex-col gap-3" onSubmit={handleCreateProduct}>
-                        <Input placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} disabled={isSaving} autoFocus />
-                        <Input placeholder="R$ 0,00" value={price} onChange={(e) => handlePriceChange(e.target.value, setPrice)} disabled={isSaving} />
-                        <Input placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} disabled={isSaving} />
-                        
-                        {/* Seleção de Tamanhos */}
+                      {/* New images to add */}
+                      {editProductNewImages.length > 0 && (
                         <div className="space-y-2">
-                          <span className="text-sm text-gray-600">Tamanhos disponíveis:</span>
+                          <span className="text-sm text-gray-600">Novas imagens:</span>
                           <div className="flex flex-wrap gap-2">
-                            {['P', 'M', 'G', 'GG'].map((size) => (
-                              <button
-                                key={size}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedSizes(prev => 
-                                    prev.includes(size) 
-                                      ? prev.filter(s => s !== size)
-                                      : [...prev, size]
-                                  )
-                                }}
-                                disabled={isSaving}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                  selectedSizes.includes(size)
-                                    ? 'bg-blue-600 text-white shadow-md'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              >
-                                {size}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        {/* Preview selected images */}
-                        {images.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {images.map((file, idx) => (
+                            {editProductNewImages.map((file, idx) => (
                               <div key={idx} className="relative group">
-                                <img 
-                                  src={URL.createObjectURL(file)} 
-                                  alt="" 
-                                  className="w-14 h-14 object-cover rounded-lg"
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt=""
+                                  className="w-16 h-16 object-cover rounded-lg"
                                 />
                                 <button
                                   type="button"
-                                  onClick={() => handleRemoveImageFromCreate(idx)}
+                                  onClick={() => handleRemoveNewImageFromEdit(idx)}
                                   className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                   <X className="w-3 h-3" />
@@ -596,25 +463,167 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                               </div>
                             ))}
                           </div>
-                        )}
-                        
-                        <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                          <ImageIcon className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm text-gray-600 truncate">
-                            {images.length > 0 ? `${images.length} imagem(ns)` : 'Adicionar imagens'}
-                          </span>
-                          <input type="file" accept="image/*" multiple onChange={(e) => handleAddImagesToCreate(e.target.files)} className="hidden" />
-                        </label>
-                        <Button type="submit" isLoading={isSaving} className="w-full">
-                          Adicionar
-                        </Button>
-                      </form>
-                      {saveError && <p className="text-sm text-red-600 mt-2">{saveError}</p>}
+                        </div>
+                      )}
+
+                      <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100">
+                        <ImageIcon className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">Adicionar imagens</span>
+                        <input type="file" accept="image/*" multiple onChange={(e) => handleAddImagesToEdit(e.target.files, p)} className="hidden" />
+                      </label>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => void saveProductEdit(p.id)} isLoading={isUpdatingProduct}><Save className="w-4 h-4 mr-1" />Salvar</Button>
+                        <Button variant="ghost" size="sm" onClick={cancelEditProduct}>Cancelar</Button>
+                      </div>
                     </div>
+                  ) : (
+                    <>
+                      {(() => {
+                        const productImages = getProductImages(p)
+                        if (productImages.length > 0) {
+                          return (
+                            <div className="relative">
+                              <motion.img
+                                src={joinUrl(API_BASE_URL, productImages[0])}
+                                alt={p.name}
+                                className="w-full h-40 object-cover rounded-lg mb-3 cursor-zoom-in"
+                                whileHover={{ scale: 1.02 }}
+                                transition={{ type: 'spring', stiffness: 300 }}
+                                onClick={() => { setPreviewProduct(p); setPreviewImageIndex(0); }}
+                              />
+                              {productImages.length > 1 && (
+                                <span className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                                  +{productImages.length - 1}
+                                </span>
+                              )}
+                            </div>
+                          )
+                        } else {
+                          return (
+                            <div className="w-full h-40 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
+                              <ImageIcon className="w-10 h-10 text-gray-300" />
+                            </div>
+                          )
+                        }
+                      })()}
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-medium text-gray-900">{p.name}</h3>
+                        <p className={`text-xs ${!p.stock ? 'text-red-500 font-bold' : 'text-gray-500'}`}>
+                          Estoque: {p.stock ?? 0}
+                        </p>
+                        <span className="font-semibold text-blue-600">{formatPrice(p.price)}</span>
+                      </div>
+                      <p className="text-sm text-gray-500 line-clamp-2 mb-4">{p.description}</p>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => startEditProduct(p)} className="flex-1"><Pencil className="w-4 h-4 mr-1" />Editar</Button>
+                        <Button variant="danger" size="sm" onClick={() => confirmDeleteProduct(p.id)}><Trash2 className="w-4 h-4" /></Button>
+                      </div>
+                    </>
                   )}
                 </Card>
               </motion.div>
+            ))}
+
+
+            {/* Add Product Card */}
+            <motion.div variants={staggerItem} className="h-full">
+              <Card
+                className={`h-full flex flex-col justify-center relative ${!showCreateForm ? 'min-h-[300px] items-center cursor-pointer hover:bg-gray-50 border-dashed border-2' : ''}`}
+                onClick={!showCreateForm ? () => setShowCreateForm(true) : undefined}
+                animate={false}
+              >
+                {!showCreateForm ? (
+                  <div className="flex flex-col items-center gap-2 text-gray-500">
+                    <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                      <Plus className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <span className="font-medium">Adicionar produto</span>
+                  </div>
+                ) : (
+                  <div className="w-full">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setShowCreateForm(false); }}
+                      className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+                      type="button"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    <h3 className="font-medium text-gray-900 mb-4">Novo Produto</h3>
+
+                    <form className="flex flex-col gap-3" onSubmit={handleCreateProduct}>
+                      <Input placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} disabled={isSaving} autoFocus />
+                      <Input placeholder="R$ 0,00" value={price} onChange={(e) => handlePriceChange(e.target.value, setPrice)} disabled={isSaving} />
+                      <Input placeholder="Estoque" type="number" min="0" value={stock} onChange={(e) => setStock(e.target.value)} disabled={isSaving} />
+
+                      <Input placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} disabled={isSaving} />
+
+                      {/* Seleção de Tamanhos */}
+                      <div className="space-y-2">
+                        <span className="text-sm text-gray-600">Tamanhos disponíveis:</span>
+                        <div className="flex flex-wrap gap-2">
+                          {['P', 'M', 'G', 'GG'].map((size) => (
+                            <button
+                              key={size}
+                              type="button"
+                              onClick={() => {
+                                setSelectedSizes(prev =>
+                                  prev.includes(size)
+                                    ? prev.filter(s => s !== size)
+                                    : [...prev, size]
+                                )
+                              }}
+                              disabled={isSaving}
+                              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedSizes.includes(size)
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              {size}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Preview selected images */}
+                      {images.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {images.map((file, idx) => (
+                            <div key={idx} className="relative group">
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt=""
+                                className="w-14 h-14 object-cover rounded-lg"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveImageFromCreate(idx)}
+                                className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <label className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                        <ImageIcon className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-600 truncate">
+                          {images.length > 0 ? `${images.length} imagem(ns)` : 'Adicionar imagens'}
+                        </span>
+                        <input type="file" accept="image/*" multiple onChange={(e) => handleAddImagesToCreate(e.target.files)} className="hidden" />
+                      </label>
+                      <Button type="submit" isLoading={isSaving} className="w-full">
+                        Adicionar
+                      </Button>
+                    </form>
+                    {saveError && <p className="text-sm text-red-600 mt-2">{saveError}</p>}
+                  </div>
+                )}
+              </Card>
             </motion.div>
+          </motion.div>
         </>
       )}
 
@@ -646,7 +655,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
               {(() => {
                 const productImages = getProductImages(previewProduct)
                 const currentImage = productImages[previewImageIndex] || productImages[0]
-                
+
                 return (
                   <div className="relative">
                     {currentImage ? (
@@ -660,7 +669,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                         <ImageIcon className="w-12 h-12 text-gray-300" />
                       </div>
                     )}
-                    
+
                     {/* Navigation arrows */}
                     {productImages.length > 1 && (
                       <>
@@ -678,7 +687,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                         >
                           <ChevronRight className="w-5 h-5 text-gray-700" />
                         </button>
-                        
+
                         {/* Image indicators */}
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                           {productImages.map((_, idx) => (
@@ -703,15 +712,15 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                   <span className="text-2xl font-extrabold text-blue-700 whitespace-nowrap">{formatPrice(previewProduct.price)}</span>
                 </div>
                 <p className="text-gray-600 text-base leading-relaxed">{previewProduct.description}</p>
-                
+
                 {/* Tamanhos disponíveis */}
                 {previewProduct.sizes && (
                   <div className="space-y-2">
                     <span className="text-sm font-medium text-gray-700">Tamanhos disponíveis:</span>
                     <div className="flex flex-wrap gap-2">
                       {previewProduct.sizes.split(',').map((size) => (
-                        <span 
-                          key={size} 
+                        <span
+                          key={size}
                           className="px-3 py-1.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg border border-blue-100"
                         >
                           {size.trim()}
@@ -720,7 +729,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                     </div>
                   </div>
                 )}
-                
+
                 <div className="flex flex-wrap gap-3 pt-2">
                   <Button onClick={() => setPreviewProduct(null)}>Fechar</Button>
                 </div>

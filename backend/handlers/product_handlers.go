@@ -117,6 +117,15 @@ func CreateProduct(c *gin.Context) {
 		mainImageURL = &uploadedImages[0]
 	}
 
+	var stock int
+	if val := c.PostForm("stock"); val != "" {
+		if s, err := strconv.Atoi(val); err == nil {
+			stock = s
+		}
+	} else if input.Stock != nil {
+		stock = *input.Stock
+	}
+
 	product := models.Product{
 		OwnerID:      ownerID,
 		CollectionID: input.CollectionID,
@@ -124,6 +133,7 @@ func CreateProduct(c *gin.Context) {
 		Description:  input.Description,
 		Price:        input.Price,
 		Sizes:        input.Sizes,
+		Stock:        stock,
 		ImageURL:     mainImageURL,
 	}
 

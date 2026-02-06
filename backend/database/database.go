@@ -68,6 +68,8 @@ func ConnectDatabase() {
 		&models.Collection{},
 		&models.Product{},
 		&models.ProductImage{},
+		&models.Order{},
+		&models.OrderItem{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate database!", err)

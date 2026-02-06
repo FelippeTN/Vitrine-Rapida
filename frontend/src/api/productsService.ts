@@ -25,11 +25,14 @@ export class ApiProductsService implements ProductsService {
     formData.append('name', input.name)
     formData.append('description', input.description)
     formData.append('price', String(input.price))
-    
+    if (input.stock !== undefined) {
+      formData.append('stock', String(input.stock))
+    }
+
     if (input.sizes) {
       formData.append('sizes', input.sizes)
     }
-    
+
     if (input.collection_id) {
       formData.append('collection_id', String(input.collection_id))
     }
@@ -49,6 +52,7 @@ export class ApiProductsService implements ProductsService {
     if (input.name !== undefined) formData.append('name', input.name)
     if (input.description !== undefined) formData.append('description', input.description)
     if (input.price !== undefined) formData.append('price', String(input.price))
+    if (input.stock !== undefined) formData.append('stock', String(input.stock))
     if (input.sizes !== undefined) formData.append('sizes', input.sizes)
     if (input.collection_id !== undefined && input.collection_id !== null) {
       formData.append('collection_id', String(input.collection_id))
