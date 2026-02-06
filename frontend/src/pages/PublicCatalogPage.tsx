@@ -44,6 +44,7 @@ export default function PublicCatalogPage() {
   const [ownerPhone, setOwnerPhone] = useState('')
   const [storeName, setStoreName] = useState('')
   const [isFinishing, setIsFinishing] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
 
   function getProductImages(p: Product): string[] {
     if (p.images && p.images.length > 0) {
@@ -162,6 +163,7 @@ export default function PublicCatalogPage() {
   async function handleFinishOrder() {
     if (cartItems.length === 0 || !ownerPhone) return
     setIsFinishing(true)
+    setCheckoutError(null)
 
     try {
       const input = {
@@ -195,9 +197,9 @@ export default function PublicCatalogPage() {
       setIsCartOpen(false)
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
-        alert(`Estoque insuficiente: ${err.message}`)
+        setCheckoutError(`Estoque insuficiente: ${err.message}`)
       } else {
-        alert('Erro ao criar pedido. Tente novamente.')
+        setCheckoutError('Erro ao criar pedido. Tente novamente.')
       }
       console.error(err)
     } finally {
@@ -505,6 +507,11 @@ export default function PublicCatalogPage() {
                         </AnimatePresence>
 
                         <div className="pt-3 border-t border-gray-200">
+                          {checkoutError && (
+                            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-3">
+                              {checkoutError}
+                            </div>
+                          )}
                           <div className="flex justify-between mb-3">
                             <span className="text-gray-600">Total</span>
                             <motion.span
