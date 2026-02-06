@@ -8,7 +8,7 @@ import { API_BASE_URL, joinUrl } from '@/api/config'
 import type { Collection, Product, UpgradeError } from '@/api'
 import { PageLayout, staggerContainer, staggerItem } from '@/components/layout'
 import { type User } from '@/components/layout/Header'
-import { Button, Card, Input, UpgradeModal, ConfirmModal, ShareModal } from '@/components/ui'
+import { Button, Card, Input, UpgradeModal, ConfirmModal, ShareModal, Toast } from '@/components/ui'
 import { formatPrice, formatCurrencyInput, parseCurrencyInput } from '@/utils/format'
 
 interface CollectionPageProps {
@@ -61,6 +61,10 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
   const [deleteCollectionConfirmation, setDeleteCollectionConfirmation] = useState(false)
   const [deleteProductConfirmation, setDeleteProductConfirmation] = useState<{ id: number } | null>(null)
   const [shareModal, setShareModal] = useState<{ url: string } | null>(null)
+
+  // Toast notification
+  const [toast, setToast] = useState<{ message: string; type: 'warning' | 'error' | 'info' } | null>(null)
+  const showToast = (message: string, type: 'warning' | 'error' | 'info' = 'warning') => setToast({ message, type })
 
   async function load() {
     if (!Number.isFinite(collectionId) || collectionId <= 0) {
@@ -225,19 +229,20 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     const newFiles = Array.from(files)
     const validFiles = newFiles.filter(file => {
       if (file.size > 10 * 1024 * 1024) {
-        alert(`A imagem ${file.name} excede o limite de 10MB.`)
+        showToast(`A imagem ${file.name} excede o limite de 10MB.`, 'error')
         return false
       }
       return true
     })
+    
     setImages(prev => {
       const remaining = MAX_IMAGES_PER_PRODUCT - prev.length
       if (remaining <= 0) {
-        alert(`Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`)
+        showToast(`Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
         return prev
       }
       if (validFiles.length > remaining) {
-        alert(`Você pode adicionar mais ${remaining} imagem(ns). Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`)
+        showToast(`Você pode adicionar mais ${remaining} imagem(ns). Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
         return [...prev, ...validFiles.slice(0, remaining)]
       }
       return [...prev, ...validFiles]
@@ -253,7 +258,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     const newFiles = Array.from(files)
     const validFiles = newFiles.filter(file => {
       if (file.size > 10 * 1024 * 1024) {
-        alert(`A imagem ${file.name} excede o limite de 10MB.`)
+        showToast(`A imagem ${file.name} excede o limite de 10MB.`, 'error')
         return false
       }
       return true
@@ -264,11 +269,11 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
       const currentTotal = existingImages + prev.length
       const remaining = MAX_IMAGES_PER_PRODUCT - currentTotal
       if (remaining <= 0) {
-        alert(`Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`)
+        showToast(`Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
         return prev
       }
       if (validFiles.length > remaining) {
-        alert(`Você pode adicionar mais ${remaining} imagem(ns). Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`)
+        showToast(`Você pode adicionar mais ${remaining} imagem(ns). Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
         return [...prev, ...validFiles.slice(0, remaining)]
       }
       return [...prev, ...validFiles]
@@ -765,6 +770,13 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
         onClose={() => setShareModal(null)}
         url={shareModal?.url ?? ''}
         title="Compartilhar Vitrine"
+      />
+
+      <Toast
+        message={toast?.message ?? ''}
+        type={toast?.type}
+        isVisible={!!toast}
+        onClose={() => setToast(null)}
       />
     </PageLayout>
   )
