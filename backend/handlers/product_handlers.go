@@ -335,6 +335,15 @@ func UpdateProduct(c *gin.Context) {
 		updates["collection_id"] = *input.CollectionID
 	}
 
+	if val := c.PostForm("stock"); val != "" {
+		if s, err := strconv.Atoi(val); err == nil {
+			updates["stock"] = s
+		}
+	} else if input.Stock != nil {
+		updates["stock"] = *input.Stock
+	}
+
+
 	var firstImage models.ProductImage
 	if err := database.DB.Where("product_id = ?", uint(id)).Order("position asc").First(&firstImage).Error; err == nil {
 		updates["image_url"] = firstImage.ImageURL
