@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-
 	"github.com/FelippeTN/Web-Catalogo/backend/database"
 	"github.com/FelippeTN/Web-Catalogo/backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 func CreateOrder(c *gin.Context) {
@@ -33,21 +31,9 @@ func CreateOrder(c *gin.Context) {
 	err := database.DB.Transaction(func(tx *gorm.DB) error {
 		for _, itemInput := range input.Items {
 			var product models.Product
-			// Lock the product row for update to prevent race conditions
-			if err := tx.Clauses(
-				clause.Locking{Strength: "UPDATE"},
-			).First(&product, itemInput.ProductID).Error; err != nil {
+			// Get product to calculate price (no stock validation or decrement)
+			if err := tx.First(&product, itemInput.ProductID).Error; err != nil {
 				return fmt.Errorf("produto não encontrado (ID: %d)", itemInput.ProductID)
-			}
-
-			if product.Stock < itemInput.Quantity {
-				return fmt.Errorf("estoque insuficiente para o produto '%s'. Disponível: %d, Solicitado: %d", product.Name, product.Stock, itemInput.Quantity)
-			}
-
-			// Decrement stock
-			product.Stock -= itemInput.Quantity
-			if err := tx.Save(&product).Error; err != nil {
-				return fmt.Errorf("erro ao atualizar estoque do produto '%s'", product.Name)
 			}
 
 			orderItem := models.OrderItem{

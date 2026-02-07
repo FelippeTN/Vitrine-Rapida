@@ -259,13 +259,13 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
                       <Button size="sm" onClick={() => navigate(`/catalogos/${c.id}`)} className="flex-1">
                         <ExternalLink className="w-4 h-4 mr-1" /> Abrir
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => void handleShare(c.id)}>
+                      <Button variant="ghost" size="sm" onClick={() => void handleShare(c.id)} title="Compartilhar">
                         <Share2 className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => startEdit(c)}>
+                      <Button variant="ghost" size="sm" onClick={() => startEdit(c)} title="Editar">
                         <Pencil className="w-4 h-4" />
                       </Button>
-                      <Button variant="danger" size="sm" onClick={() => confirmDelete(c.id)}>
+                      <Button variant="danger" size="sm" onClick={() => confirmDelete(c.id)} title="Deletar">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>

@@ -4,6 +4,7 @@ import { LogOut, User as UserIcon, LayoutGrid, Crown, Settings, ChevronDown, Men
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import logoSvg from '@/assets/logo.svg'
+import { API_BASE_URL } from '@/api/config'
 
 export interface User {
   id: number
@@ -11,6 +12,7 @@ export interface User {
   email: string
   number: string
   plan_id: number
+  logo_url?: string
 }
 
 export interface HeaderProps {
@@ -118,8 +120,12 @@ export function Header({ isAuthenticated, onLogout, user }: HeaderProps) {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-full hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
               >
-                <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center border border-blue-200 font-medium text-sm">
-                  {user?.username?.charAt(0).toUpperCase() || <UserIcon className="w-4 h-4" />}
+                <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center border border-blue-200 font-medium text-sm overflow-hidden">
+                  {user?.logo_url ? (
+                    <img src={`${API_BASE_URL}${user.logo_url}`} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    user?.username?.charAt(0).toUpperCase() || <UserIcon className="w-4 h-4" />
+                  )}
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="text-xs font-medium text-gray-700 max-w-[100px] truncate">
@@ -204,8 +210,12 @@ export function Header({ isAuthenticated, onLogout, user }: HeaderProps) {
               {/* Informações do usuário */}
               <div className="px-3 py-3 mb-2 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center border border-blue-200 font-medium">
-                    {user?.username?.charAt(0).toUpperCase() || <UserIcon className="w-5 h-5" />}
+                  <div className="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center border border-blue-200 font-medium overflow-hidden">
+                    {user?.logo_url ? (
+                      <img src={`${API_BASE_URL}${user.logo_url}`} alt="Logo" className="w-full h-full object-cover" />
+                    ) : (
+                      user?.username?.charAt(0).toUpperCase() || <UserIcon className="w-5 h-5" />
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">{user?.username || 'Usuário'}</p>

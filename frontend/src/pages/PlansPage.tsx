@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Check, Sparkles, Zap, Crown, Building2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Check, Sparkles, Zap, Crown, Building2, PartyPopper, X } from 'lucide-react'
 
 import { plansService, isUnauthorized } from '@/api'
 import type { Plan, UserPlanInfo } from '@/api'
@@ -35,6 +35,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
   const [planInfo, setPlanInfo] = useState<UserPlanInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isUpgrading, setIsUpgrading] = useState<number | null>(null)
+  const [upgradeSuccess, setUpgradeSuccess] = useState<{ planName: string } | null>(null)
   
   const [isPaymentOpen, setIsPaymentOpen] = useState(false)
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<Plan | null>(null)
@@ -62,16 +63,21 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
   }, [navigate, onLogout])
 
   async function handleUpgrade(plan: Plan) {
+    // Check if this is a downgrade (prevent going to a lower tier plan)
+    if (planInfo && plan.price < planInfo.plan.price) {
+      return // Block downgrade silently (button should be disabled anyway)
+    }
+
     if (plan.price > 0) {
       setSelectedPlanForPayment(plan)
       setIsPaymentOpen(true)
       return
     }
 
-    await processUpgrade(plan.id)
+    await processUpgrade(plan.id, plan.display_name)
   }
 
-  async function processUpgrade(planId: number) {
+  async function processUpgrade(planId: number, planName?: string) {
     try {
       setIsUpgrading(planId)
       await plansService.upgradePlan(planId)
@@ -79,6 +85,10 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
       const infoData = await plansService.getMyPlanInfo()
       setPlanInfo(infoData)
       setIsPaymentOpen(false)
+      
+      // Show success message
+      const upgradedPlanName = planName || infoData.plan.display_name
+      setUpgradeSuccess({ planName: upgradedPlanName })
     } catch (err) {
       if (isUnauthorized(err)) {
         onLogout()
@@ -91,7 +101,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
 
   function handlePaymentSuccess() {
     if (selectedPlanForPayment) {
-       processUpgrade(selectedPlanForPayment.id)
+       processUpgrade(selectedPlanForPayment.id, selectedPlanForPayment.display_name)
     }
   }
 
@@ -220,6 +230,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
         >
           {plans.map((plan) => {
             const isCurrentPlan = planInfo?.plan.id === plan.id
+            const isDowngrade = planInfo ? plan.price < planInfo.plan.price : false
             const features = parseFeatures(plan.features)
             const isPro = plan.name === 'pro'
 
@@ -290,12 +301,12 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
                   {/* Action */}
                   <Button
                     className="w-full"
-                    variant={isCurrentPlan ? 'secondary' : isPro ? 'primary' : 'secondary'}
-                    disabled={isCurrentPlan || isUpgrading !== null}
+                    variant={isCurrentPlan ? 'secondary' : isDowngrade ? 'secondary' : isPro ? 'primary' : 'secondary'}
+                    disabled={isCurrentPlan || isDowngrade || isUpgrading !== null}
                     isLoading={isUpgrading === plan.id}
                     onClick={() => handleUpgrade(plan)}
                   >
-                    {isCurrentPlan ? 'Plano atual' : plan.price === 0 ? 'Selecionar' : 'Fazer upgrade'}
+                    {isCurrentPlan ? 'Plano atual' : isDowngrade ? 'Plano inferior' : plan.price === 0 ? 'Selecionar' : 'Fazer upgrade'}
                   </Button>
                 </Card>
               </motion.div>
@@ -314,6 +325,80 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
         />
       )}
 
+      {/* Upgrade Success Modal */}
+      <AnimatePresence>
+        {upgradeSuccess && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setUpgradeSuccess(null)}
+          >
+            <motion.div
+              className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center relative"
+              initial={{ scale: 0.8, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setUpgradeSuccess(null)}
+                className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+              
+              <motion.div
+                className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', delay: 0.2, damping: 10, stiffness: 200 }}
+              >
+                <PartyPopper className="w-10 h-10 text-white" />
+              </motion.div>
+              
+              <motion.h2
+                className="text-2xl font-bold text-gray-900 mb-2"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                Parabéns! 🎉
+              </motion.h2>
+              
+              <motion.p
+                className="text-gray-600 mb-6"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                Você fez upgrade para o plano <span className="font-semibold text-blue-600">{upgradeSuccess.planName}</span> com sucesso!
+                <br />
+                <span className="text-sm text-gray-500 mt-2 block">
+                  Aproveite todos os novos recursos disponíveis.
+                </span>
+              </motion.p>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Button
+                  className="w-full"
+                  variant="primary"
+                  onClick={() => setUpgradeSuccess(null)}
+                >
+                  Continuar
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* FAQ or info */}
       <motion.div
         className="mt-12 text-center"
@@ -323,8 +408,8 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
       >
         <p className="text-sm text-gray-500">
           Dúvidas? Entre em contato conosco pelo email{' '}
-          <a href="mailto:suporte@vitrinedigital.com" className="text-blue-600 hover:underline">
-            suporte@vitrinedigital.com
+          <a href="mailto:vitrinerapida.suporte@gmail.com" className="text-blue-600 hover:underline">
+            vitrinerapida.suporte@gmail.com
           </a>
         </p>
       </motion.div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { User, Lock, Save, Upload, Trash2, Store } from 'lucide-react'
+import { User, Lock, Save, Store, Upload, Trash2 } from 'lucide-react'
 import { type User as UserType } from '@/components/layout/Header'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Button, Input, Card } from '@/components/ui'
@@ -272,6 +272,55 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
             >
               <Card>
                 <div className="p-6">
+                  {/* Logo Section */}
+                  <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+                    <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50 flex-shrink-0">
+                      {logoUrl ? (
+                        <img
+                          src={`${API_BASE_URL}${logoUrl}`}
+                          alt="Logo da loja"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Store className="w-6 h-6 text-gray-400" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-700">Logo da Loja</p>
+                      <p className="text-xs text-gray-400 mt-0.5">JPEG ou PNG, máx. 2MB</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/jpg"
+                        onChange={handleLogoUpload}
+                        className="hidden"
+                        id="logo-upload"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingLogo}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        {isUploadingLogo ? 'Enviando...' : logoUrl ? 'Alterar' : 'Enviar'}
+                      </button>
+                      {logoUrl && (
+                        <button
+                          type="button"
+                          onClick={handleDeleteLogo}
+                          disabled={isUploadingLogo}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Remover
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                   <h3 className="text-lg font-semibold text-gray-900 mb-6">Informações Pessoais</h3>
                   <form onSubmit={handleUpdateProfile} className="space-y-4">
                     <Input
@@ -299,68 +348,6 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
                       </Button>
                     </div>
                   </form>
-
-                  {/* Divider */}
-                  <hr className="my-6 border-gray-200" />
-
-                  {/* Logo Section */}
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Logo da Loja</h3>
-                  <p className="text-sm text-gray-500 mb-6">
-                    A logo aparecerá na vitrine pública quando seus clientes acessarem seu catálogo.
-                  </p>
-
-                  {/* Logo Preview */}
-                  <div className="flex flex-col items-center gap-6">
-                    <div className="w-32 h-32 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50">
-                      {logoUrl ? (
-                        <img
-                          src={`${API_BASE_URL}${logoUrl}`}
-                          alt="Logo da loja"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Store className="w-12 h-12 text-gray-400" />
-                      )}
-                    </div>
-
-                    <div className="flex gap-3">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/jpg"
-                        onChange={handleLogoUpload}
-                        className="hidden"
-                        id="logo-upload"
-                      />
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => fileInputRef.current?.click()}
-                        isLoading={isUploadingLogo}
-                        className="gap-2"
-                      >
-                        <Upload className="w-4 h-4" />
-                        {logoUrl ? 'Alterar Logo' : 'Enviar Logo'}
-                      </Button>
-
-                      {logoUrl && (
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={handleDeleteLogo}
-                          isLoading={isUploadingLogo}
-                          className="gap-2 text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Remover
-                        </Button>
-                      )}
-                    </div>
-
-                    <p className="text-xs text-gray-400 text-center">
-                      Formatos aceitos: JPEG, PNG. Tamanho máximo: 2MB.
-                    </p>
-                  </div>
                 </div>
               </Card>
             </motion.div>
