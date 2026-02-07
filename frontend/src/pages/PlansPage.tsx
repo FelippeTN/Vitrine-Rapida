@@ -408,8 +408,8 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
       >
         <p className="text-sm text-gray-500">
           Dúvidas? Entre em contato conosco pelo email{' '}
-          <a href="mailto:suporte@vitrinedigital.com" className="text-blue-600 hover:underline">
-            suporte@vitrinedigital.com
+          <a href="mailto:vitrinerapida.suporte@gmail.com" className="text-blue-600 hover:underline">
+            vitrinerapida.suporte@gmail.com
           </a>
         </p>
       </motion.div>
