@@ -185,6 +185,10 @@ func DeleteCollection(c *gin.Context) {
 		}
 
 		if len(productIDs) > 0 {
+			if err := tx.Where("product_id IN ?", productIDs).Delete(&models.OrderItem{}).Error; err != nil {
+				return err
+			}
+
 			if err := tx.Where("product_id IN ?", productIDs).Delete(&models.ProductImage{}).Error; err != nil {
 				return err
 			}
