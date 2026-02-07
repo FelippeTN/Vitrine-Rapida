@@ -13,7 +13,7 @@ interface SettingsPageProps {
 }
 
 export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'logo'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -251,17 +251,7 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
             <Lock className="w-4 h-4" />
             Segurança
           </button>
-          <button
-            onClick={() => setActiveTab('logo')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-              activeTab === 'logo'
-                ? 'bg-blue-50 text-blue-700'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            <Store className="w-4 h-4" />
-            Logo da Loja
-          </button>
+
         </aside>
 
         {/* Content */}
@@ -309,62 +299,11 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
                       </Button>
                     </div>
                   </form>
-                </div>
-              </Card>
-            </motion.div>
-          )}
 
-          {activeTab === 'security' && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
-            >
-              <Card>
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Alterar Senha</h3>
-                  <form onSubmit={handleChangePassword} className="space-y-4">
-                    <Input
-                      label="Senha Atual"
-                      type="password"
-                      value={passwords.current_password}
-                      onChange={(e) => setPasswords({ ...passwords, current_password: e.target.value })}
-                      autoComplete="current-password"
-                    />
-                    <Input
-                      label="Nova Senha"
-                      type="password"
-                      value={passwords.new_password}
-                      onChange={(e) => setPasswords({ ...passwords, new_password: e.target.value })}
-                      autoComplete="new-password"
-                    />
-                    <Input
-                      label="Confirmar Nova Senha"
-                      type="password"
-                      value={passwords.confirm_password}
-                      onChange={(e) => setPasswords({ ...passwords, confirm_password: e.target.value })}
-                      autoComplete="new-password"
-                    />
-                    <div className="pt-4 flex justify-end">
-                      <Button type="submit" isLoading={isLoading} className="gap-2">
-                        <Save className="w-4 h-4" />
-                        Atualizar Senha
-                      </Button>
-                    </div>
-                  </form>
-                </div>
-              </Card>
-            </motion.div>
-          )}
+                  {/* Divider */}
+                  <hr className="my-6 border-gray-200" />
 
-          {activeTab === 'logo' && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
-            >
-              <Card>
-                <div className="p-6">
+                  {/* Logo Section */}
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Logo da Loja</h3>
                   <p className="text-sm text-gray-500 mb-6">
                     A logo aparecerá na vitrine pública quando seus clientes acessarem seu catálogo.
@@ -426,6 +365,51 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
               </Card>
             </motion.div>
           )}
+
+          {activeTab === 'security' && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-6"
+            >
+              <Card>
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Alterar Senha</h3>
+                  <form onSubmit={handleChangePassword} className="space-y-4">
+                    <Input
+                      label="Senha Atual"
+                      type="password"
+                      value={passwords.current_password}
+                      onChange={(e) => setPasswords({ ...passwords, current_password: e.target.value })}
+                      autoComplete="current-password"
+                    />
+                    <Input
+                      label="Nova Senha"
+                      type="password"
+                      value={passwords.new_password}
+                      onChange={(e) => setPasswords({ ...passwords, new_password: e.target.value })}
+                      autoComplete="new-password"
+                    />
+                    <Input
+                      label="Confirmar Nova Senha"
+                      type="password"
+                      value={passwords.confirm_password}
+                      onChange={(e) => setPasswords({ ...passwords, confirm_password: e.target.value })}
+                      autoComplete="new-password"
+                    />
+                    <div className="pt-4 flex justify-end">
+                      <Button type="submit" isLoading={isLoading} className="gap-2">
+                        <Save className="w-4 h-4" />
+                        Atualizar Senha
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+
+
         </div>
       </div>
     </PageLayout>
