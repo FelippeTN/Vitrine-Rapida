@@ -187,7 +187,6 @@ export default function PublicCatalogPage() {
       })
 
       message += `\n💰 *Total: ${formatPrice(total)}*`
-      message += `\n\n🔗 *Acompanhe seu pedido:* ${window.location.origin}/pedido/${order_token}`
 
       const encodedMessage = encodeURIComponent(message)
 
