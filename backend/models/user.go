@@ -8,6 +8,7 @@ type User struct {
 	Email     string    `gorm:"unique;not null" json:"email"`
 	Password  string    `gorm:"not null" json:"-"`
 	Number    string    `gorm:"unique;not null" json:"number"`
+	LogoURL   string    `json:"logo_url"`
 	PlanID    uint      `gorm:"not null;default:1" json:"plan_id"`
 	Plan      *Plan     `gorm:"foreignKey:PlanID" json:"plan,omitempty"`
 	ResetToken          string    `json:"-"`
