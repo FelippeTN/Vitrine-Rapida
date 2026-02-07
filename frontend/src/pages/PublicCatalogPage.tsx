@@ -781,6 +781,11 @@ export default function PublicCatalogPage() {
                     </AnimatePresence>
 
                     <div className="pt-3 border-t border-gray-200">
+                      {checkoutError && (
+                        <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-3">
+                          {checkoutError}
+                        </div>
+                      )}
                       <div className="flex justify-between mb-3">
                         <span className="text-gray-600">Total</span>
                         <motion.span 
@@ -792,7 +797,7 @@ export default function PublicCatalogPage() {
                           {formatPrice(total)}
                         </motion.span>
                       </div>
-                      <Button className="w-full" onClick={handleFinishOrder} disabled={!ownerPhone}>Finalizar pedido</Button>
+                      <Button className="w-full" onClick={() => void handleFinishOrder()} isLoading={isFinishing} disabled={!ownerPhone || isFinishing}>Finalizar pedido</Button>
                     </div>
                   </div>
                 )}
