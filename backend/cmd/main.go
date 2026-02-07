@@ -48,6 +48,7 @@ func main() {
 		publicRoutes.POST("/login", middleware.RateLimitLoginMiddleware(), handlers.Login)
 		publicRoutes.POST("/register", middleware.RateLimitRegisterMiddleware(), handlers.Register)
 		publicRoutes.GET("/products", handlers.GetProducts)
+		publicRoutes.POST("/orders", handlers.CreateOrder)
 		publicRoutes.GET("/collections", handlers.GetPublicCollections)
 		publicRoutes.GET("/catalogs/:token", handlers.GetPublicCatalogByToken)
 		publicRoutes.GET("/plans", handlers.GetPlans)

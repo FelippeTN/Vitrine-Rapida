@@ -33,6 +33,7 @@ export type Product = {
   name: string
   description: string
   price: number
+  stock?: number
   sizes?: string
   image_url?: string | null
   images?: ProductImage[]
@@ -44,6 +45,7 @@ export type CreateProductInput = {
   name: string
   description: string
   price: number
+  stock?: number
   sizes?: string
   collection_id?: number | null
   image?: File | null
@@ -54,11 +56,22 @@ export type UpdateProductInput = {
   name?: string
   description?: string
   price?: number
+  stock?: number
   sizes?: string
   collection_id?: number | null
   image?: File | null
   images?: File[]
   delete_image_ids?: number[]
+}
+
+export type OrderItemInput = {
+  product_id: number
+  quantity: number
+  size?: string
+}
+
+export type CreateOrderInput = {
+  items: OrderItemInput[]
 }
 
 export type ShareCollectionResponse = {
