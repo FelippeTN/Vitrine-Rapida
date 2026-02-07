@@ -64,6 +64,8 @@ func main() {
 		protectedRoutes.GET("/me", handlers.GetMe)
 		protectedRoutes.PUT("/me", handlers.UpdateMe)
 		protectedRoutes.PUT("/me/password", handlers.ChangePassword)
+		protectedRoutes.POST("/me/logo", handlers.UploadLogo)
+		protectedRoutes.DELETE("/me/logo", handlers.DeleteLogo)
 
 		protectedRoutes.POST("/collections", handlers.CreateCollection)
 		protectedRoutes.GET("/collections", handlers.GetMyCollections)

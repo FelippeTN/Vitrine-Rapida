@@ -21,6 +21,7 @@ type publicCatalogResponse struct {
 	Products   []models.Product  `json:"products"`
 	OwnerPhone string            `json:"owner_phone"`
 	StoreName  string            `json:"store_name"`
+	StoreLogo  string            `json:"store_logo"`
 }
 
 func ShareCollection(c *gin.Context) {
@@ -84,9 +85,11 @@ func GetPublicCatalogByToken(c *gin.Context) {
 	var owner models.User
 	ownerPhone := ""
 	storeName := ""
+	storeLogo := ""
 	if err := database.DB.First(&owner, collection.OwnerID).Error; err == nil {
 		ownerPhone = owner.Number
 		storeName = owner.Username
+		storeLogo = owner.LogoURL
 	}
 
 	var products []models.Product
@@ -95,5 +98,5 @@ func GetPublicCatalogByToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, publicCatalogResponse{Collection: collection, Products: products, OwnerPhone: ownerPhone, StoreName: storeName})
+	c.JSON(http.StatusOK, publicCatalogResponse{Collection: collection, Products: products, OwnerPhone: ownerPhone, StoreName: storeName, StoreLogo: storeLogo})
 }
