@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { User, Lock, Save, Store, Upload, Trash2 } from 'lucide-react'
 import { type User as UserType } from '@/components/layout/Header'
 import { PageLayout } from '@/components/layout/PageLayout'
-import { Button, Input, Card } from '@/components/ui'
+import { Button, Input, Card, Toast } from '@/components/ui'
 import { API_BASE_URL } from '@/api/config'
 import { formatPhone } from '@/utils/format'
 
@@ -16,6 +16,8 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
+  const [toast, setToast] = useState<{ message: string; type: 'warning' | 'error' | 'info' } | null>(null)
+  const showToast = (message: string, type: 'warning' | 'error' | 'info' = 'error') => setToast({ message, type })
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Profile Form State
@@ -152,7 +154,7 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
 
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'Arquivo muito grande. Máximo 2MB' })
+      showToast(`A imagem "${file.name}" excede o limite de 2MB. Por favor, escolha uma imagem menor.`, 'error')
       return
     }
 
@@ -273,7 +275,7 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
               <Card>
                 <div className="p-6">
                   {/* Logo Section */}
-                  <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 pb-6 border-b border-gray-100">
                     <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50 flex-shrink-0">
                       {logoUrl ? (
                         <img
@@ -285,11 +287,11 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
                         <Store className="w-6 h-6 text-gray-400" />
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 text-center sm:text-left">
                       <p className="text-sm font-medium text-gray-700">Logo da Loja</p>
                       <p className="text-xs text-gray-400 mt-0.5">JPEG ou PNG, máx. 2MB</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -302,7 +304,7 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isUploadingLogo}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                       >
                         <Upload className="w-3.5 h-3.5" />
                         {isUploadingLogo ? 'Enviando...' : logoUrl ? 'Alterar' : 'Enviar'}
@@ -312,7 +314,7 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
                           type="button"
                           onClick={handleDeleteLogo}
                           disabled={isUploadingLogo}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           Remover
@@ -363,6 +365,16 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
                 <div className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-6">Alterar Senha</h3>
                   <form onSubmit={handleChangePassword} className="space-y-4">
+                    <input
+                      type="text"
+                      name="username"
+                      autoComplete="username"
+                      value={profile.email}
+                      readOnly
+                      className="sr-only"
+                      tabIndex={-1}
+                      aria-hidden="true"
+                    />
                     <Input
                       label="Senha Atual"
                       type="password"
@@ -399,6 +411,13 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
 
         </div>
       </div>
+
+      <Toast
+        message={toast?.message ?? ''}
+        type={toast?.type}
+        isVisible={!!toast}
+        onClose={() => setToast(null)}
+      />
     </PageLayout>
   )
 }
