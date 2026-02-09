@@ -143,7 +143,8 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
           setShowCreateForm(false)
           return
         }
-        // Image too large for server
+      }
+      if (err instanceof ApiError && err.status === 413) {
         showToast('Uma ou mais imagens são muito grandes para serem processadas pelo servidor. Por favor, use imagens menores (máx. 10MB cada).', 'error')
         return
       }
@@ -224,7 +225,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
       cancelEditProduct(); await load()
     } catch (err) {
       if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }); return }
-      if (err instanceof ApiError && err.status === 403) {
+      if (err instanceof ApiError && err.status === 413) {
         showToast('Uma ou mais imagens são muito grandes para serem processadas pelo servidor. Por favor, use imagens menores (máx. 10MB cada).', 'error')
         return
       }

@@ -178,7 +178,7 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
       if (response.ok) {
         setLogoUrl(data.logo_url)
         setMessage({ type: 'success', text: 'Logo atualizada com sucesso!' })
-      } else if (response.status === 403) {
+      } else if (response.status === 413) {
         showToast('A imagem é muito grande para ser processada pelo servidor. Por favor, use uma imagem menor (máx. 2MB).', 'error')
       } else {
         setMessage({ type: 'error', text: data.error || 'Erro ao fazer upload da logo' })
