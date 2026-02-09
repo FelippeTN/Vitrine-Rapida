@@ -6,6 +6,9 @@ import { PageLayout } from '@/components/layout/PageLayout'
 import { Button, Input, Card } from '@/components/ui'
 import { API_BASE_URL } from '@/api/config'
 import { formatPhone } from '@/utils/format'
+import Cropper from 'react-easy-crop'
+import getCroppedImg from '@/utils/cropImage'
+import { X, ZoomIn, ZoomOut } from 'lucide-react'
 
 interface SettingsPageProps {
   user?: UserType | null
@@ -28,6 +31,13 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
   // Logo State
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
+
+  // Cropping State
+  const [imageSrc, setImageSrc] = useState<string | null>(null)
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
+  const [isCropping, setIsCropping] = useState(false)
 
   // Password Form State
   const [passwords, setPasswords] = useState({
@@ -64,8 +74,8 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
   }
 
   function handleNumberChange(e: React.ChangeEvent<HTMLInputElement>) {
-      const formatted = formatPhone(e.target.value)
-      setProfile({ ...profile, number: formatted })
+    const formatted = formatPhone(e.target.value)
+    setProfile({ ...profile, number: formatted })
   }
 
   async function handleUpdateProfile(e: React.FormEvent) {
@@ -84,8 +94,8 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
-             ...profile,
-             number: cleanNumber 
+          ...profile,
+          number: cleanNumber
         }),
       })
 
@@ -121,8 +131,8 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
-            current_password: passwords.current_password,
-            new_password: passwords.new_password
+          current_password: passwords.current_password,
+          new_password: passwords.new_password
         }),
       })
 
@@ -145,49 +155,98 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Store file type for later
+    // Check type
     if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
       setMessage({ type: 'error', text: 'Tipo de arquivo inválido. Use JPEG ou PNG' })
       return
     }
 
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'Arquivo muito grande. Máximo 2MB' })
-      return
-    }
+    // Read file to data URL for cropping
+    const reader = new FileReader()
+    reader.addEventListener('load', () => {
+      setImageSrc(reader.result?.toString() || null)
+      setIsCropping(true)
+    })
+    reader.readAsDataURL(file)
 
-    setIsUploadingLogo(true)
-    setMessage({ type: '', text: '' })
-
-    try {
-      const formData = new FormData()
-      formData.append('logo', file)
-
-      const response = await fetch(`${API_BASE_URL}/protected/me/logo`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: formData,
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setLogoUrl(data.logo_url)
-        setMessage({ type: 'success', text: 'Logo atualizada com sucesso!' })
-      } else {
-        setMessage({ type: 'error', text: data.error || 'Erro ao fazer upload da logo' })
-      }
-    } catch {
-      setMessage({ type: 'error', text: 'Erro ao conectar com o servidor' })
-    } finally {
-      setIsUploadingLogo(false)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
     }
   }
+
+  // Progress State
+  const [uploadProgress, setUploadProgress] = useState(0)
+
+  async function uploadCroppedImage() {
+    if (!imageSrc || !croppedAreaPixels) return
+
+    try {
+      setIsUploadingLogo(true)
+      // Do not close modal immediately to show progress
+      // setIsCropping(false) 
+      setMessage({ type: '', text: '' })
+      setUploadProgress(0)
+
+      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels)
+      if (!croppedImage) {
+        throw new Error('Erro ao cortar imagem')
+      }
+
+      const formData = new FormData()
+      formData.append('logo', croppedImage, 'logo.jpg')
+
+      // Use XMLHttpRequest for progress tracking
+      const xhr = new XMLHttpRequest()
+
+      const promise = new Promise((resolve, reject) => {
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = (event.loaded / event.total) * 100
+            setUploadProgress(Math.round(percentComplete))
+          }
+        })
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(JSON.parse(xhr.responseText))
+          } else {
+            try {
+              reject(JSON.parse(xhr.responseText))
+            } catch (e) {
+              reject({ error: `Erro ${xhr.status}: ${xhr.statusText}` })
+              console.error(e);
+            }
+          }
+        }
+
+        xhr.onerror = () => reject({ error: 'Erro de rede' })
+
+        xhr.open('POST', `${API_BASE_URL}/protected/me/logo`)
+        xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('token')}`)
+        xhr.send(formData)
+      })
+
+      const data: any = await promise
+
+      setLogoUrl(data.logo_url)
+      setMessage({ type: 'success', text: 'Logo atualizada com sucesso!' })
+      setIsCropping(false) // Close modal on success
+      setImageSrc(null)
+      setZoom(1)
+      setCrop({ x: 0, y: 0 })
+
+    } catch (error: any) {
+      console.error("Upload error:", error)
+      setMessage({ type: 'error', text: error.error || 'Erro ao fazer upload da logo' })
+    } finally {
+      setIsUploadingLogo(false)
+      setUploadProgress(0)
+    }
+  }
+
+
 
   async function handleDeleteLogo() {
     setIsUploadingLogo(true)
@@ -231,22 +290,20 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
         <aside className="w-full md:w-64 flex flex-col gap-2">
           <button
             onClick={() => setActiveTab('profile')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-              activeTab === 'profile'
-                ? 'bg-blue-50 text-blue-700'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'profile'
+              ? 'bg-blue-50 text-blue-700'
+              : 'text-gray-600 hover:bg-gray-50'
+              }`}
           >
             <User className="w-4 h-4" />
             Meu Perfil
           </button>
           <button
             onClick={() => setActiveTab('security')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-              activeTab === 'security'
-                ? 'bg-blue-50 text-blue-700'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'security'
+              ? 'bg-blue-50 text-blue-700'
+              : 'text-gray-600 hover:bg-gray-50'
+              }`}
           >
             <Lock className="w-4 h-4" />
             Segurança
@@ -256,13 +313,12 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
 
         {/* Content */}
         <div className="flex-1 max-w-2xl">
-            {message.text && (
-                <div className={`p-4 rounded-lg mb-6 text-sm ${
-                    message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-                }`}>
-                    {message.text}
-                </div>
-            )}
+          {message.text && (
+            <div className={`p-4 rounded-lg mb-6 text-sm ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+              }`}>
+              {message.text}
+            </div>
+          )}
 
           {activeTab === 'profile' && (
             <motion.div
@@ -273,7 +329,7 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
               <Card>
                 <div className="p-6">
                   {/* Logo Section */}
-                  <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6 pb-6 border-b border-gray-100">
                     <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50 flex-shrink-0">
                       {logoUrl ? (
                         <img
@@ -285,11 +341,11 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
                         <Store className="w-6 h-6 text-gray-400" />
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 w-full">
                       <p className="text-sm font-medium text-gray-700">Logo da Loja</p>
                       <p className="text-xs text-gray-400 mt-0.5">JPEG ou PNG, máx. 2MB</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -399,6 +455,95 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
 
         </div>
       </div>
+
+      {/* Crop Modal */}
+      {isCropping && imageSrc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <h3 className="font-semibold text-gray-900">Ajustar Imagem</h3>
+              <button
+                onClick={() => { setIsCropping(false); setImageSrc(null); }}
+                className="p-1 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+                type="button"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="relative h-64 sm:h-80 w-full bg-gray-900">
+              <Cropper
+                image={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onCropComplete={(_, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels as any)}
+                onZoomChange={setZoom}
+              />
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-medium text-gray-500">
+                  <span>Zoom</span>
+                  <span>{zoom.toFixed(1)}x</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ZoomOut className="w-4 h-4 text-gray-400" />
+                  <input
+                    type="range"
+                    value={zoom}
+                    min={1}
+                    max={3}
+                    step={0.1}
+                    aria-labelledby="Zoom"
+                    onChange={(e) => setZoom(Number(e.target.value))}
+                    disabled={isUploadingLogo}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50"
+                  />
+                  <ZoomIn className="w-4 h-4 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              {isUploadingLogo && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs font-medium text-gray-600">
+                    <span>Enviando imagem...</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-blue-600 transition-all duration-300 ease-out"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => { setIsCropping(false); setImageSrc(null); }}
+                  className="flex-1"
+                  type="button"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={() => void uploadCroppedImage()}
+                  isLoading={isUploadingLogo}
+                  className="flex-1"
+                  type="button"
+                >
+                  Salvar e Enviar
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </PageLayout>
   )
 }
