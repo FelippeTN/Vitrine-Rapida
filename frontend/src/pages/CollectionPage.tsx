@@ -143,6 +143,9 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
           setShowCreateForm(false)
           return
         }
+        // Image too large for server
+        showToast('Uma ou mais imagens são muito grandes para serem processadas pelo servidor. Por favor, use imagens menores (máx. 10MB cada).', 'error')
+        return
       }
 
       setSaveError(err instanceof Error ? err.message : 'Erro')
@@ -219,7 +222,13 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
         delete_image_ids: editProductDeleteImageIds.length > 0 ? editProductDeleteImageIds : undefined
       })
       cancelEditProduct(); await load()
-    } catch (err) { if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }) } }
+    } catch (err) {
+      if (isUnauthorized(err)) { onLogout(); navigate('/login', { replace: true }); return }
+      if (err instanceof ApiError && err.status === 403) {
+        showToast('Uma ou mais imagens são muito grandes para serem processadas pelo servidor. Por favor, use imagens menores (máx. 10MB cada).', 'error')
+        return
+      }
+    }
     finally { setIsUpdatingProduct(false) }
   }
 
