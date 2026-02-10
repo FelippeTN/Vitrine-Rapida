@@ -285,11 +285,11 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
       user={user}
       onLogout={onLogout}
     >
-      <div className="mb-6">
+      <div className="mb-6 text-center md:text-left">
         <h1 className="text-2xl font-bold text-gray-900">Configurações</h1>
         <p className="text-gray-600 mt-1">Gerencie seus dados e preferências</p>
       </div>
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
         {/* Sidebar */}
         <aside className="w-full md:w-64 flex flex-col gap-2">
           <button
@@ -316,7 +316,7 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
         </aside>
 
         {/* Content */}
-        <div className="flex-1 max-w-2xl">
+        <div className="flex-1 w-full max-w-2xl">
           {message.text && (
             <div className={`p-4 rounded-lg mb-6 text-sm ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
               }`}>
@@ -333,7 +333,7 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
               <Card>
                 <div className="p-6">
                   {/* Logo Section */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6 pb-6 border-b border-gray-100">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 mb-6 pb-6 border-b border-gray-100">
                     <div className="w-16 h-16 rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50 flex-shrink-0">
                       {logoUrl ? (
                         <img
