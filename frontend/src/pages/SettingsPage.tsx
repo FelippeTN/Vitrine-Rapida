@@ -21,7 +21,6 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
   const [toast, setToast] = useState<{ message: string; type: 'warning' | 'error' | 'info' } | null>(null)
-  const showToast = (message: string, type: 'warning' | 'error' | 'info' = 'error') => setToast({ message, type })
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Profile Form State
