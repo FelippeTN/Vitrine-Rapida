@@ -74,6 +74,14 @@ func ConnectDatabase() {
 	if err != nil {
 		log.Fatal("Failed to migrate database!", err)
 	}
+// Deletar isso aqui dps
+	if database.Migrator().HasColumn(&models.Product{}, "stock") {
+		if err := database.Migrator().DropColumn(&models.Product{}, "stock"); err != nil {
+			log.Printf("Warning: could not drop 'stock' column: %v", err)
+		} else {
+			log.Println("Dropped 'stock' column from products table")
+		}
+	}
 
 	DB = database
 }
