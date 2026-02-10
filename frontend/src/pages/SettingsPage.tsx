@@ -13,9 +13,10 @@ import { X, ZoomIn, ZoomOut } from 'lucide-react'
 interface SettingsPageProps {
   user?: UserType | null
   onLogout?: () => void
+  onUserUpdate?: () => void
 }
 
-export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
+export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsPageProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
@@ -233,6 +234,7 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
       const data: any = await promise
 
       setLogoUrl(data.logo_url)
+      onUserUpdate?.()
       setMessage({ type: 'success', text: 'Logo atualizada com sucesso!' })
       setIsCropping(false) // Close modal on success
       setImageSrc(null)
@@ -266,6 +268,7 @@ export default function SettingsPage({ user, onLogout }: SettingsPageProps) {
 
       if (response.ok) {
         setLogoUrl(null)
+        onUserUpdate?.()
         setMessage({ type: 'success', text: 'Logo removida com sucesso!' })
       } else {
         setMessage({ type: 'error', text: data.error || 'Erro ao remover logo' })
