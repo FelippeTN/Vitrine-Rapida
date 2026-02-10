@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
-	"path/filepath"
 	"strconv"
-	"time"
 
+	"github.com/FelippeTN/Web-Catalogo/backend/config"
 	"github.com/FelippeTN/Web-Catalogo/backend/database"
 	"github.com/FelippeTN/Web-Catalogo/backend/models"
 	"github.com/FelippeTN/Web-Catalogo/backend/utils"
@@ -42,66 +40,11 @@ func CreateProduct(c *gin.Context) {
 		return
 	}
 
-	// Handle multiple images
-	form, _ := c.MultipartForm()
-	var uploadedImages []string
-
-	if form != nil && form.File["images"] != nil {
-		files := form.File["images"]
-		if len(files) > 3 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Máximo de 3 imagens por produto"})
-			return
-		}
-		for _, file := range files {
-			if file.Size > 10*1024*1024 {
-				c.JSON(http.StatusBadRequest, gin.H{"error": "O tamanho da imagem excede o limite de 10MB"})
-				return
-			}
-			baseFilename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), strconv.Itoa(len(uploadedImages)))
-			jpgFilename := baseFilename + ".jpg"
-			jpgPath := filepath.Join("uploads", jpgFilename)
-
-			if err := utils.SaveCompressedImage(file, jpgPath); err == nil {
-				uploadedImages = append(uploadedImages, "/uploads/"+jpgFilename)
-			} else {
-				ext := filepath.Ext(file.Filename)
-				filename := baseFilename + ext
-				path := filepath.Join("uploads", filename)
-
-				if err := c.SaveUploadedFile(file, path); err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not save image"})
-					return
-				}
-				uploadedImages = append(uploadedImages, "/uploads/"+filename)
-			}
-		}
-	}
-
-	if len(uploadedImages) == 0 {
-		file, err := c.FormFile("image")
-		if err == nil {
-			if file.Size > 10*1024*1024 {
-				c.JSON(http.StatusBadRequest, gin.H{"error": "O tamanho da imagem excede o limite de 10MB"})
-				return
-			}
-			baseFilename := fmt.Sprintf("%d", time.Now().UnixNano())
-			jpgFilename := baseFilename + ".jpg"
-			jpgPath := filepath.Join("uploads", jpgFilename)
-
-			if err := utils.SaveCompressedImage(file, jpgPath); err == nil {
-				uploadedImages = append(uploadedImages, "/uploads/"+jpgFilename)
-			} else {
-				ext := filepath.Ext(file.Filename)
-				filename := baseFilename + ext
-				path := filepath.Join("uploads", filename)
-
-				if err := c.SaveUploadedFile(file, path); err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not save image"})
-					return
-				}
-				uploadedImages = append(uploadedImages, "/uploads/"+filename)
-			}
-		}
+	// Upload images using shared utility
+	uploadedImages, err := utils.UploadImages(c, "images", config.MaxImagesPerProduct, config.MaxImageSize)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	if input.CollectionID != nil {
@@ -117,8 +60,6 @@ func CreateProduct(c *gin.Context) {
 		mainImageURL = &uploadedImages[0]
 	}
 
-
-
 	product := models.Product{
 		OwnerID:      ownerID,
 		CollectionID: input.CollectionID,
@@ -126,7 +67,6 @@ func CreateProduct(c *gin.Context) {
 		Description:  input.Description,
 		Price:        input.Price,
 		Sizes:        input.Sizes,
-
 		ImageURL:     mainImageURL,
 	}
 
@@ -213,6 +153,7 @@ func UpdateProduct(c *gin.Context) {
 		return
 	}
 
+	// Handle image deletions
 	deleteImageIDsStr := c.PostFormArray("delete_image_ids")
 	var deleteImageIDs []uint
 	for _, idStr := range deleteImageIDsStr {
@@ -226,79 +167,28 @@ func UpdateProduct(c *gin.Context) {
 		database.DB.Where("id IN ? AND product_id = ?", deleteImageIDs, uint(id)).Delete(&models.ProductImage{})
 	}
 
-	form, _ := c.MultipartForm()
-	var uploadedImages []string
-
-	// Count existing images
+	// Count existing images (minus deletions)
 	var existingImageCount int64
 	database.DB.Model(&models.ProductImage{}).Where("product_id = ?", uint(id)).Count(&existingImageCount)
-	// Subtract images marked for deletion
 	existingImageCount -= int64(len(deleteImageIDs))
 	if existingImageCount < 0 {
 		existingImageCount = 0
 	}
 
-	if form != nil && form.File["images"] != nil {
-		files := form.File["images"]
-		newTotal := existingImageCount + int64(len(files))
-		if newTotal > 3 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Máximo de 3 imagens por produto"})
-			return
-		}
-		for i, file := range files {
-			if file.Size > 10*1024*1024 {
-				c.JSON(http.StatusBadRequest, gin.H{"error": "O tamanho da imagem excede o limite de 10MB"})
-				return
-			}
-			baseFilename := fmt.Sprintf("%d_%d", time.Now().UnixNano(), i)
-			jpgFilename := baseFilename + ".jpg"
-			jpgPath := filepath.Join("uploads", jpgFilename)
-
-			if err := utils.SaveCompressedImage(file, jpgPath); err == nil {
-				uploadedImages = append(uploadedImages, "/uploads/"+jpgFilename)
-			} else {
-				// Fallback
-				ext := filepath.Ext(file.Filename)
-				filename := baseFilename + ext
-				path := filepath.Join("uploads", filename)
-
-				if err := c.SaveUploadedFile(file, path); err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not save image"})
-					return
-				}
-				uploadedImages = append(uploadedImages, "/uploads/"+filename)
-			}
-		}
+	// Calculate remaining slots for new images
+	remainingSlots := config.MaxImagesPerProduct - int(existingImageCount)
+	if remainingSlots < 0 {
+		remainingSlots = 0
 	}
 
-	if len(uploadedImages) == 0 {
-		file, err := c.FormFile("image")
-		if err == nil {
-			if file.Size > 10*1024*1024 {
-				c.JSON(http.StatusBadRequest, gin.H{"error": "O tamanho da imagem excede o limite de 10MB"})
-				return
-			}
-			baseFilename := fmt.Sprintf("%d", time.Now().UnixNano())
-			jpgFilename := baseFilename + ".jpg"
-			jpgPath := filepath.Join("uploads", jpgFilename)
-
-			if err := utils.SaveCompressedImage(file, jpgPath); err == nil {
-				uploadedImages = append(uploadedImages, "/uploads/"+jpgFilename)
-			} else {
-				// Fallback
-				ext := filepath.Ext(file.Filename)
-				filename := baseFilename + ext
-				path := filepath.Join("uploads", filename)
-
-				if err := c.SaveUploadedFile(file, path); err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not save image"})
-					return
-				}
-				uploadedImages = append(uploadedImages, "/uploads/"+filename)
-			}
-		}
+	// Upload new images using shared utility
+	uploadedImages, err := utils.UploadImages(c, "images", remainingSlots, config.MaxImageSize)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
+	// Save new images to DB
 	var maxPosition int
 	database.DB.Model(&models.ProductImage{}).Where("product_id = ?", uint(id)).Select("COALESCE(MAX(position), -1)").Scan(&maxPosition)
 
@@ -311,6 +201,7 @@ func UpdateProduct(c *gin.Context) {
 		database.DB.Create(&productImage)
 	}
 
+	// Build updates map
 	updates := map[string]any{}
 	if input.Name != nil {
 		updates["name"] = *input.Name
@@ -328,9 +219,7 @@ func UpdateProduct(c *gin.Context) {
 		updates["collection_id"] = *input.CollectionID
 	}
 
-
-
-
+	// Update main image_url to first image
 	var firstImage models.ProductImage
 	if err := database.DB.Where("product_id = ?", uint(id)).Order("position asc").First(&firstImage).Error; err == nil {
 		updates["image_url"] = firstImage.ImageURL

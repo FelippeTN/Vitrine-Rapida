@@ -81,15 +81,6 @@ func ConnectDatabase() {
 	database.Exec(`ALTER TABLE order_items ADD CONSTRAINT fk_order_items_product 
 		FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL`)
 
-	// Deletar isso aqui dps
-	if database.Migrator().HasColumn(&models.Product{}, "stock") {
-		if err := database.Migrator().DropColumn(&models.Product{}, "stock"); err != nil {
-			log.Printf("Warning: could not drop 'stock' column: %v", err)
-		} else {
-			log.Println("Dropped 'stock' column from products table")
-		}
-	}
-
 	DB = database
 }
 
