@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Plus, Share2, Pencil, Trash2, ExternalLink, X } from 'lucide-react'
+import { Plus, Share2, Pencil, Trash2, ExternalLink, X, Store } from 'lucide-react'
 
 import { collectionsService, isUnauthorized, ApiError } from '@/api'
 import type { UpgradeError } from '@/api'
@@ -75,7 +75,7 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
         navigate('/login', { replace: true })
         return
       }
-      
+
       if (err instanceof ApiError && err.status === 403) {
         const body = err.body as UpgradeError
         if (body?.upgrade_required) {
@@ -85,7 +85,7 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
           return
         }
       }
-      
+
       setCreateError(err instanceof Error ? err.message : 'Erro ao criar vitrine')
     } finally {
       setIsCreating(false)
@@ -169,7 +169,7 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
   return (
     <PageLayout isAuthenticated={true} onLogout={handleLogout} user={user}>
       {/* Header */}
-      <motion.div 
+      <motion.div
         className="mb-6"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -183,12 +183,12 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
 
       {/* Loading */}
       {isLoading && (
-        <motion.div 
+        <motion.div
           className="text-center py-12 text-gray-500"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <motion.div 
+          <motion.div
             className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-3"
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -199,7 +199,7 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
 
       {/* Error */}
       {!isLoading && errorMessage && (
-        <motion.div 
+        <motion.div
           className="text-center py-12 text-red-600"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -211,81 +211,104 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
       {/* Empty */}
       {/* Grid with Create Card and Catalogs */}
       {!isLoading && (
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-          variants={staggerContainer}
-          initial="hidden"
-          animate="show"
-        >
-
-
-          {catalogs.map((c) => (
-            <motion.div key={c.id} variants={staggerItem} className="h-full">
-              <Card variant="bordered" animate={false} className="h-full flex flex-col min-h-[220px]">
-                {editingId === c.id ? (
-                  <div className="space-y-3 flex-1">
-                    <Input
-                      placeholder="Nome"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      disabled={isUpdating}
-                    />
-                    <Input
-                      placeholder="Descrição"
-                      value={editDescription}
-                      onChange={(e) => setEditDescription(e.target.value)}
-                      disabled={isUpdating}
-                    />
-                    {updateError && <p className="text-sm text-red-600">{updateError}</p>}
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={() => void saveEdit(c.id)} isLoading={isUpdating}>
-                        Salvar
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={cancelEdit}>
-                        Cancelar
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col flex-1 h-full">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-medium text-gray-900">{c.name}</h3>
-                      <Badge>{c.items} itens</Badge>
-                    </div>
-                    <p className="text-sm text-gray-500 line-clamp-2 mb-3 min-h-[40px] flex-1">{c.description}</p>
-                    <p className="text-xs text-gray-400 mb-4">{c.updatedAtLabel}</p>
-
-                    <div className="flex gap-2 mt-auto">
-                      <Button size="sm" onClick={() => navigate(`/catalogos/${c.id}`)} className="flex-1">
-                        <ExternalLink className="w-4 h-4 mr-1" /> Abrir
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => void handleShare(c.id)} title="Compartilhar">
-                        <Share2 className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => startEdit(c)} title="Editar">
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button variant="danger" size="sm" onClick={() => confirmDelete(c.id)} title="Deletar">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </Card>
-            </motion.div>
-          ))}
-
-          {/* Create New Card */}
-          <motion.div variants={staggerItem} className="h-full">
-            <Card 
-              className={`h-full flex flex-col justify-center relative ${!showCreateForm ? 'min-h-[220px] items-center cursor-pointer hover:bg-gray-50 border-dashed border-2' : ''}`}
-              onClick={!showCreateForm ? () => setShowCreateForm(true) : undefined}
-              animate={false}
+        <div className="space-y-8">
+          {/* Logo Prompt Banner */}
+          {!user?.logo_url && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-6 rounded-2xl flex items-center justify-between gap-6"
             >
-              {!showCreateForm ? (
-                <div className="flex flex-col items-center gap-2 text-gray-500">
-                  <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-                    <Plus className="w-6 h-6 text-blue-600" />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                  <Store className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Personalize sua loja!</h3>
+                  <p className="text-gray-600">Adicione o logo da sua marca para passar mais credibilidade aos seus clientes.</p>
+                </div>
+              </div>
+              <Button onClick={() => navigate('/configuracoes')}>
+                Adicionar Logo
+              </Button>
+            </motion.div>
+          )}
+
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+          >
+
+
+            {catalogs.map((c) => (
+              <motion.div key={c.id} variants={staggerItem} className="h-full">
+                <Card variant="bordered" animate={false} className="h-full flex flex-col min-h-[220px]">
+                  {editingId === c.id ? (
+                    <div className="space-y-3 flex-1">
+                      <Input
+                        placeholder="Nome"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        disabled={isUpdating}
+                      />
+                      <Input
+                        placeholder="Descrição"
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        disabled={isUpdating}
+                      />
+                      {updateError && <p className="text-sm text-red-600">{updateError}</p>}
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => void saveEdit(c.id)} isLoading={isUpdating}>
+                          Salvar
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={cancelEdit}>
+                          Cancelar
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col flex-1 h-full">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-medium text-gray-900">{c.name}</h3>
+                        <Badge>{c.items} itens</Badge>
+                      </div>
+                      <p className="text-sm text-gray-500 line-clamp-2 mb-3 min-h-[40px] flex-1">{c.description}</p>
+                      <p className="text-xs text-gray-400 mb-4">{c.updatedAtLabel}</p>
+
+                      <div className="flex gap-2 mt-auto">
+                        <Button size="sm" onClick={() => navigate(`/catalogos/${c.id}`)} className="flex-1">
+                          <ExternalLink className="w-4 h-4 mr-1" /> Abrir
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => void handleShare(c.id)} title="Compartilhar">
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => startEdit(c)} title="Editar">
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="danger" size="sm" onClick={() => confirmDelete(c.id)} title="Deletar">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              </motion.div>
+            ))}
+
+            {/* Create New Card */}
+            <motion.div variants={staggerItem} className="h-full">
+              <Card
+                className={`h-full flex flex-col justify-center relative ${!showCreateForm ? 'min-h-[220px] items-center cursor-pointer hover:bg-gray-50 border-dashed border-2' : ''}`}
+                onClick={!showCreateForm ? () => setShowCreateForm(true) : undefined}
+                animate={false}
+              >
+                {!showCreateForm ? (
+                  <div className="flex flex-col items-center gap-2 text-gray-500">
+                    <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                      <Plus className="w-6 h-6 text-blue-600" />
                     </div>
                     <span className="font-medium">Nova Vitrine</span>
                   </div>
@@ -297,7 +320,7 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
                     >
                       <X className="w-4 h-4" />
                     </button>
-                    
+
                     <div className="mb-4">
                       <h2 className="font-medium text-gray-900">Nova vitrine</h2>
                       <p className="text-sm text-gray-500">{catalogs.length}/5 criadas</p>
@@ -326,7 +349,8 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
                 )}
               </Card>
             </motion.div>
-        </motion.div>
+          </motion.div>
+        </div>
       )}
 
       {/* Upgrade Modal */}
