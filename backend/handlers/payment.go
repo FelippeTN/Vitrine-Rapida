@@ -9,6 +9,10 @@ import (
 	"github.com/stripe/stripe-go/v74/paymentintent"
 )
 
+func init() {
+	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
+}
+
 type CreatePaymentIntentInput struct {
 	Amount   int64  `json:"amount" binding:"required"`
 	Currency string `json:"currency" binding:"required"`
@@ -20,8 +24,6 @@ func CreatePaymentIntent(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	stripe.Key = os.Getenv("STRIPE_SECRET_KEY")
 
 	params := &stripe.PaymentIntentParams{
 		Amount:   stripe.Int64(input.Amount),
