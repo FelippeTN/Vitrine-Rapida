@@ -375,7 +375,7 @@ func UploadLogo(c *gin.Context) {
 	// Create logos directory if not exists
 	logosDir := "./uploads/logos"
 	if err := createDirIfNotExists(logosDir); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar diretório"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar diretório: " + err.Error()})
 		return
 	}
 
@@ -385,7 +385,7 @@ func UploadLogo(c *gin.Context) {
 
 	// Save and compress image
 	if err := utils.SaveCompressedImage(file, destPath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar imagem"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao processar imagem: " + err.Error()})
 		return
 	}
 
@@ -393,7 +393,7 @@ func UploadLogo(c *gin.Context) {
 	logoURL := fmt.Sprintf("/uploads/logos/%s", filename)
 	user.LogoURL = logoURL
 	if err := database.DB.Save(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao salvar logo"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao salvar logo: " + err.Error()})
 		return
 	}
 

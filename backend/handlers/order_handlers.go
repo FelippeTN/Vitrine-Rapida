@@ -37,7 +37,7 @@ func CreateOrder(c *gin.Context) {
 			}
 
 			orderItem := models.OrderItem{
-				ProductID: product.ID,
+				ProductID: &product.ID,
 				Quantity:  itemInput.Quantity,
 				Size:      itemInput.Size,
 				Price:     product.Price,
