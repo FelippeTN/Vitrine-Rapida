@@ -31,7 +31,7 @@ func CreateOrder(c *gin.Context) {
 	err := database.DB.Transaction(func(tx *gorm.DB) error {
 		for _, itemInput := range input.Items {
 			var product models.Product
-			// Get product to calculate price (no stock validation or decrement)
+			// Get product to calculate price
 			if err := tx.First(&product, itemInput.ProductID).Error; err != nil {
 				return fmt.Errorf("produto não encontrado (ID: %d)", itemInput.ProductID)
 			}

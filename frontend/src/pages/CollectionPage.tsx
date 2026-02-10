@@ -34,7 +34,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
-  const [stock, setStock] = useState('')
+
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
   const [images, setImages] = useState<File[]>([])
   const [isSaving, setIsSaving] = useState(false)
@@ -44,7 +44,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
   const [editProductName, setEditProductName] = useState('')
   const [editProductDescription, setEditProductDescription] = useState('')
   const [editProductPrice, setEditProductPrice] = useState('')
-  const [editProductStock, setEditProductStock] = useState('')
+
   const [editProductSizes, setEditProductSizes] = useState<string[]>([])
   const [editProductNewImages, setEditProductNewImages] = useState<File[]>([])
   const [editProductDeleteImageIds, setEditProductDeleteImageIds] = useState<number[]>([])
@@ -123,7 +123,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
         name: trimmedName,
         description: trimmedDesc,
         price: parsedPrice,
-        stock: stock ? parseInt(stock) : 0,
+
         sizes: selectedSizes.length > 0 ? selectedSizes.join(',') : undefined,
         collection_id: collectionId,
         images: images.length > 0 ? images : undefined
@@ -193,7 +193,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     setEditProductName(p.name)
     setEditProductDescription(p.description)
     setEditProductPrice(formatPrice(p.price))
-    setEditProductStock(String(p.stock ?? 0))
+
     setEditProductSizes(p.sizes ? p.sizes.split(',') : [])
     setEditProductNewImages([])
     setEditProductDeleteImageIds([])
@@ -216,7 +216,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
         name: trimmedName,
         description: trimmedDesc,
         price: parsedPrice,
-        stock: editProductStock ? parseInt(editProductStock) : 0,
+
         sizes: editProductSizes.join(','),
         collection_id: collectionId,
         images: editProductNewImages.length > 0 ? editProductNewImages : undefined,
@@ -401,7 +401,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                       <Input placeholder="Nome" value={editProductName} onChange={(e) => setEditProductName(e.target.value)} />
                       <Input placeholder="Descrição" value={editProductDescription} onChange={(e) => setEditProductDescription(e.target.value)} />
                       <Input placeholder="Preço" value={editProductPrice} onChange={(e) => handlePriceChange(e.target.value, setEditProductPrice)} />
-                      <Input placeholder="Estoque" type="number" min="0" value={editProductStock} onChange={(e) => setEditProductStock(e.target.value)} />
+
 
                       {/* Seleção de Tamanhos */}
                       <div className="space-y-2">
@@ -523,9 +523,6 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                       })()}
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-medium text-gray-900">{p.name}</h3>
-                        <p className={`text-xs ${!p.stock ? 'text-red-500 font-bold' : 'text-gray-500'}`}>
-                          Estoque: {p.stock ?? 0}
-                        </p>
                         <span className="font-semibold text-blue-600">{formatPrice(p.price)}</span>
                       </div>
                       <p className="text-sm text-gray-500 line-clamp-2 mb-4">{p.description}</p>
@@ -569,7 +566,6 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                     <form className="flex flex-col gap-3" onSubmit={handleCreateProduct}>
                       <Input placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} disabled={isSaving} autoFocus />
                       <Input placeholder="R$ 0,00" value={price} onChange={(e) => handlePriceChange(e.target.value, setPrice)} disabled={isSaving} />
-                      <Input placeholder="Estoque" type="number" min="0" value={stock} onChange={(e) => setStock(e.target.value)} disabled={isSaving} />
 
                       <Input placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} disabled={isSaving} />
 
