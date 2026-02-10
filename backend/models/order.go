@@ -16,8 +16,8 @@ type Order struct {
 type OrderItem struct {
 	ID        uint    `gorm:"primaryKey" json:"id"`
 	OrderID   uint    `gorm:"not null;index" json:"order_id"`
-	ProductID uint    `gorm:"not null;index" json:"product_id"`
-	Product   Product `json:"product"`
+	ProductID *uint    `gorm:"index;constraint:OnDelete:SET NULL" json:"product_id"`
+	Product   *Product `json:"product"`
 	Quantity  int     `gorm:"not null" json:"quantity"`
 	Size      string  `json:"size"`
 	Price     float64 `gorm:"not null" json:"price"` // Snapshot price

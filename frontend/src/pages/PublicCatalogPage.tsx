@@ -192,7 +192,9 @@ export default function PublicCatalogPage() {
 
       const encodedMessage = encodeURIComponent(message)
 
-      window.open(`https://wa.me/55${phoneNumber}?text=${encodedMessage}`, '_blank')
+      // Use window.location.href instead of window.open to avoid iOS Safari
+      // popup blocker (which blocks window.open after an await call)
+      window.location.href = `https://wa.me/55${phoneNumber}?text=${encodedMessage}`
 
       setCart({})
       setIsCartOpen(false)

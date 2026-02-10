@@ -74,7 +74,14 @@ func ConnectDatabase() {
 	if err != nil {
 		log.Fatal("Failed to migrate database!", err)
 	}
-// Deletar isso aqui dps
+	// Fix: Allow product deletion when order_items reference the product
+	// Drop old NOT NULL constraint and recreate FK with ON DELETE SET NULL
+	database.Exec("ALTER TABLE order_items DROP CONSTRAINT IF EXISTS fk_order_items_product")
+	database.Exec("ALTER TABLE order_items ALTER COLUMN product_id DROP NOT NULL")
+	database.Exec(`ALTER TABLE order_items ADD CONSTRAINT fk_order_items_product 
+		FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL`)
+
+	// Deletar isso aqui dps
 	if database.Migrator().HasColumn(&models.Product{}, "stock") {
 		if err := database.Migrator().DropColumn(&models.Product{}, "stock"); err != nil {
 			log.Printf("Warning: could not drop 'stock' column: %v", err)
