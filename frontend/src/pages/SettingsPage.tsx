@@ -8,6 +8,7 @@ import { API_BASE_URL } from '@/api/config'
 import { formatPhone } from '@/utils/format'
 import Cropper from 'react-easy-crop'
 import getCroppedImg from '@/utils/cropImage'
+import { compressImage } from '@/utils/imageCompression'
 import { X, ZoomIn, ZoomOut } from 'lucide-react'
 
 interface SettingsPageProps {
@@ -164,13 +165,22 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
       return
     }
 
-    // Read file to data URL for cropping
-    const reader = new FileReader()
-    reader.addEventListener('load', () => {
-      setImageSrc(reader.result?.toString() || null)
-      setIsCropping(true)
-    })
-    reader.readAsDataURL(file)
+
+    try {
+
+      const processedFile = await compressImage(file, { threshold: 10 * 1024 * 1024 })
+      
+      // Read file to data URL for cropping
+      const reader = new FileReader()
+      reader.addEventListener('load', () => {
+        setImageSrc(reader.result?.toString() || null)
+        setIsCropping(true)
+      })
+      reader.readAsDataURL(processedFile)
+    } catch (error) {
+      console.error('Error compressing logo:', error)
+      setMessage({ type: 'error', text: 'Erro ao processar imagem' })
+    }
 
     // Reset input
     if (fileInputRef.current) {

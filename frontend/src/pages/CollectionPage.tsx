@@ -10,6 +10,7 @@ import { PageLayout, staggerContainer, staggerItem } from '@/components/layout'
 import { type User } from '@/components/layout/Header'
 import { Button, Card, Input, UpgradeModal, ConfirmModal, ShareModal, Toast } from '@/components/ui'
 import { formatPrice, formatCurrencyInput, parseCurrencyInput } from '@/utils/format'
+import { compressImage } from '@/utils/imageCompression'
 
 interface CollectionPageProps {
   onLogout: () => void
@@ -242,25 +243,24 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
   function handleAddImagesToCreate(files: FileList | null) {
     if (!files) return
     const newFiles = Array.from(files)
-    const validFiles = newFiles.filter(file => {
-      if (file.size > 10 * 1024 * 1024) {
-        showToast(`A imagem ${file.name} excede o limite de 10MB.`, 'error')
-        return false
-      }
-      return true
-    })
     
-    setImages(prev => {
-      const remaining = MAX_IMAGES_PER_PRODUCT - prev.length
-      if (remaining <= 0) {
-        showToast(`Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
-        return prev
-      }
-      if (validFiles.length > remaining) {
-        showToast(`Você pode adicionar mais ${remaining} imagem(ns). Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
-        return [...prev, ...validFiles.slice(0, remaining)]
-      }
-      return [...prev, ...validFiles]
+    // Process files (compress if needed)
+    void Promise.all(newFiles.map(file => compressImage(file))).then(compressedFiles => {
+      setImages(prev => {
+        const remaining = MAX_IMAGES_PER_PRODUCT - prev.length
+        if (remaining <= 0) {
+          showToast(`Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
+          return prev
+        }
+        if (compressedFiles.length > remaining) {
+          showToast(`Você pode adicionar mais ${remaining} imagem(ns). Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
+          return [...prev, ...compressedFiles.slice(0, remaining)]
+        }
+        return [...prev, ...compressedFiles]
+      })
+    }).catch(err => {
+      console.error('Erro ao comprimir imagem:', err)
+      showToast('Erro ao processar imagem.', 'error')
     })
   }
 
@@ -271,27 +271,28 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
   function handleAddImagesToEdit(files: FileList | null, product: Product) {
     if (!files) return
     const newFiles = Array.from(files)
-    const validFiles = newFiles.filter(file => {
-      if (file.size > 10 * 1024 * 1024) {
-        showToast(`A imagem ${file.name} excede o limite de 10MB.`, 'error')
-        return false
-      }
-      return true
-    })
-    // Calculate current image count (existing images minus deleted ones, plus new ones already added)
-    const existingImages = (product.images || []).filter(img => !editProductDeleteImageIds.includes(img.id)).length
-    setEditProductNewImages(prev => {
-      const currentTotal = existingImages + prev.length
-      const remaining = MAX_IMAGES_PER_PRODUCT - currentTotal
-      if (remaining <= 0) {
-        showToast(`Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
-        return prev
-      }
-      if (validFiles.length > remaining) {
-        showToast(`Você pode adicionar mais ${remaining} imagem(ns). Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
-        return [...prev, ...validFiles.slice(0, remaining)]
-      }
-      return [...prev, ...validFiles]
+    
+    // Process files (compress if needed)
+    void Promise.all(newFiles.map(file => compressImage(file))).then(compressedFiles => {
+      // Calculate current image count (existing images minus deleted ones, plus new ones already added)
+      const existingImages = (product.images || []).filter(img => !editProductDeleteImageIds.includes(img.id)).length
+      
+      setEditProductNewImages(prev => {
+        const currentTotal = existingImages + prev.length
+        const remaining = MAX_IMAGES_PER_PRODUCT - currentTotal
+        if (remaining <= 0) {
+          showToast(`Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
+          return prev
+        }
+        if (compressedFiles.length > remaining) {
+          showToast(`Você pode adicionar mais ${remaining} imagem(ns). Máximo de ${MAX_IMAGES_PER_PRODUCT} imagens por produto.`, 'warning')
+          return [...prev, ...compressedFiles.slice(0, remaining)]
+        }
+        return [...prev, ...compressedFiles]
+      })
+    }).catch(err => {
+      console.error('Erro ao comprimir imagem:', err)
+      showToast('Erro ao processar imagem.', 'error')
     })
   }
 
