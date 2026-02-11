@@ -363,15 +363,21 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
         <>
           {/* Collection header */}
           <Card className="mb-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="font-medium text-gray-900">{collection.name}</h2>
                 <p className="text-sm text-gray-500">{collection.description || 'Sem descrição'}</p>
               </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={() => void handleShareCollection()}><Share2 className="w-4 h-4 mr-2" />Compartilhar</Button>
-                <Button variant="ghost" size="sm" onClick={() => setIsEditingCollection(!isEditingCollection)}><Pencil className="w-4 h-4 mr-2" />Editar</Button>
-                <Button variant="danger" size="sm" onClick={() => setDeleteCollectionConfirmation(true)}><Trash2 className="w-4 h-4" /></Button>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="secondary" size="sm" onClick={() => void handleShareCollection()} title="Compartilhar">
+                  <Share2 className="w-4 h-4 mr-2" /> Compartilhar
+                </Button>
+                <Button variant="secondary" size="sm" onClick={() => setIsEditingCollection(!isEditingCollection)} title="Editar">
+                  <Pencil className="w-4 h-4 mr-2" /> Editar
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setDeleteCollectionConfirmation(true)} className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8" title="Apagar">
+                   <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </div>
 
@@ -528,9 +534,13 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                         <span className="font-semibold text-blue-600">{formatPrice(p.price)}</span>
                       </div>
                       <p className="text-sm text-gray-500 line-clamp-2 mb-4">{p.description}</p>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => startEditProduct(p)} className="flex-1"><Pencil className="w-4 h-4 mr-1" />Editar</Button>
-                        <Button variant="danger" size="sm" onClick={() => confirmDeleteProduct(p.id)}><Trash2 className="w-4 h-4" /></Button>
+                      <div className="grid grid-cols-[1fr,auto] gap-2 mt-auto">
+                        <Button variant="secondary" size="sm" onClick={() => startEditProduct(p)}>
+                          <Pencil className="w-4 h-4 mr-2" /> Editar
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => confirmDeleteProduct(p.id)} className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8" title="Apagar">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </>
                   )}
