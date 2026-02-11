@@ -114,7 +114,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     const parsedPrice = parseCurrencyInput(price)
 
     if (!trimmedName) { setSaveError('Digite o nome'); return }
-    if (!trimmedDesc) { setSaveError('Digite a descrição'); return }
+
     if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) { setSaveError('Preço inválido'); return }
 
     try {
@@ -209,7 +209,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     const trimmedName = editProductName.trim()
     const trimmedDesc = editProductDescription.trim()
     const parsedPrice = parseCurrencyInput(editProductPrice)
-    if (!trimmedName || !trimmedDesc || !Number.isFinite(parsedPrice) || parsedPrice <= 0) return
+    if (!trimmedName || !Number.isFinite(parsedPrice) || parsedPrice <= 0) return
     try {
       setIsUpdatingProduct(true)
       await productsService.update(id, {
@@ -626,7 +626,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                         <input type="file" accept="image/*" multiple onChange={(e) => handleAddImagesToCreate(e.target.files)} className="hidden" />
                       </label>
                       <Button type="submit" isLoading={isSaving} className="w-full">
-                        Adicionar
+                        Salvar
                       </Button>
                     </form>
                     {saveError && <p className="text-sm text-red-600 mt-2">{saveError}</p>}
