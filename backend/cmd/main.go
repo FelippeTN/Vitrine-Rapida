@@ -50,6 +50,7 @@ func main() {
 		publicRoutes.POST("/orders", handlers.CreateOrder)
 		publicRoutes.GET("/collections", handlers.GetPublicCollections)
 		publicRoutes.GET("/catalogs/:token", handlers.GetPublicCatalogByToken)
+		publicRoutes.GET("/metadata/catalogs/:token", handlers.GetCatalogMetadata)
 		publicRoutes.GET("/plans", handlers.GetPlans)
 		publicRoutes.POST("/forgot-password", handlers.ForgotPassword)
 		publicRoutes.POST("/reset-password", handlers.ResetPassword)
