@@ -43,7 +43,7 @@ export type Product = {
 
 export type CreateProductInput = {
   name: string
-  description: string
+  description?: string
   price: number
 
   sizes?: string

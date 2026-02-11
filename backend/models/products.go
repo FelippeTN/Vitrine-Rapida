@@ -19,7 +19,7 @@ type Product struct {
 
 type CreateProductInput struct {
 	Name         string  `json:"name" form:"name" binding:"required"`
-	Description  string  `json:"description" form:"description" binding:"required"`
+	Description  string  `json:"description" form:"description"`
 	Price        float64 `json:"price" form:"price" binding:"required"`
 	Sizes        string  `json:"sizes" form:"sizes"`
 
