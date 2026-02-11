@@ -23,7 +23,7 @@ export class ApiProductsService implements ProductsService {
   create(input: CreateProductInput): Promise<Product> {
     const formData = new FormData()
     formData.append('name', input.name)
-    formData.append('description', input.description)
+    formData.append('description', input.description || '')
     formData.append('price', String(input.price))
 
 

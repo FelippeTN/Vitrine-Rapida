@@ -35,6 +35,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
   const [planInfo, setPlanInfo] = useState<UserPlanInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isUpgrading, setIsUpgrading] = useState<number | null>(null)
+  const [isCancelling, setIsCancelling] = useState(false)
   const [upgradeSuccess, setUpgradeSuccess] = useState<{ planName: string } | null>(null)
   
   const [isPaymentOpen, setIsPaymentOpen] = useState(false)
@@ -96,6 +97,33 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
       }
     } finally {
       setIsUpgrading(null)
+    }
+  }
+
+  async function handleCancelPlan() {
+    // First alert
+    if (!window.confirm('Tem certeza que deseja cancelar sua assinatura?')) {
+      return
+    }
+    
+    // Second alert (Double confirmation)
+    if (!window.confirm('Você irá retornar para o padrão inicial e perder os beneficios do seu plano imediatamente! Confirmar cancelamento?')) {
+      return
+    }
+
+    try {
+      setIsCancelling(true)
+      await plansService.cancelPlan()
+      const infoData = await plansService.getMyPlanInfo()
+      setPlanInfo(infoData)
+    } catch (err) {
+      console.error('Failed to cancel plan', err)
+      if (isUnauthorized(err)) {
+        onLogout()
+        navigate('/login', { replace: true })
+      }
+    } finally {
+      setIsCancelling(false)
     }
   }
 
@@ -308,6 +336,18 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
                   >
                     {isCurrentPlan ? 'Plano atual' : isDowngrade ? 'Plano inferior' : plan.price === 0 ? 'Selecionar' : 'Fazer upgrade'}
                   </Button>
+                  
+                  {isCurrentPlan && plan.price > 0 && (
+                    <Button
+                      onClick={handleCancelPlan}
+                      disabled={isCancelling}
+                      className="w-full mt-3"
+                      variant="danger"
+                      isLoading={isCancelling}
+                    >
+                      {isCancelling ? 'Cancelando...' : 'Cancelar assinatura'}
+                    </Button>
+                  )}
                 </Card>
               </motion.div>
             )
