@@ -9,6 +9,7 @@ import { API_BASE_URL, joinUrl } from '@/api/config'
 import type { Product } from '@/api'
 import { Button, Card } from '@/components/ui'
 import { formatPrice } from '@/utils/format'
+import { sortSizes } from '@/utils/product'
 
 
 type CartItem = {
@@ -396,7 +397,7 @@ export default function PublicCatalogPage() {
                         {/* Tamanhos disponíveis */}
                         {p.sizes && (
                           <div className="flex flex-wrap gap-1 mb-3">
-                            {p.sizes.split(',').map((size) => (
+                            {sortSizes(p.sizes.split(',').map(s => s.trim())).map((size) => (
                               <span
                                 key={size}
                                 className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded"
@@ -651,7 +652,7 @@ export default function PublicCatalogPage() {
                       )}
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {selectedProduct.sizes.split(',').map((size) => {
+                      {sortSizes(selectedProduct.sizes.split(',').map(s => s.trim())).map((size) => {
                         const trimmedSize = size.trim()
                         const isSelected = selectedSize === trimmedSize
                         return (
