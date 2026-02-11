@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { User, Lock, Save, Store, Upload, Trash2 } from 'lucide-react'
+import { User, Lock, Save, Store, Upload, Trash2, Headphones, Mail, MessageSquare } from 'lucide-react'
 import { type User as UserType } from '@/components/layout/Header'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Button, Input, Card, Toast } from '@/components/ui'
@@ -18,7 +18,7 @@ interface SettingsPageProps {
 }
 
 export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsPageProps) {
-  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'support'>('profile')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
   const [toast, setToast] = useState<{ message: string; type: 'warning' | 'error' | 'info' } | null>(null)
@@ -322,6 +322,16 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
             <Lock className="w-4 h-4" />
             Segurança
           </button>
+          <button
+            onClick={() => setActiveTab('support')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'support'
+              ? 'bg-blue-50 text-blue-700'
+              : 'text-gray-600 hover:bg-gray-50'
+              }`}
+          >
+            <Headphones className="w-4 h-4" />
+            Suporte
+          </button>
 
         </aside>
 
@@ -471,6 +481,60 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
                       </Button>
                     </div>
                   </form>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+
+          {activeTab === 'support' && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-6"
+            >
+              <Card>
+                <div className="p-6">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <Headphones className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Central de Ajuda</h3>
+                      <p className="text-sm text-gray-500">Estamos aqui para ajudar você</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                      <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-gray-500" />
+                        Entre em contato via Email
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Tem alguma dúvida, encontrou um problema ou tem uma sugestão de melhoria? 
+                        Envie um email para nossa equipe de suporte.
+                      </p>
+                      <Button 
+                        className="w-full sm:w-auto gap-2"
+                        onClick={() => window.location.href = 'mailto:suporte@vitrinerapida.com.br'}
+                      >
+                        <Mail className="w-4 h-4" />
+                        Enviar Email
+                      </Button>
+                    </div>
+
+                    <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+                      <h4 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-blue-500" />
+                        Sugestões de Melhoria
+                      </h4>
+                      <p className="text-sm text-blue-800">
+                        Sua opinião é muito importante para nós! Se você tiver ideias de como podemos 
+                        melhorar a Vitrine Rápida, não deixe de nos contar. Estamos sempre evoluindo 
+                        para atender melhor suas necessidades.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </Card>
             </motion.div>

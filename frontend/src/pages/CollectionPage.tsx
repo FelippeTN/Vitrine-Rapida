@@ -11,6 +11,7 @@ import { type User } from '@/components/layout/Header'
 import { Button, Card, Input, UpgradeModal, ConfirmModal, ShareModal, Toast } from '@/components/ui'
 import { formatPrice, formatCurrencyInput, parseCurrencyInput } from '@/utils/format'
 import { compressImage } from '@/utils/imageCompression'
+import { sortSizes } from '@/utils/product'
 
 interface CollectionPageProps {
   onLogout: () => void
@@ -125,7 +126,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
         description: trimmedDesc,
         price: parsedPrice,
 
-        sizes: selectedSizes.length > 0 ? selectedSizes.join(',') : undefined,
+        sizes: selectedSizes.length > 0 ? sortSizes(selectedSizes).join(',') : undefined,
         collection_id: collectionId,
         images: images.length > 0 ? images : undefined
       })
@@ -195,7 +196,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
     setEditProductDescription(p.description)
     setEditProductPrice(formatPrice(p.price))
 
-    setEditProductSizes(p.sizes ? p.sizes.split(',') : [])
+    setEditProductSizes(p.sizes ? p.sizes.split(',').map(s => s.trim()) : [])
     setEditProductNewImages([])
     setEditProductDeleteImageIds([])
   }
@@ -218,7 +219,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
         description: trimmedDesc,
         price: parsedPrice,
 
-        sizes: editProductSizes.join(','),
+        sizes: sortSizes(editProductSizes).join(','),
         collection_id: collectionId,
         images: editProductNewImages.length > 0 ? editProductNewImages : undefined,
         delete_image_ids: editProductDeleteImageIds.length > 0 ? editProductDeleteImageIds : undefined
@@ -730,7 +731,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                   <div className="space-y-2">
                     <span className="text-sm font-medium text-gray-700">Tamanhos disponíveis:</span>
                     <div className="flex flex-wrap gap-2">
-                      {previewProduct.sizes.split(',').map((size) => (
+                      {sortSizes(previewProduct.sizes.split(',').map(s => s.trim())).map((size) => (
                         <span
                           key={size}
                           className="px-3 py-1.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg border border-blue-100"
