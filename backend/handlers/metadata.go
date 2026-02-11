@@ -35,11 +35,9 @@ func GetCatalogMetadata(c *gin.Context) {
 			if strings.HasPrefix(owner.LogoURL, "http") {
 				storeLogo = owner.LogoURL
 			} else {
-				// Assuming local uploads are served via /uploads
-				// We need the full URL for OG tags
-				scheme := "https"
-				if c.Request.TLS == nil {
-					scheme = "http"
+				scheme := "http"
+				if c.Request.TLS != nil || c.GetHeader("X-Forwarded-Proto") == "https" {
+					scheme = "https"
 				}
 				host := c.Request.Host
 				storeLogo = fmt.Sprintf("%s://%s/uploads/%s", scheme, host, owner.LogoURL)

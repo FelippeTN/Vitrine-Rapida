@@ -369,8 +369,8 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                 <p className="text-sm text-gray-500">{collection.description || 'Sem descrição'}</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={() => void handleShareCollection()}><Share2 className="w-4 h-4" /></Button>
-                <Button variant="ghost" size="sm" onClick={() => setIsEditingCollection(!isEditingCollection)}><Pencil className="w-4 h-4" /></Button>
+                <Button variant="ghost" size="sm" onClick={() => void handleShareCollection()}><Share2 className="w-4 h-4 mr-2" />Compartilhar</Button>
+                <Button variant="ghost" size="sm" onClick={() => setIsEditingCollection(!isEditingCollection)}><Pencil className="w-4 h-4 mr-2" />Editar</Button>
                 <Button variant="danger" size="sm" onClick={() => setDeleteCollectionConfirmation(true)}><Trash2 className="w-4 h-4" /></Button>
               </div>
             </div>
