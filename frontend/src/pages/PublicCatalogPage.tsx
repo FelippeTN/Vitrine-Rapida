@@ -254,14 +254,14 @@ export default function PublicCatalogPage() {
               whileTap={{ scale: 0.95 }}
             >
               <img 
-                src={storeLogo ? `${API_BASE_URL}${storeLogo}` : logoSvg} 
-                alt={storeName || 'Vitrine Rápida Logo'} 
+                src={logoSvg} 
+                alt="Vitrine Rápida Logo" 
                 className="w-full h-full object-cover" 
               />
             </motion.div>
             <div className="flex flex-col">
               <span className="text-base font-bold text-gray-900 leading-tight">
-                {storeName || 'Vitrine Rápida'}
+                Vitrine Rápida
               </span>
               <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
                 Catálogo Digital
@@ -292,9 +292,20 @@ export default function PublicCatalogPage() {
 
       {/* Título da Vitrine */}
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <h1 className="text-xl font-bold text-gray-900">{title}</h1>
-          <p className="text-sm text-gray-500">Confira os produtos disponíveis</p>
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-4">
+          {storeLogo && (
+            <div className="w-16 h-16 rounded-xl overflow-hidden shadow-sm border border-gray-100 flex-shrink-0">
+              <img
+                src={`${API_BASE_URL}${storeLogo}`}
+                alt={storeName || 'Logo da Loja'}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">{title}</h1>
+            <p className="text-sm text-gray-500">Confira os produtos disponíveis</p>
+          </div>
         </div>
       </div>
 

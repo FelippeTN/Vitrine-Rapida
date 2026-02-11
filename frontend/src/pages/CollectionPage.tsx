@@ -626,7 +626,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                         <input type="file" accept="image/*" multiple onChange={(e) => handleAddImagesToCreate(e.target.files)} className="hidden" />
                       </label>
                       <Button type="submit" isLoading={isSaving} className="w-full">
-                        Adicionar
+                        Salvar
                       </Button>
                     </form>
                     {saveError && <p className="text-sm text-red-600 mt-2">{saveError}</p>}
