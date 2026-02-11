@@ -9,6 +9,7 @@ import { PageLayout, staggerContainer, staggerItem } from '@/components/layout'
 import { type User } from '@/components/layout/Header'
 import { Button, Card } from '@/components/ui'
 import { PaymentModal } from '@/components/PaymentModal'
+import { ConfirmModal } from '@/components/ui/ConfirmModal'
 
 interface PlansPageProps {
   onLogout: () => void
@@ -40,6 +41,10 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
   
   const [isPaymentOpen, setIsPaymentOpen] = useState(false)
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<Plan | null>(null)
+
+  // Confirmation Modal State
+  const [isFirstConfirmOpen, setIsFirstConfirmOpen] = useState(false)
+  const [isSecondConfirmOpen, setIsSecondConfirmOpen] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -100,22 +105,22 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
     }
   }
 
-  async function handleCancelPlan() {
-    // First alert
-    if (!window.confirm('Tem certeza que deseja cancelar sua assinatura?')) {
-      return
-    }
-    
-    // Second alert (Double confirmation)
-    if (!window.confirm('Você irá retornar para o padrão inicial e perder os beneficios do seu plano imediatamente! Confirmar cancelamento?')) {
-      return
-    }
+  function handleCancelPlan() {
+    setIsFirstConfirmOpen(true)
+  }
 
+  function handleFirstConfirm() {
+    setIsFirstConfirmOpen(false)
+    setIsSecondConfirmOpen(true)
+  }
+
+  async function handleSecondConfirm() {
     try {
       setIsCancelling(true)
       await plansService.cancelPlan()
       const infoData = await plansService.getMyPlanInfo()
       setPlanInfo(infoData)
+      setIsSecondConfirmOpen(false)
     } catch (err) {
       console.error('Failed to cancel plan', err)
       if (isUnauthorized(err)) {
@@ -439,20 +444,30 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
         )}
       </AnimatePresence>
 
-      {/* FAQ or info */}
-      <motion.div
-        className="mt-12 text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        <p className="text-sm text-gray-500">
-          Dúvidas? Entre em contato conosco pelo email{' '}
-          <a href="mailto:vitrinerapida.suporte@gmail.com" className="text-blue-600 hover:underline">
-            vitrinerapida.suporte@gmail.com
-          </a>
-        </p>
-      </motion.div>
+
+
+      {/* First Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isFirstConfirmOpen}
+        onClose={() => setIsFirstConfirmOpen(false)}
+        onConfirm={handleFirstConfirm}
+        title="Cancelar assinatura"
+        description="Tem certeza que deseja cancelar sua assinatura?"
+        confirmText="Sim, continuar"
+        variant="danger"
+      />
+
+      {/* Second Confirmation Modal */}
+      <ConfirmModal
+        isOpen={isSecondConfirmOpen}
+        onClose={() => setIsSecondConfirmOpen(false)}
+        onConfirm={() => void handleSecondConfirm()}
+        isLoading={isCancelling}
+        title="Confirmação final"
+        description="Você irá retornar para o padrão inicial e perder os benefícios do seu plano imediatamente! Confirmar cancelamento?"
+        confirmText="Confirmar cancelamento"
+        variant="danger"
+      />
     </PageLayout>
   )
 }
