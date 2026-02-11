@@ -278,19 +278,21 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
                       <p className="text-sm text-gray-500 line-clamp-2 mb-3 min-h-[40px] flex-1">{c.description}</p>
                       <p className="text-xs text-gray-400 mb-4">{c.updatedAtLabel}</p>
 
-                      <div className="flex flex-wrap gap-2 mt-auto">
-                        <Button size="sm" onClick={() => navigate(`/catalogos/${c.id}`)} className="flex-1">
-                          <ExternalLink className="w-4 h-4 mr-1" /> Abrir
+                      <div className="grid grid-cols-1 gap-2 mt-auto pt-3">
+                        <Button className="w-full" onClick={() => navigate(`/catalogos/${c.id}`)}>
+                          <ExternalLink className="w-4 h-4 mr-2" /> Abrir Vitrine
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => void handleShare(c.id)} title="Compartilhar">
-                          <Share2 className="w-4 h-4 mr-2" />Compartilhar
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => startEdit(c)} title="Editar">
-                          <Pencil className="w-4 h-4 mr-2" />Editar
-                        </Button>
-                        <Button variant="danger" size="sm" onClick={() => confirmDelete(c.id)} title="Deletar">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="grid grid-cols-[1fr,1fr,auto] gap-2">
+                          <Button variant="secondary" size="sm" onClick={() => void handleShare(c.id)} title="Compartilhar">
+                            <Share2 className="w-4 h-4 mr-2" /> Compartilhar
+                          </Button>
+                          <Button variant="secondary" size="sm" onClick={() => startEdit(c)} title="Editar">
+                            <Pencil className="w-4 h-4 mr-2" /> Editar
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => confirmDelete(c.id)} className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8" title="Apagar">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   )}
