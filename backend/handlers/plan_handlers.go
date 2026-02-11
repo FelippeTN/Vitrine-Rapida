@@ -135,3 +135,27 @@ func UpgradePlan(c *gin.Context) {
 		"plan":    plan,
 	})
 }
+
+func CancelPlan(c *gin.Context) {
+	ownerID, ok := getUserIDFromContext(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	var freePlan models.Plan
+	if err := database.DB.Where("name = ?", "free").First(&freePlan).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not find free plan"})
+		return
+	}
+
+	if err := database.DB.Model(&models.User{}).Where("id = ?", ownerID).Update("plan_id", freePlan.ID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not cancel plan"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Plan cancelled successfully",
+		"plan":    freePlan,
+	})
+}

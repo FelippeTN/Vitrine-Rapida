@@ -6,6 +6,7 @@ export interface PlansService {
   getMyPlanInfo(): Promise<UserPlanInfo>
   upgradePlan(planId: number): Promise<{ message: string; plan: Plan }>
   createPaymentIntent(amount: number, currency: string): Promise<{ clientSecret: string }>
+  cancelPlan(): Promise<{ message: string; plan: Plan }>
 }
 
 export class ApiPlansService implements PlansService {
@@ -33,6 +34,12 @@ export class ApiPlansService implements PlansService {
   async createPaymentIntent(amount: number, currency: string): Promise<{ clientSecret: string }> {
     return this.http.request<{ clientSecret: string }>('POST', '/protected/create-payment-intent', {
       body: { amount, currency },
+      auth: true,
+    })
+  }
+
+  async cancelPlan(): Promise<{ message: string; plan: Plan }> {
+    return this.http.request<{ message: string; plan: Plan }>('POST', '/protected/cancel-plan', {
       auth: true,
     })
   }
