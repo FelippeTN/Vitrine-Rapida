@@ -415,7 +415,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                       <div className="space-y-2">
                         <span className="text-sm text-gray-600">Tamanhos disponíveis:</span>
                         <div className="flex flex-wrap gap-2">
-                          {['P', 'M', 'G', 'GG'].map((size) => (
+                          {['P', 'M', 'G', 'GG', 'Único'].map((size) => (
                             <button
                               key={size}
                               type="button"
@@ -585,7 +585,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                       <div className="space-y-2">
                         <span className="text-sm text-gray-600">Tamanhos disponíveis:</span>
                         <div className="flex flex-wrap gap-2">
-                          {['P', 'M', 'G', 'GG'].map((size) => (
+                          {['P', 'M', 'G', 'GG', 'Único'].map((size) => (
                             <button
                               key={size}
                               type="button"
