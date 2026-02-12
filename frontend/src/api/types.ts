@@ -92,6 +92,7 @@ export type Plan = {
   display_name: string
   description: string
   price: number
+  stripe_price_id: string
   max_products: number
   max_collections: number
   features: string
@@ -106,6 +107,8 @@ export type UserPlanInfo = {
   collection_count: number
   can_create_product: boolean
   can_create_collection: boolean
+  subscription_status: string
+  plan_expires_at: string | null
 }
 
 export type UpgradeError = {

@@ -11,6 +11,13 @@ type User struct {
 	LogoURL   string    `json:"logo_url"`
 	PlanID    uint      `gorm:"not null;default:1" json:"plan_id"`
 	Plan      *Plan     `gorm:"foreignKey:PlanID" json:"plan,omitempty"`
+
+	// Stripe subscription fields
+	StripeCustomerID     string     `json:"stripe_customer_id"`
+	StripeSubscriptionID string     `json:"-"`
+	PlanExpiresAt        *time.Time `json:"plan_expires_at"`
+	SubscriptionStatus   string     `gorm:"default:'none'" json:"subscription_status"`
+
 	ResetToken          string    `json:"-"`
 	ResetTokenExpiresAt time.Time `json:"-"`
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`

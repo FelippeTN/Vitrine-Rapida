@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, Sparkles, Zap, Crown, Building2, PartyPopper, X } from 'lucide-react'
+import { Check, Sparkles, Zap, Crown, Building2, PartyPopper, X, AlertCircle, Clock } from 'lucide-react'
 
 import { plansService, isUnauthorized } from '@/api'
 import type { Plan, UserPlanInfo } from '@/api'
 import { PageLayout, staggerContainer, staggerItem } from '@/components/layout'
 import { type User } from '@/components/layout/Header'
 import { Button, Card } from '@/components/ui'
-import { PaymentModal } from '@/components/PaymentModal'
 import { ConfirmModal } from '@/components/ui/ConfirmModal'
 
 interface PlansPageProps {
@@ -32,15 +31,13 @@ const planColors: Record<string, string> = {
 
 export default function PlansPage({ onLogout, user }: PlansPageProps) {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [plans, setPlans] = useState<Plan[]>([])
   const [planInfo, setPlanInfo] = useState<UserPlanInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isUpgrading, setIsUpgrading] = useState<number | null>(null)
   const [isCancelling, setIsCancelling] = useState(false)
   const [upgradeSuccess, setUpgradeSuccess] = useState<{ planName: string } | null>(null)
-  
-  const [isPaymentOpen, setIsPaymentOpen] = useState(false)
-  const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<Plan | null>(null)
 
   // Confirmation Modal State
   const [isFirstConfirmOpen, setIsFirstConfirmOpen] = useState(false)
@@ -56,6 +53,12 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
         ])
         setPlans(plansData)
         setPlanInfo(infoData)
+
+        // Check if returning from successful Stripe Checkout
+        if (searchParams.get('success') === 'true') {
+          setUpgradeSuccess({ planName: infoData.plan.display_name })
+          setSearchParams({}, { replace: true }) // Clean URL
+        }
       } catch (err) {
         if (isUnauthorized(err)) {
           onLogout()
@@ -66,42 +69,28 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
       }
     }
     void load()
-  }, [navigate, onLogout])
+  }, [navigate, onLogout, searchParams, setSearchParams])
 
   async function handleUpgrade(plan: Plan) {
-    // Check if this is a downgrade (prevent going to a lower tier plan)
-    if (planInfo && plan.price < planInfo.plan.price) {
-      return // Block downgrade silently (button should be disabled anyway)
-    }
+    // Block downgrade
+    if (planInfo && plan.price < planInfo.plan.price) return
 
-    if (plan.price > 0) {
-      setSelectedPlanForPayment(plan)
-      setIsPaymentOpen(true)
-      return
-    }
-
-    await processUpgrade(plan.id, plan.display_name)
-  }
-
-  async function processUpgrade(planId: number, planName?: string) {
-    try {
-      setIsUpgrading(planId)
-      await plansService.upgradePlan(planId)
-      // Reload plan info
-      const infoData = await plansService.getMyPlanInfo()
-      setPlanInfo(infoData)
-      setIsPaymentOpen(false)
-      
-      // Show success message
-      const upgradedPlanName = planName || infoData.plan.display_name
-      setUpgradeSuccess({ planName: upgradedPlanName })
-    } catch (err) {
-      if (isUnauthorized(err)) {
-        onLogout()
-        navigate('/login', { replace: true })
+    if (plan.price > 0 && plan.stripe_price_id) {
+      try {
+        setIsUpgrading(plan.id)
+        const { url } = await plansService.createCheckoutSession(plan.id)
+        // Redirect to Stripe Checkout
+        window.location.href = url
+      } catch (err) {
+        if (isUnauthorized(err)) {
+          onLogout()
+          navigate('/login', { replace: true })
+        }
+        console.error('Failed to create checkout session', err)
+      } finally {
+        setIsUpgrading(null)
       }
-    } finally {
-      setIsUpgrading(null)
+      return
     }
   }
 
@@ -132,9 +121,16 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
     }
   }
 
-  function handlePaymentSuccess() {
-    if (selectedPlanForPayment) {
-       processUpgrade(selectedPlanForPayment.id, selectedPlanForPayment.display_name)
+  function getSubscriptionStatusLabel(status: string): { text: string; color: string; icon: React.ReactNode } {
+    switch (status) {
+      case 'active':
+        return { text: 'Ativa', color: 'text-green-600 bg-green-50', icon: <Check className="w-4 h-4" /> }
+      case 'past_due':
+        return { text: 'Pagamento pendente', color: 'text-amber-600 bg-amber-50', icon: <AlertCircle className="w-4 h-4" /> }
+      case 'canceled':
+        return { text: 'Cancelada', color: 'text-red-600 bg-red-50', icon: <X className="w-4 h-4" /> }
+      default:
+        return { text: 'Sem assinatura', color: 'text-gray-600 bg-gray-50', icon: <Clock className="w-4 h-4" /> }
     }
   }
 
@@ -185,6 +181,22 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
               <div>
                 <p className="text-sm text-blue-600 font-medium mb-1">Seu plano atual</p>
                 <h3 className="text-xl font-bold text-gray-900">{planInfo.plan.display_name}</h3>
+                {/* Subscription status badge */}
+                {planInfo.plan.price > 0 && (() => {
+                  const status = getSubscriptionStatusLabel(planInfo.subscription_status)
+                  return (
+                    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mt-2 ${status.color}`}>
+                      {status.icon}
+                      {status.text}
+                    </div>
+                  )
+                })()}
+                {/* Expiration date */}
+                {planInfo.plan_expires_at && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Renova em: {new Date(planInfo.plan_expires_at).toLocaleDateString('pt-BR')}
+                  </p>
+                )}
               </div>
               <div className="flex gap-6">
                 <div className="text-center">
@@ -360,15 +372,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
         </motion.div>
       )}
 
-      {selectedPlanForPayment && (
-        <PaymentModal 
-          isOpen={isPaymentOpen}
-          onClose={() => setIsPaymentOpen(false)}
-          amount={Math.round(selectedPlanForPayment.price * 100)}
-          planName={selectedPlanForPayment.display_name}
-          onSuccess={handlePaymentSuccess}
-        />
-      )}
+
 
       {/* Upgrade Success Modal */}
       <AnimatePresence>
