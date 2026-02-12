@@ -368,15 +368,15 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                 <h2 className="font-medium text-gray-900">{collection.name}</h2>
                 <p className="text-sm text-gray-500">{collection.description || 'Sem descrição'}</p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Button variant="secondary" size="sm" onClick={() => void handleShareCollection()} title="Compartilhar">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full sm:w-auto">
+                <Button variant="secondary" size="sm" onClick={() => void handleShareCollection()} title="Compartilhar" className="col-span-2 sm:col-span-1">
                   <Share2 className="w-4 h-4 mr-2" /> Compartilhar
                 </Button>
                 <Button variant="secondary" size="sm" onClick={() => setIsEditingCollection(!isEditingCollection)} title="Editar">
                   <Pencil className="w-4 h-4 mr-2" /> Editar
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => setDeleteCollectionConfirmation(true)} className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8" title="Apagar">
-                   <Trash2 className="w-4 h-4" />
+                <Button variant="secondary" size="sm" onClick={() => setDeleteCollectionConfirmation(true)} className="text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-200" title="Apagar">
+                   <Trash2 className="w-4 h-4 mr-2" /> Excluir
                 </Button>
               </div>
             </div>
@@ -534,12 +534,12 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                         <span className="font-semibold text-blue-600">{formatPrice(p.price)}</span>
                       </div>
                       <p className="text-sm text-gray-500 line-clamp-2 mb-4">{p.description}</p>
-                      <div className="grid grid-cols-[1fr,auto] gap-2 mt-auto">
+                      <div className="grid grid-cols-2 gap-2 mt-auto">
                         <Button variant="secondary" size="sm" onClick={() => startEditProduct(p)}>
                           <Pencil className="w-4 h-4 mr-2" /> Editar
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => confirmDeleteProduct(p.id)} className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8" title="Apagar">
-                          <Trash2 className="w-4 h-4" />
+                        <Button variant="secondary" size="sm" onClick={() => confirmDeleteProduct(p.id)} className="text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-200" title="Apagar">
+                          <Trash2 className="w-4 h-4 mr-2" /> Excluir
                         </Button>
                       </div>
                     </>
