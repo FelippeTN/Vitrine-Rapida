@@ -56,6 +56,8 @@ func GetMyPlanInfo(c *gin.Context) {
 		CollectionCount:     int(collectionCount),
 		CanCreateProduct:    canCreateProduct,
 		CanCreateCollection: canCreateCollection,
+		SubscriptionStatus:  user.SubscriptionStatus,
+		PlanExpiresAt:       user.PlanExpiresAt,
 	}
 
 	c.JSON(http.StatusOK, planInfo)
@@ -103,59 +105,14 @@ func CheckCollectionLimit(ownerID uint) (bool, *models.Plan, int, error) {
 	return canCreate, user.Plan, int(collectionCount), nil
 }
 
+// UpgradePlan creates a Stripe Checkout Session for the selected plan
 func UpgradePlan(c *gin.Context) {
-	ownerID, ok := getUserIDFromContext(c)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	var input struct {
-		PlanID uint `json:"plan_id" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	var plan models.Plan
-	if err := database.DB.First(&plan, input.PlanID).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Plan not found"})
-		return
-	}
-
-	if err := database.DB.Model(&models.User{}).Where("id = ?", ownerID).Update("plan_id", input.PlanID).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not upgrade plan"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Plan upgraded successfully",
-		"plan":    plan,
-	})
+	// Delegate to CreateCheckoutSession which handles the full Stripe flow
+	CreateCheckoutSession(c)
 }
 
+// CancelPlan cancels the user's Stripe subscription
 func CancelPlan(c *gin.Context) {
-	ownerID, ok := getUserIDFromContext(c)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	var freePlan models.Plan
-	if err := database.DB.Where("name = ?", "free").First(&freePlan).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not find free plan"})
-		return
-	}
-
-	if err := database.DB.Model(&models.User{}).Where("id = ?", ownerID).Update("plan_id", freePlan.ID).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not cancel plan"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Plan cancelled successfully",
-		"plan":    freePlan,
-	})
+	// Delegate to CancelSubscription which handles Stripe cancellation
+	CancelSubscription(c)
 }

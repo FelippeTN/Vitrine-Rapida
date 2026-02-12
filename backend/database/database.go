@@ -109,6 +109,7 @@ func seedPlans(db *gorm.DB) {
 			existing.DisplayName = plan.DisplayName
 			existing.Description = plan.Description
 			existing.Price = plan.Price
+			existing.StripePriceID = plan.StripePriceID
 			existing.MaxProducts = plan.MaxProducts
 			existing.MaxCollections = plan.MaxCollections
 			existing.Features = plan.Features

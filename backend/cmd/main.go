@@ -54,6 +54,7 @@ func main() {
 		publicRoutes.GET("/plans", handlers.GetPlans)
 		publicRoutes.POST("/forgot-password", handlers.ForgotPassword)
 		publicRoutes.POST("/reset-password", handlers.ResetPassword)
+		publicRoutes.POST("/webhook/stripe", handlers.HandleStripeWebhook)
 	}
 
 	protectedRoutes := r.Group("/protected")
@@ -78,7 +79,7 @@ func main() {
 		protectedRoutes.GET("/products", handlers.GetMyProducts)
 		protectedRoutes.PUT("/products/:id", handlers.UpdateProduct)
 		protectedRoutes.DELETE("/products/:id", handlers.DeleteProduct)
-		protectedRoutes.POST("/create-payment-intent", handlers.CreatePaymentIntent)
+		protectedRoutes.POST("/create-checkout-session", handlers.CreateCheckoutSession)
 	}
 
 	r.Run(":8080")
