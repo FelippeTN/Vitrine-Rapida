@@ -1,6 +1,6 @@
 
 export function sortSizes(sizes: string[]): string[] {
-  const order = ['P', 'M', 'G', 'GG'];
+  const order = ['P', 'M', 'G', 'GG', 'Único'];
   return sizes.sort((a, b) => {
     const indexA = order.indexOf(a);
     const indexB = order.indexOf(b);

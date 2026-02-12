@@ -310,7 +310,7 @@ export default function PublicCatalogPage() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-6xl mx-auto w-full p-6">
+      <main className="flex-1 max-w-6xl mx-auto w-full px-3 py-4 sm:p-6">
         {isLoading && (
           <div className="text-center py-12 text-gray-500">
             <motion.div
@@ -348,7 +348,7 @@ export default function PublicCatalogPage() {
                 <div className="text-center py-12 text-gray-500">Nenhum produto</div>
               ) : (
                 <motion.div
-                  className={`grid grid-cols-1 gap-4 ${isCartOpen ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'}`}
+                  className={`grid grid-cols-2 gap-2.5 sm:gap-4 ${isCartOpen ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'}`}
                   variants={staggerContainer}
                   initial="hidden"
                   animate="show"
@@ -357,10 +357,8 @@ export default function PublicCatalogPage() {
                 >
                   {products.map((p) => (
                     <motion.div key={p.id} variants={staggerItem} layout>
-                      <Card
-                        variant="bordered"
-                        animate={false}
-                        className="group cursor-pointer"
+                      <div
+                        className="group cursor-pointer bg-white border border-gray-200 hover:border-blue-300 rounded-xl overflow-hidden transition-colors"
                         onClick={() => openProductModal(p)}
                       >
                         {(() => {
@@ -368,15 +366,13 @@ export default function PublicCatalogPage() {
                           if (productImages.length > 0) {
                             return (
                               <div className="relative">
-                                <motion.img
+                                <img
                                   src={joinUrl(API_BASE_URL, productImages[0])}
                                   alt={p.name}
-                                  className="w-full h-44 object-cover rounded-lg mb-3 transition-all group-hover:scale-[1.02] group-hover:shadow-lg"
-                                  whileHover={{ scale: 1.03 }}
-                                  transition={{ type: 'spring', stiffness: 300 }}
+                                  className="w-full h-48 sm:h-52 object-cover transition-all group-hover:scale-[1.02]"
                                 />
                                 {productImages.length > 1 && (
-                                  <span className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                                  <span className="absolute top-1.5 right-1.5 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-full">
                                     +{productImages.length - 1}
                                   </span>
                                 )}
@@ -384,48 +380,51 @@ export default function PublicCatalogPage() {
                             )
                           } else {
                             return (
-                              <div className="w-full h-44 bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-                                <ImageIcon className="w-10 h-10 text-gray-300" />
+                              <div className="w-full h-48 sm:h-52 bg-gray-100 flex items-center justify-center">
+                                <ImageIcon className="w-8 h-8 text-gray-300" />
                               </div>
                             )
                           }
                         })()}
 
-                        <h3 className="font-medium text-gray-900 mb-1">{p.name}</h3>
-                        <p className="text-sm text-gray-500 line-clamp-2 mb-2">{p.description}</p>
+                        <div className="p-2.5 sm:p-4">
+                          <h3 className="font-medium text-gray-900 text-sm sm:text-base mb-0.5 line-clamp-1">{p.name}</h3>
+                          <p className="text-xs sm:text-sm text-gray-500 line-clamp-1 sm:line-clamp-2 mb-1.5">{p.description}</p>
 
-                        {/* Tamanhos disponíveis */}
-                        {p.sizes && (
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {sortSizes(p.sizes.split(',').map(s => s.trim())).map((size) => (
-                              <span
-                                key={size}
-                                className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded"
-                              >
-                                {size.trim()}
-                              </span>
-                            ))}
+                          {/* Tamanhos disponíveis */}
+                          {p.sizes && (
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              {sortSizes(p.sizes.split(',').map(s => s.trim())).map((size) => (
+                                <span
+                                  key={size}
+                                  className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[10px] sm:text-xs font-medium rounded"
+                                >
+                                  {size.trim()}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm sm:text-lg font-bold text-blue-600">{formatPrice(p.price)}</span>
+                            <Button
+                              size="sm"
+                              className="!px-2 sm:!px-3 !py-1.5 !text-xs sm:!text-sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                if (p.sizes) {
+                                  openProductModal(p)
+                                } else {
+                                  addToCartWithSize(p)
+                                }
+                              }}
+                            >
+                              <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Adicionar</span>
+                            </Button>
                           </div>
-                        )}
-
-                        <div className="flex items-center justify-between">
-                          <span className="text-lg font-bold text-blue-600">{formatPrice(p.price)}</span>
-                          <Button
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              // Se tem tamanhos, abre o modal para escolher
-                              if (p.sizes) {
-                                openProductModal(p)
-                              } else {
-                                addToCartWithSize(p)
-                              }
-                            }}
-                          >
-                            <Plus className="w-4 h-4 mr-1" /> Adicionar
-                          </Button>
                         </div>
-                      </Card>
+                      </div>
                     </motion.div>
                   ))}
                 </motion.div>

@@ -405,7 +405,7 @@ export default function WelcomePage() {
               <div className="col-span-1 md:col-span-2">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-                   <img src={logoSvg} alt="VR" className="w-6 h-6 brightness-0 invert" />
+                   <img src={logoSvg} alt="VR" className="w-10 h-10" />
                   </div>
                   <span className="text-xl font-bold text-gray-900">Vitrine Rápida</span>
                 </div>
