@@ -12,6 +12,7 @@ import (
 	"github.com/FelippeTN/Web-Catalogo/backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stripe/stripe-go/v74"
+	"github.com/stripe/stripe-go/v74/charge"
 	"github.com/stripe/stripe-go/v74/webhook"
 )
 
@@ -28,7 +29,9 @@ func HandleStripeWebhook(c *gin.Context) {
 	}
 
 	endpointSecret := os.Getenv("STRIPE_WEBHOOK_SECRET")
-	event, err := webhook.ConstructEvent(payload, c.GetHeader("Stripe-Signature"), endpointSecret)
+	event, err := webhook.ConstructEventWithOptions(payload, c.GetHeader("Stripe-Signature"), endpointSecret, webhook.ConstructEventOptions{
+		IgnoreAPIVersionMismatch: true,
+	})
 	if err != nil {
 		log.Printf("Webhook signature verification failed: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid signature"})
@@ -46,6 +49,8 @@ func HandleStripeWebhook(c *gin.Context) {
 		handleSubscriptionUpdated(event)
 	case "customer.subscription.deleted":
 		handleSubscriptionDeleted(event)
+	case "charge.dispute.created":
+		handleDisputeCreated(event)
 	default:
 		log.Printf("Unhandled webhook event type: %s", event.Type)
 	}
@@ -208,4 +213,57 @@ func handleSubscriptionDeleted(event stripe.Event) {
 	}
 
 	log.Printf("Subscription deleted: customer=%s reverted to free plan", sub.Customer)
+}
+
+// handleDisputeCreated reverts user to free plan immediately on chargeback/dispute
+func handleDisputeCreated(event stripe.Event) {
+	var dispute stripe.Dispute
+	if err := json.Unmarshal(event.Data.Raw, &dispute); err != nil {
+		log.Printf("Error parsing charge.dispute.created: %v", err)
+		return
+	}
+
+	// The dispute object contains the Charge ID. We need to fetch the Charge to get the Customer ID.
+	if dispute.Charge == nil {
+		log.Printf("Dispute %s has no associated charge", dispute.ID)
+		return
+	}
+
+	// Fetch charge details to get the customer
+	c, err := charge.Get(dispute.Charge.ID, nil)
+	if err != nil {
+		log.Printf("Error fetching charge %s for dispute: %v", dispute.Charge.ID, err)
+		return
+	}
+
+	if c.Customer == nil {
+		log.Printf("Charge %s has no associated customer", c.ID)
+		return
+	}
+
+	customerID := c.Customer.ID
+
+	// Find free plan
+	var freePlan models.Plan
+	if err := database.DB.Where("name = ?", "free").First(&freePlan).Error; err != nil {
+		log.Printf("Error finding free plan: %v", err)
+		return
+	}
+
+	// Revert user to free plan and mark as canceled/disputed
+	result := database.DB.Model(&models.User{}).
+		Where("stripe_customer_id = ?", customerID).
+		Updates(map[string]interface{}{
+			"plan_id":                freePlan.ID,
+			"stripe_subscription_id": "",
+			"subscription_status":    "canceled", // or "disputed" if we want to track that specifically
+			"plan_expires_at":        nil,
+		})
+
+	if result.Error != nil {
+		log.Printf("Error updating user after dispute: %v", result.Error)
+		return
+	}
+
+	log.Printf("Dispute created: customer=%s reverted to free plan because of chargeback on charge %s", customerID, c.ID)
 }
