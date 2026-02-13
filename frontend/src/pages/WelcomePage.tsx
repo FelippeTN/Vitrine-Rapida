@@ -438,7 +438,7 @@ export default function WelcomePage() {
             </div>
 
             <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-              <p>© {new Date().getFullYear()} Vitrine Rápida. Feito com ❤️ e café.</p>
+              <p>© 2025 Vitrine Rápida. Feito com ❤️ e café.</p>
               <div className="flex gap-6">
               </div>
             </div>
