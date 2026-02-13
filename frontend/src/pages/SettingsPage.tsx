@@ -514,9 +514,12 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
                         Tem alguma dúvida, encontrou um problema ou tem uma sugestão de melhoria? 
                         Envie um email para nossa equipe de suporte.
                       </p>
+                       <p className="text-sm text-gray-600 mb-4">
+                        Clique a baixo ou envie para esse email: vitrinerapida.suporte@gmail.com
+                      </p>
                       <Button 
                         className="w-full sm:w-auto gap-2"
-                        onClick={() => window.location.href = 'mailto:suporte@vitrinerapida.com.br'}
+                        onClick={() => window.location.href = 'mailto:vitrinerapida.suporte@gmail.com'}
                       >
                         <Mail className="w-4 h-4" />
                         Enviar Email
