@@ -43,7 +43,7 @@ export default function WelcomePage() {
       icon: Store, 
       title: 'Sua Loja Online', 
       desc: 'Personalize sua vitrine com sua marca, cores e identidade visual em poucos cliques.',
-      color: 'bg-blue-50 text-blue-600'
+      color: 'bg-[#e6f5f3] text-[#075E54]'
     },
     { 
       icon: Smartphone, 
@@ -81,7 +81,7 @@ export default function WelcomePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans selection:bg-blue-100 selection:text-blue-900">
+    <div className="min-h-screen bg-slate-50 font-sans selection:bg-[#e6f5f3] selection:text-[#075E54]">
       
       {/* Header */}
       <motion.header
@@ -97,7 +97,7 @@ export default function WelcomePage() {
             onClick={() => setIsMenuOpen(false)}
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-blue-500 blur-lg opacity-20 group-hover:opacity-40 transition-opacity rounded-full"></div>
+              <div className="absolute inset-0 bg-[#25D366] blur-lg opacity-20 group-hover:opacity-40 transition-opacity rounded-full"></div>
               <img src={logoSvg} alt="Vitrine Rápida" className="relative w-10 h-10 object-contain" />
             </div>
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
@@ -107,14 +107,14 @@ export default function WelcomePage() {
 
           <div className="hidden md:flex items-center gap-4">
             <nav className="flex gap-6 mr-4 text-sm font-medium text-gray-600">
-              <a href="#como-funciona" className="hover:text-blue-600 transition-colors">Como Funciona</a>
-              <a href="#contato" className="hover:text-blue-600 transition-colors">Contato</a>
+              <a href="#como-funciona" className="hover:text-[#075E54] transition-colors">Como Funciona</a>
+              <a href="#contato" className="hover:text-[#075E54] transition-colors">Contato</a>
             </nav>
             <div className="h-6 w-px bg-gray-200"></div>
             <Button variant="ghost" className="font-medium" onClick={() => navigate('/login')}>
               Entrar
             </Button>
-            <Button onClick={() => navigate('/registro')} className="shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all">
+            <Button onClick={() => navigate('/registro')} className="shadow-lg shadow-[#075E54]/20 hover:shadow-[#075E54]/30 transition-all">
               Criar Vitrine Grátis
             </Button>
           </div>
@@ -155,7 +155,7 @@ export default function WelcomePage() {
         {/* Hero Section */}
         <section className="relative pt-20 pb-32 overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
-            <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-blue-400/10 blur-[100px] rounded-full mix-blend-multiply filter opacity-70 animate-blob"></div>
+            <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-[#25D366]/10 blur-[100px] rounded-full mix-blend-multiply filter opacity-70 animate-blob"></div>
             <div className="absolute top-20 left-0 w-[500px] h-[500px] bg-purple-400/10 blur-[100px] rounded-full mix-blend-multiply filter opacity-70 animate-blob animation-delay-2000"></div>
           </div>
 
@@ -166,14 +166,14 @@ export default function WelcomePage() {
               initial="initial"
               animate="animate"
             >
-              <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-blue-100 text-blue-600 text-xs font-bold uppercase tracking-wide mb-8 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+              <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#25D366]/30 text-[#075E54] text-xs font-bold uppercase tracking-wide mb-8 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse"></span>
                 A plataforma #1 para vender no WhatsApp
               </motion.div>
               
               <motion.h1 variants={fadeUp} className="text-5xl md:text-7xl font-bold tracking-tight text-gray-900 mb-8 leading-[1.1]">
                 Sua vitrine profissional <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#075E54] to-[#25D366]">
                   pronta em minutos
                 </span>
               </motion.h1>
@@ -183,12 +183,12 @@ export default function WelcomePage() {
               </motion.p>
 
               <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button size="lg" className="h-14 px-8 text-lg rounded-full shadow-xl shadow-blue-500/20 hover:shadow-blue-500/30 hover:scale-105 transition-all duration-300" onClick={() => navigate('/registro')}>
+                <Button size="lg" className="h-14 px-8 text-lg rounded-full shadow-xl shadow-[#075E54]/20 hover:shadow-[#075E54]/30 hover:scale-105 transition-all duration-300" onClick={() => navigate('/registro')}>
                   Começar Agora Grátis <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <div className="text-sm text-gray-500 flex items-center gap-4 mt-4 sm:mt-0">
-                  <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-green-500" /> Sem cartão</span>
-                  <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-green-500" /> Setup grátis</span>
+                  <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-[#25D366]" /> Sem cartão</span>
+                  <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-[#25D366]" /> Setup grátis</span>
                 </div>
               </motion.div>
             </motion.div>
@@ -216,10 +216,10 @@ export default function WelcomePage() {
                   </div>
 
                   {/* Catalog Content */}
-                  <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+                  <div className="bg-gradient-to-br from-slate-50 to-[#e6f5f3] p-6">
                     {/* Store Header */}
                     <div className="text-center mb-6">
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 mx-auto mb-3 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#075E54] to-[#25D366] mx-auto mb-3 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
                         ML
                       </div>
                       <h3 className="text-xl font-bold text-gray-900">Moda & Lifestyle</h3>
@@ -230,7 +230,7 @@ export default function WelcomePage() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {[
                         { name: 'Camiseta Premium', price: 'R$ 89,90', color: 'bg-rose-100' },
-                        { name: 'Calça Jeans Slim', price: 'R$ 159,90', color: 'bg-blue-100' },
+                        { name: 'Calça Jeans Slim', price: 'R$ 159,90', color: 'bg-[#ccebe6]' },
                         { name: 'Tênis Casual', price: 'R$ 249,90', color: 'bg-amber-100' },
                         { name: 'Bolsa Couro', price: 'R$ 199,90', color: 'bg-emerald-100' },
                         { name: 'Relógio Classic', price: 'R$ 329,90', color: 'bg-purple-100' },
@@ -242,7 +242,7 @@ export default function WelcomePage() {
                           </div>
                           <div className="p-3">
                             <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
-                            <p className="text-sm font-bold text-blue-600">{product.price}</p>
+                            <p className="text-sm font-bold text-[#075E54]">{product.price}</p>
                           </div>
                         </div>
                       ))}
@@ -250,7 +250,7 @@ export default function WelcomePage() {
 
                     {/* WhatsApp Button */}
                     <div className="mt-6 text-center">
-                      <button className="inline-flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-full font-medium shadow-lg shadow-green-500/30 hover:bg-green-600 transition-colors">
+                      <button className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white rounded-full font-medium shadow-lg shadow-[#25D366]/30 hover:bg-[#1fb855] transition-colors">
                         <MessageCircle className="w-5 h-5" />
                         Fazer Pedido no WhatsApp
                       </button>
@@ -266,10 +266,10 @@ export default function WelcomePage() {
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-gray-900 rounded-b-2xl z-10"></div>
                       
                       {/* Phone Content */}
-                      <div className="h-full overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50 pt-8 px-4 pb-4">
+                      <div className="h-full overflow-hidden bg-gradient-to-br from-slate-50 to-[#e6f5f3] pt-8 px-4 pb-4">
                         {/* Store Header */}
                         <div className="text-center mb-4">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 mx-auto mb-2 flex items-center justify-center text-white text-lg font-bold">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#075E54] to-[#25D366] mx-auto mb-2 flex items-center justify-center text-white text-lg font-bold">
                             ML
                           </div>
                           <h4 className="text-sm font-bold text-gray-900">Moda & Lifestyle</h4>
@@ -279,7 +279,7 @@ export default function WelcomePage() {
                         <div className="grid grid-cols-2 gap-2">
                           {[
                             { name: 'Camiseta', price: 'R$ 89,90', color: 'bg-rose-100' },
-                            { name: 'Calça Jeans', price: 'R$ 159,90', color: 'bg-blue-100' },
+                            { name: 'Calça Jeans', price: 'R$ 159,90', color: 'bg-[#ccebe6]' },
                             { name: 'Tênis', price: 'R$ 249,90', color: 'bg-amber-100' },
                             { name: 'Bolsa', price: 'R$ 199,90', color: 'bg-emerald-100' },
                           ].map((p, i) => (
@@ -289,14 +289,14 @@ export default function WelcomePage() {
                               </div>
                               <div className="p-2">
                                 <p className="text-xs font-medium text-gray-900 truncate">{p.name}</p>
-                                <p className="text-xs font-bold text-blue-600">{p.price}</p>
+                                <p className="text-xs font-bold text-[#075E54]">{p.price}</p>
                               </div>
                             </div>
                           ))}
                         </div>
 
                         {/* WhatsApp Button Mobile */}
-                        <button className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 bg-green-500 text-white rounded-full text-sm font-medium">
+                        <button className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 bg-[#25D366] text-white rounded-full text-sm font-medium">
                           <MessageCircle className="w-4 h-4" />
                           Pedir via WhatsApp
                         </button>
@@ -305,7 +305,7 @@ export default function WelcomePage() {
                   </div>
                   
                   {/* Decorative Elements */}
-                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl"></div>
+                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#25D366]/10 rounded-full blur-xl"></div>
                   <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-purple-500/10 rounded-full blur-xl"></div>
                 </div>
               </div>
@@ -342,7 +342,7 @@ export default function WelcomePage() {
         <section id="como-funciona" className="py-24 bg-slate-50 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <span className="text-blue-600 font-semibold tracking-wide uppercase text-sm">Passo a Passo</span>
+              <span className="text-[#075E54] font-semibold tracking-wide uppercase text-sm">Passo a Passo</span>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-4">Como funciona sua Vitrine</h2>
               <p className="text-gray-500 max-w-2xl mx-auto">Tudo desenhado para você não perder tempo com tecnologia e focar no que importa: vender.</p>
             </div>
@@ -362,7 +362,7 @@ export default function WelcomePage() {
                 >
                   <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-xl flex items-center justify-center mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300">
                     {step.icon}
-                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-lg">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[#075E54] text-white flex items-center justify-center font-bold text-sm shadow-lg">
                       {step.step}
                     </div>
                   </div>
@@ -376,7 +376,7 @@ export default function WelcomePage() {
 
         {/* CTA Section */}
         <section className="py-24 px-4 bg-white">
-          <div className="max-w-5xl mx-auto bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2.5rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl shadow-blue-500/30">
+          <div className="max-w-5xl mx-auto bg-gradient-to-br from-[#075E54] to-[#064e46] rounded-[2.5rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl shadow-[#075E54]/30">
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
             
@@ -384,12 +384,12 @@ export default function WelcomePage() {
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
                 Pronto para digitalizar sua loja?
               </h2>
-              <p className="text-blue-100 text-lg md:text-xl mb-12 max-w-2xl mx-auto">
+              <p className="text-[#25D366]/80 text-lg md:text-xl mb-12 max-w-2xl mx-auto">
                 Crie sua conta agora e tenha sua vitrine pronta ainda hoje. Sem custo, sem compromisso.
               </p>
               <Button 
                 size="lg" 
-                className="h-14 px-10 text-lg rounded-full bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 shadow-2xl hover:scale-105 transition-transform font-bold border-none"
+                className="h-14 px-10 text-lg rounded-full bg-white text-[#075E54] hover:bg-[#e6f5f3] hover:text-[#064e46] shadow-2xl hover:scale-105 transition-transform font-bold border-none"
                 onClick={() => navigate('/registro')}
               >
                 Criar Vitrine Grátis
@@ -418,7 +418,7 @@ export default function WelcomePage() {
                 <h4 className="font-bold text-gray-900 mb-6">Contato & Suporte</h4>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-gray-600">
-                    <Mail className="w-5 h-5 text-blue-500 mt-0.5" />
+                    <Mail className="w-5 h-5 text-[#25D366] mt-0.5" />
                     <span>vitrinerapida.suporte@gmail.com</span>
                   </li>
                   <li className="text-sm text-gray-400 mt-2">
@@ -430,9 +430,9 @@ export default function WelcomePage() {
               <div>
                 <h4 className="font-bold text-gray-900 mb-6">Legal</h4>
                 <ul className="space-y-3">
-                  <li><Link to="/termos" className="text-gray-600 hover:text-blue-600">Termos de Uso</Link></li>
-                  <li><Link to="/privacidade" className="text-gray-600 hover:text-blue-600">Política de Privacidade</Link></li>
-                  <li><Link to="/cookies" className="text-gray-600 hover:text-blue-600">Cookies</Link></li>
+                  <li><Link to="/termos" className="text-gray-600 hover:text-[#075E54]">Termos de Uso</Link></li>
+                  <li><Link to="/privacidade" className="text-gray-600 hover:text-[#075E54]">Política de Privacidade</Link></li>
+                  <li><Link to="/cookies" className="text-gray-600 hover:text-[#075E54]">Cookies</Link></li>
                 </ul>
               </div>
             </div>
@@ -450,13 +450,13 @@ export default function WelcomePage() {
 }
 
 function usersIcon() {
-  return <Users className="w-8 h-8 text-blue-600" />
+  return <Users className="w-8 h-8 text-[#075E54]" />
 }
 
 function bagIcon() {
-  return <ShoppingBag className="w-8 h-8 text-blue-600" />
+  return <ShoppingBag className="w-8 h-8 text-[#075E54]" />
 }
 
 function shareIcon() {
-  return <Share2 className="w-8 h-8 text-blue-600" />
+  return <Share2 className="w-8 h-8 text-[#075E54]" />
 }

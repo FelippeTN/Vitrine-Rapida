@@ -69,7 +69,7 @@ export function Header({ isAuthenticated, onLogout, user }: HeaderProps) {
           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
           <motion.div 
-            className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center shadow-md shadow-blue-200/50"
+            className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center shadow-md shadow-[#075E54]/20"
             whileHover={{ scale: 1.05, rotate: 3 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -120,7 +120,7 @@ export function Header({ isAuthenticated, onLogout, user }: HeaderProps) {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-full hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
               >
-                <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center border border-blue-200 font-medium text-sm overflow-hidden">
+                <div className="w-8 h-8 bg-[#e6f5f3] text-[#075E54] rounded-full flex items-center justify-center border border-[#25D366]/30 font-medium text-sm overflow-hidden">
                   {user?.logo_url ? (
                     <img src={`${API_BASE_URL}${user.logo_url}`} alt="Logo" className="w-full h-full object-cover" />
                   ) : (
@@ -210,7 +210,7 @@ export function Header({ isAuthenticated, onLogout, user }: HeaderProps) {
               {/* Informações do usuário */}
               <div className="px-3 py-3 mb-2 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center border border-blue-200 font-medium overflow-hidden">
+                  <div className="w-10 h-10 bg-[#e6f5f3] text-[#075E54] rounded-full flex items-center justify-center border border-[#25D366]/30 font-medium overflow-hidden">
                     {user?.logo_url ? (
                       <img src={`${API_BASE_URL}${user.logo_url}`} alt="Logo" className="w-full h-full object-cover" />
                     ) : (
@@ -288,7 +288,7 @@ function NavLink({ to, icon, children }: NavLinkProps) {
       className={`
         flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all
         ${isActive 
-          ? 'bg-blue-50 text-blue-700' 
+          ? 'bg-[#e6f5f3] text-[#075E54]' 
           : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
         }
       `}

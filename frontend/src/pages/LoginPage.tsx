@@ -101,7 +101,7 @@ export default function LoginPage({ onAuthenticated }: LoginPageProps) {
         />
 
         <div className="flex justify-end">
-          <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+          <Link to="/forgot-password" className="text-sm text-[#075E54] hover:underline">
             Esqueci minha senha
           </Link>
         </div>
@@ -112,7 +112,7 @@ export default function LoginPage({ onAuthenticated }: LoginPageProps) {
 
         <p className="text-center text-sm text-gray-600">
           Não tem conta?{' '}
-          <Link to="/registro" className="text-blue-600 font-medium hover:underline">
+          <Link to="/registro" className="text-[#075E54] font-medium hover:underline">
             Criar conta
           </Link>
         </p>

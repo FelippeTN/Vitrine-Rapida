@@ -189,7 +189,7 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
           animate={{ opacity: 1 }}
         >
           <motion.div
-            className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-3"
+            className="w-8 h-8 border-2 border-[#075E54] border-t-transparent rounded-full mx-auto mb-3"
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           />
@@ -217,10 +217,10 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-6 rounded-2xl flex items-center justify-between gap-6"
+              className="bg-gradient-to-r from-[#e6f5f3] to-[#ccebe6] border border-[#25D366]/20 p-6 rounded-2xl flex items-center justify-between gap-6"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                <div className="w-12 h-12 bg-[#ccebe6] rounded-xl flex items-center justify-center text-[#075E54]">
                   <Store className="w-6 h-6" />
                 </div>
                 <div>
@@ -309,8 +309,8 @@ export default function CatalogPage({ onLogout, user }: CatalogPageProps) {
               >
                 {!showCreateForm ? (
                   <div className="flex flex-col items-center gap-2 text-gray-500">
-                    <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-                      <Plus className="w-6 h-6 text-blue-600" />
+                    <div className="w-12 h-12 rounded-full bg-[#e6f5f3] flex items-center justify-center">
+                      <Plus className="w-6 h-6 text-[#075E54]" />
                     </div>
                     <span className="font-medium">Nova Vitrine</span>
                   </div>

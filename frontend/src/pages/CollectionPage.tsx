@@ -343,7 +343,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
       >
         <button
           onClick={() => navigate('/catalogos')}
-          className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+          className="text-[#075E54] hover:text-[#064e46] hover:underline transition-colors"
         >
           Minhas Vitrines
         </button>
@@ -353,7 +353,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
 
       {isLoading && (
         <div className="text-center py-12 text-gray-500">
-          <motion.div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-3" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} />
+          <motion.div className="w-8 h-8 border-2 border-[#075E54] border-t-transparent rounded-full mx-auto mb-3" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} />
           Carregando...
         </div>
       )}
@@ -427,7 +427,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                                 )
                               }}
                               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${editProductSizes.includes(size)
-                                ? 'bg-blue-600 text-white shadow-md'
+                                ? 'bg-[#075E54] text-white shadow-md'
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                             >
@@ -531,7 +531,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                       })()}
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-medium text-gray-900">{p.name}</h3>
-                        <span className="font-semibold text-blue-600">{formatPrice(p.price)}</span>
+                        <span className="font-semibold text-[#075E54]">{formatPrice(p.price)}</span>
                       </div>
                       <p className="text-sm text-gray-500 line-clamp-2 mb-4">{p.description}</p>
                       <div className="grid grid-cols-2 gap-2 mt-auto">
@@ -558,8 +558,8 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
               >
                 {!showCreateForm ? (
                   <div className="flex flex-col items-center gap-2 text-gray-500">
-                    <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-                      <Plus className="w-6 h-6 text-blue-600" />
+                    <div className="w-12 h-12 rounded-full bg-[#e6f5f3] flex items-center justify-center">
+                      <Plus className="w-6 h-6 text-[#075E54]" />
                     </div>
                     <span className="font-medium">Adicionar produto</span>
                   </div>
@@ -598,7 +598,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                               }}
                               disabled={isSaving}
                               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedSizes.includes(size)
-                                ? 'bg-blue-600 text-white shadow-md'
+                                ? 'bg-[#075E54] text-white shadow-md'
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
@@ -716,7 +716,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                           {productImages.map((_, idx) => (
                             <button
                               key={idx}
-                              className={`w-2 h-2 rounded-full transition-colors ${idx === previewImageIndex ? 'bg-blue-600' : 'bg-white/60'}`}
+                              className={`w-2 h-2 rounded-full transition-colors ${idx === previewImageIndex ? 'bg-[#075E54]' : 'bg-white/60'}`}
                               onClick={() => setPreviewImageIndex(idx)}
                               aria-label={`Ver imagem ${idx + 1}`}
                             />
@@ -729,10 +729,10 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
               })()}
 
               <div className="p-6 md:p-8 space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">Visualização</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#075E54]">Visualização</p>
                 <div className="flex items-start justify-between gap-4">
                   <h3 className="text-2xl font-bold text-gray-900 leading-tight">{previewProduct.name}</h3>
-                  <span className="text-2xl font-extrabold text-blue-700 whitespace-nowrap">{formatPrice(previewProduct.price)}</span>
+                  <span className="text-2xl font-extrabold text-[#075E54] whitespace-nowrap">{formatPrice(previewProduct.price)}</span>
                 </div>
                 <p className="text-gray-600 text-base leading-relaxed">{previewProduct.description}</p>
 
@@ -744,7 +744,7 @@ export default function CollectionPage({ onLogout, user }: CollectionPageProps) 
                       {sortSizes(previewProduct.sizes.split(',').map(s => s.trim())).map((size) => (
                         <span
                           key={size}
-                          className="px-3 py-1.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg border border-blue-100"
+                          className="px-3 py-1.5 bg-[#e6f5f3] text-[#075E54] text-sm font-medium rounded-lg border border-[#25D366]/20"
                         >
                           {size.trim()}
                         </span>

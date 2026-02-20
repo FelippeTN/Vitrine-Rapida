@@ -51,7 +51,7 @@ export function UpgradeModal({
             </button>
 
             {/* Header */}
-            <div className="bg-gradient-to-br from-purple-500 to-indigo-600 px-6 py-8 text-center text-white">
+            <div className="bg-gradient-to-br from-purple-500 to-[#25D366] px-6 py-8 text-center text-white">
               <motion.div
                 className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-4"
                 initial={{ rotate: -10 }}

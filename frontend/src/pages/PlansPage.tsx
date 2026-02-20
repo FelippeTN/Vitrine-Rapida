@@ -24,7 +24,7 @@ const planIcons: Record<string, React.ReactNode> = {
 
 const planColors: Record<string, string> = {
   free: 'bg-gray-100 text-gray-600',
-  starter: 'bg-blue-100 text-blue-600',
+  starter: 'bg-[#ccebe6] text-[#075E54]',
   pro: 'bg-purple-100 text-purple-600',
   enterprise: 'bg-amber-100 text-amber-600',
 }
@@ -124,7 +124,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
   function getSubscriptionStatusLabel(status: string): { text: string; color: string; icon: React.ReactNode } {
     switch (status) {
       case 'active':
-        return { text: 'Ativa', color: 'text-green-600 bg-green-50', icon: <Check className="w-4 h-4" /> }
+        return { text: 'Ativa', color: 'text-[#075E54] bg-[#e6f5f3]', icon: <Check className="w-4 h-4" /> }
       case 'past_due':
         return { text: 'Pagamento pendente', color: 'text-amber-600 bg-amber-50', icon: <AlertCircle className="w-4 h-4" /> }
       case 'canceled':
@@ -176,10 +176,10 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <Card className="bg-gradient-to-r from-[#e6f5f3] to-[#ccebe6] border-[#25D366]/30">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <p className="text-sm text-blue-600 font-medium mb-1">Seu plano atual</p>
+                <p className="text-sm text-[#075E54] font-medium mb-1">Seu plano atual</p>
                 <h3 className="text-xl font-bold text-gray-900">{planInfo.plan.display_name}</h3>
                 {/* Subscription status badge */}
                 {planInfo.plan.price > 0 && (() => {
@@ -223,7 +223,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
                 </div>
                 <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-blue-500 rounded-full"
+                    className="h-full bg-[#075E54] rounded-full"
                     initial={{ width: 0 }}
                     animate={{
                       width: `${Math.min(100, (planInfo.product_count / (planInfo.plan.max_products === -1 ? 100 : planInfo.plan.max_products)) * 100)}%`,
@@ -257,7 +257,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
       {isLoading && (
         <div className="text-center py-12 text-gray-500">
           <motion.div
-            className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-3"
+            className="w-8 h-8 border-2 border-[#075E54] border-t-transparent rounded-full mx-auto mb-3"
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           />
@@ -284,7 +284,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
                 <Card
                   className={`relative h-full flex flex-col ${
                     isPro ? 'border-2 border-purple-400 shadow-lg shadow-purple-100' : ''
-                  } ${isCurrentPlan ? 'ring-2 ring-blue-500' : ''}`}
+                  } ${isCurrentPlan ? 'ring-2 ring-[#075E54]' : ''}`}
                 >
                   {isPro && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -296,7 +296,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
 
                   {isCurrentPlan && (
                     <div className="absolute -top-3 right-4">
-                      <span className="bg-blue-500 text-white text-xs font-medium px-3 py-1 rounded-full">
+                      <span className="bg-[#075E54] text-white text-xs font-medium px-3 py-1 rounded-full">
                         Atual
                       </span>
                     </div>
@@ -336,7 +336,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
                     <ul className="space-y-2 mb-6">
                       {features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <Check className="w-4 h-4 text-[#25D366] mt-0.5 flex-shrink-0" />
                           <span className="text-gray-600">{feature}</span>
                         </li>
                       ))}
@@ -400,7 +400,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
               </button>
               
               <motion.div
-                className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6"
+                className="w-20 h-20 bg-gradient-to-br from-[#25D366] to-[#075E54] rounded-full flex items-center justify-center mx-auto mb-6"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', delay: 0.2, damping: 10, stiffness: 200 }}
@@ -423,7 +423,7 @@ export default function PlansPage({ onLogout, user }: PlansPageProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                Você fez upgrade para o plano <span className="font-semibold text-blue-600">{upgradeSuccess.planName}</span> com sucesso!
+                Você fez upgrade para o plano <span className="font-semibold text-[#075E54]">{upgradeSuccess.planName}</span> com sucesso!
                 <br />
                 <span className="text-sm text-gray-500 mt-2 block">
                   Aproveite todos os novos recursos disponíveis.
