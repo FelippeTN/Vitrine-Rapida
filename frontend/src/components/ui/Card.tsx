@@ -10,7 +10,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ variant = 'default', animate = true, className = '', children, ...props }, ref) => {
     const variantClasses = {
       default: 'bg-white shadow-sm border border-gray-200',
-      bordered: 'bg-white border-2 border-gray-200 hover:border-blue-300',
+      bordered: 'bg-white border-2 border-gray-200 hover:border-[#25D366]',
     }
 
     const cardContent = (

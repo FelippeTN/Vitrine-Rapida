@@ -18,7 +18,7 @@ export default function PrivacyPolicyPage() {
       <main className="max-w-4xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Política de Privacidade</h1>
         
-        <div className="prose prose-blue max-w-none text-gray-600">
+        <div className="prose prose-green max-w-none text-gray-600">
           <p>Última atualização: {new Date().toLocaleDateString('pt-BR')}</p>
 
           <h3>1. Coleta de Informações</h3>

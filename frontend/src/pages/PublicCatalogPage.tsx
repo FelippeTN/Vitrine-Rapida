@@ -250,7 +250,7 @@ export default function PublicCatalogPage() {
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <motion.div
-              className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center shadow-md shadow-blue-200/50"
+              className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center shadow-md shadow-[#075E54]/20"
               whileHover={{ scale: 1.05, rotate: 3 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -272,14 +272,14 @@ export default function PublicCatalogPage() {
 
           {/* Carrinho */}
           <motion.button
-            className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-100 rounded-full cursor-pointer hover:bg-blue-100/70 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#e6f5f3] border border-[#25D366]/20 rounded-full cursor-pointer hover:bg-[#ccebe6]/70 transition-colors"
             onClick={() => setIsCartOpen((prev) => !prev)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <ShoppingCart className="w-4 h-4 text-blue-600" />
+            <ShoppingCart className="w-4 h-4 text-[#075E54]" />
             <motion.span
-              className="text-sm font-bold text-blue-700"
+              className="text-sm font-bold text-[#075E54]"
               key={totalItems}
               initial={{ scale: 1.2 }}
               animate={{ scale: 1 }}
@@ -314,7 +314,7 @@ export default function PublicCatalogPage() {
         {isLoading && (
           <div className="text-center py-12 text-gray-500">
             <motion.div
-              className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-3"
+              className="w-8 h-8 border-2 border-[#075E54] border-t-transparent rounded-full mx-auto mb-3"
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
             />
@@ -358,7 +358,7 @@ export default function PublicCatalogPage() {
                   {products.map((p) => (
                     <motion.div key={p.id} variants={staggerItem} layout>
                       <div
-                        className="group cursor-pointer bg-white border border-gray-200 hover:border-blue-300 rounded-xl overflow-hidden transition-colors"
+                        className="group cursor-pointer bg-white border border-gray-200 hover:border-[#25D366] rounded-xl overflow-hidden transition-colors"
                         onClick={() => openProductModal(p)}
                       >
                         {(() => {
@@ -406,7 +406,7 @@ export default function PublicCatalogPage() {
                           )}
 
                           <div className="flex items-center justify-between">
-                            <span className="text-sm sm:text-lg font-bold text-blue-600">{formatPrice(p.price)}</span>
+                            <span className="text-sm sm:text-lg font-bold text-[#075E54]">{formatPrice(p.price)}</span>
                             <Button
                               size="sm"
                               className="!px-2 sm:!px-3 !py-1.5 !text-xs sm:!text-sm"
@@ -445,8 +445,8 @@ export default function PublicCatalogPage() {
                   <Card>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-                          <ShoppingCart className="w-5 h-5 text-blue-600" />
+                        <div className="w-10 h-10 rounded-lg bg-[#e6f5f3] flex items-center justify-center">
+                          <ShoppingCart className="w-5 h-5 text-[#075E54]" />
                         </div>
                         <h2 className="font-medium text-gray-900">Carrinho</h2>
                       </div>
@@ -490,7 +490,7 @@ export default function PublicCatalogPage() {
                                 <div className="flex items-center gap-2">
                                   <p className="text-xs text-gray-500">{formatPrice(product.price)}</p>
                                   {size && (
-                                    <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                                    <span className="px-1.5 py-0.5 bg-[#ccebe6] text-[#075E54] text-xs font-medium rounded">
                                       {size}
                                     </span>
                                   )}
@@ -533,7 +533,7 @@ export default function PublicCatalogPage() {
                           <div className="flex justify-between mb-3">
                             <span className="text-gray-600">Total</span>
                             <motion.span
-                              className="text-xl font-bold text-blue-600"
+                              className="text-xl font-bold text-[#075E54]"
                               key={total}
                               initial={{ scale: 1.1 }}
                               animate={{ scale: 1 }}
@@ -619,7 +619,7 @@ export default function PublicCatalogPage() {
                           {productImages.map((_, idx) => (
                             <button
                               key={idx}
-                              className={`w-2 h-2 rounded-full transition-colors ${idx === selectedImageIndex ? 'bg-blue-600' : 'bg-white/60'}`}
+                              className={`w-2 h-2 rounded-full transition-colors ${idx === selectedImageIndex ? 'bg-[#075E54]' : 'bg-white/60'}`}
                               onClick={() => setSelectedImageIndex(idx)}
                               aria-label={`Ver imagem ${idx + 1}`}
                             />
@@ -634,10 +634,10 @@ export default function PublicCatalogPage() {
               <div className="p-6 md:p-8 space-y-4">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">Produto</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[#075E54]">Produto</p>
                     <h3 className="text-2xl font-bold text-gray-900 leading-tight">{selectedProduct.name}</h3>
                   </div>
-                  <span className="text-2xl font-extrabold text-blue-700 whitespace-nowrap">{formatPrice(selectedProduct.price)}</span>
+                  <span className="text-2xl font-extrabold text-[#075E54] whitespace-nowrap">{formatPrice(selectedProduct.price)}</span>
                 </div>
                 <p className="text-gray-600 text-base leading-relaxed">{selectedProduct.description}</p>
 
@@ -662,10 +662,10 @@ export default function PublicCatalogPage() {
                               setSizeError(false)
                             }}
                             className={`px-4 py-2 text-sm font-medium rounded-lg border-2 transition-all ${isSelected
-                              ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                              ? 'bg-[#075E54] text-white border-[#075E54] shadow-md'
                               : sizeError
                                 ? 'bg-white text-gray-700 border-red-300 hover:border-red-400'
-                                : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300'
+                                : 'bg-white text-gray-700 border-gray-200 hover:border-[#25D366]'
                               }`}
                           >
                             {trimmedSize}
@@ -714,8 +714,8 @@ export default function PublicCatalogPage() {
               <div className="relative p-4 overflow-y-auto max-h-[calc(100vh-6rem)]">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-                      <ShoppingCart className="w-5 h-5 text-blue-600" />
+                    <div className="w-10 h-10 rounded-lg bg-[#e6f5f3] flex items-center justify-center">
+                      <ShoppingCart className="w-5 h-5 text-[#075E54]" />
                     </div>
                     <h2 className="font-medium text-gray-900">Carrinho</h2>
                   </div>
@@ -759,7 +759,7 @@ export default function PublicCatalogPage() {
                             <div className="flex items-center gap-2">
                               <p className="text-xs text-gray-500">{formatPrice(product.price)}</p>
                               {size && (
-                                <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                                <span className="px-1.5 py-0.5 bg-[#ccebe6] text-[#075E54] text-xs font-medium rounded">
                                   {size}
                                 </span>
                               )}
@@ -802,7 +802,7 @@ export default function PublicCatalogPage() {
                       <div className="flex justify-between mb-3">
                         <span className="text-gray-600">Total</span>
                         <motion.span 
-                          className="text-xl font-bold text-blue-600"
+                          className="text-xl font-bold text-[#075E54]"
                           key={total}
                           initial={{ scale: 1.1 }}
                           animate={{ scale: 1 }}

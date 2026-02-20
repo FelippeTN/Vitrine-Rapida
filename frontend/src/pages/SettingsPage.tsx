@@ -305,7 +305,7 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
           <button
             onClick={() => setActiveTab('profile')}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'profile'
-              ? 'bg-blue-50 text-blue-700'
+              ? 'bg-[#e6f5f3] text-[#075E54]'
               : 'text-gray-600 hover:bg-gray-50'
               }`}
           >
@@ -315,7 +315,7 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
           <button
             onClick={() => setActiveTab('security')}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'security'
-              ? 'bg-blue-50 text-blue-700'
+              ? 'bg-[#e6f5f3] text-[#075E54]'
               : 'text-gray-600 hover:bg-gray-50'
               }`}
           >
@@ -325,7 +325,7 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
           <button
             onClick={() => setActiveTab('support')}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'support'
-              ? 'bg-blue-50 text-blue-700'
+              ? 'bg-[#e6f5f3] text-[#075E54]'
               : 'text-gray-600 hover:bg-gray-50'
               }`}
           >
@@ -338,7 +338,7 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
         {/* Content */}
         <div className="flex-1 w-full max-w-2xl">
           {message.text && (
-            <div className={`p-4 rounded-lg mb-6 text-sm ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+            <div className={`p-4 rounded-lg mb-6 text-sm ${message.type === 'success' ? 'bg-[#e6f5f3] text-[#075E54]' : 'bg-red-50 text-red-700'
               }`}>
               {message.text}
             </div>
@@ -382,7 +382,7 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isUploadingLogo}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#075E54] bg-[#e6f5f3] border border-[#25D366]/30 rounded-lg hover:bg-[#ccebe6] hover:border-[#25D366] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                       >
                         <Upload className="w-3.5 h-3.5" />
                         {isUploadingLogo ? 'Enviando...' : logoUrl ? 'Alterar' : 'Enviar'}
@@ -495,8 +495,8 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
               <Card>
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <Headphones className="w-6 h-6 text-blue-600" />
+                    <div className="p-3 bg-[#e6f5f3] rounded-lg">
+                      <Headphones className="w-6 h-6 text-[#075E54]" />
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">Central de Ajuda</h3>
@@ -526,12 +526,12 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
                       </Button>
                     </div>
 
-                    <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100">
-                      <h4 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
-                        <MessageSquare className="w-4 h-4 text-blue-500" />
+                    <div className="p-4 bg-[#e6f5f3]/50 rounded-xl border border-[#25D366]/20">
+                      <h4 className="font-medium text-[#064e46] mb-2 flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-[#25D366]" />
                         Sugestões de Melhoria
                       </h4>
-                      <p className="text-sm text-blue-800">
+                      <p className="text-sm text-[#064e46]">
                         Sua opinião é muito importante para nós! Se você tiver ideias de como podemos 
                         melhorar a Vitrine Rápida, não deixe de nos contar. Estamos sempre evoluindo 
                         para atender melhor suas necessidades.
@@ -591,7 +591,7 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
                     aria-labelledby="Zoom"
                     onChange={(e) => setZoom(Number(e.target.value))}
                     disabled={isUploadingLogo}
-                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50"
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#075E54] disabled:opacity-50"
                   />
                   <ZoomIn className="w-4 h-4 text-gray-400" />
                 </div>
@@ -606,7 +606,7 @@ export default function SettingsPage({ user, onLogout, onUserUpdate }: SettingsP
                   </div>
                   <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 transition-all duration-300 ease-out"
+                      className="h-full bg-[#075E54] transition-all duration-300 ease-out"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
